@@ -6,7 +6,7 @@ import PromoBanners from '../components/PromoBanners';
 import TrendingProducts from '../components/TrendingProducts';
 import BrandLogos from '../components/BrandLogos';
 import WhyChooseUs from '../components/WhyChooseUs';
-import StyleInspiration from '../components/StyleInspiration';
+import CustomerReviews from '../components/CustomerReviews';
 import Newsletter from '../components/Newsletter';
 
 const HomePage = () => {
@@ -33,8 +33,8 @@ const HomePage = () => {
       {/* 7. Why Choose StyleHub Section */}
       <WhyChooseUs />
 
-      {/* 8. Style Inspiration Instagram Grid */}
-      <StyleInspiration />
+      {/* 8. Member Reviews & Rating Carousel */}
+      <CustomerReviews />
 
       {/* 9. Newsletter Subscription Banner */}
       <Newsletter />

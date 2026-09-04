@@ -73,7 +73,7 @@ const HeroVideoSection = () => {
           </div>
 
           {/* Main Headline */}
-          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-[1.08] font-serif">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-[40px] font-bold text-white tracking-tight leading-[1.18] font-serif">
             Style That Speaks <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-rose-100 to-[#ff2056]">
               CONFIDENCE.

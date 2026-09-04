@@ -67,7 +67,7 @@ const HeroSlider = () => {
               {slide.badge}
             </span>
 
-            <h1 className="font-serif text-3xl sm:text-5xl lg:text-6xl font-black text-slate-900 leading-[1.1] tracking-tight">
+            <h1 className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-[40px] font-bold text-slate-900 leading-[1.18] tracking-tight">
               {slide.titleStart}
               <span className="text-[#ff2056] underline decoration-rose-400 decoration-wavy decoration-2">
                 {slide.titleHighlight}

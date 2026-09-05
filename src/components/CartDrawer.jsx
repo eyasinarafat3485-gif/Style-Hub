@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Trash2, Plus, Minus, ShoppingBag, ArrowRight } from 'lucide-react';
+import { X, Trash2, Plus, Minus, ShoppingCart, ArrowRight } from 'lucide-react';
 import { useShop } from '../context/ShopContext';
 
 const CartDrawer = () => {
@@ -21,7 +21,7 @@ const CartDrawer = () => {
           {/* Header */}
           <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-stone-50/80">
             <div className="flex items-center gap-2 text-slate-900">
-              <ShoppingBag className="w-5 h-5 text-[#ff2056]" />
+              <ShoppingCart className="w-5 h-5 text-[#ff2056]" />
               <h3 className="font-bold text-sm tracking-tight">Your Shopping Cart ({cart.length})</h3>
             </div>
             <button
@@ -37,7 +37,7 @@ const CartDrawer = () => {
             {cart.length === 0 ? (
               <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-3">
                 <div className="p-4 bg-rose-50 rounded-full text-[#ff2056]">
-                  <ShoppingBag className="w-8 h-8" />
+                  <ShoppingCart className="w-8 h-8" />
                 </div>
                 <h4 className="font-bold text-slate-800 text-sm">Your cart is empty</h4>
                 <p className="text-xs text-gray-500 max-w-xs">

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Heart, Star, ShoppingBag, Eye, ArrowRight } from 'lucide-react';
+import { Heart, Star, ShoppingCart, Eye, ArrowRight } from 'lucide-react';
 import { useShop } from '../context/ShopContext';
 
 const TrendingProducts = () => {
@@ -32,8 +32,8 @@ const TrendingProducts = () => {
           </Link>
         </div>
 
-        {/* Product Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-6">
+        {/* Product Grid: 2 on mobile, 3 on tablet/medium, 5 on lg desktop */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-5 gap-3.5 sm:gap-4 lg:gap-5">
           {filteredProducts.map((product) => {
             const wish = isWishlisted(product.id);
             return (
@@ -57,40 +57,47 @@ const TrendingProducts = () => {
                     </span>
                   )}
 
-                  {/* Wishlist Button */}
+                  {/* Wishlist Button (slides on hover) */}
                   <button
                     onClick={() => toggleWishlist(product)}
-                    className="absolute top-2.5 right-2.5 z-10 p-1.5 bg-white/90 hover:bg-white rounded-full text-gray-600 hover:text-[#ff2056] shadow-xs backdrop-blur-sm transition-all"
+                    className="absolute top-2.5 right-2.5 z-20 p-2 bg-white/95 hover:bg-white rounded-full text-gray-600 hover:text-[#ff2056] shadow-sm backdrop-blur-sm transition-all duration-300 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 -translate-y-1 sm:-translate-y-1.5 sm:group-hover:translate-y-0 cursor-pointer"
                     title={wish ? "Remove from wishlist" : "Add to wishlist"}
                   >
-                    <Heart className={`w-4 h-4 ${wish ? 'fill-[#ff2056] text-[#ff2056]' : ''}`} />
+                    <Heart className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${wish ? 'fill-[#ff2056] text-[#ff2056]' : ''}`} />
                   </button>
 
-                  {/* Product Image */}
+                  {/* Product Image with Zoom */}
                   <img
                     src={product.image}
                     alt={product.name}
-                    className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
+                    className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700"
                   />
 
-                  {/* Hover Quick Action Overlay */}
-                  <div className="absolute inset-x-0 bottom-0 p-2 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                  {/* GlamNGrace Style: Center Quick View Overlay */}
+                  <div
+                    onClick={() => setQuickViewProduct(product)}
+                    className="absolute inset-0 bg-black/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 z-10 cursor-pointer pointer-events-none group-hover:pointer-events-auto"
+                  >
                     <button
-                      onClick={() => addToCart(product)}
-                      className="flex-1 bg-[#ff2056] hover:bg-[#e01648] text-white py-1.5 px-2 rounded text-[11px] font-bold flex items-center justify-center gap-1 shadow"
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setQuickViewProduct(product);
+                      }}
+                      className="bg-white/95 hover:bg-white text-slate-900 hover:text-[#ff2056] text-[9px] sm:text-[10px] font-bold tracking-[0.16em] uppercase px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xs shadow-md backdrop-blur-md transform translate-y-2 group-hover:translate-y-0 transition-all duration-300 cursor-pointer"
                     >
-                      <ShoppingBag className="w-3.5 h-3.5" />
-                      <span>Add</span>
-                    </button>
-                    <button
-                      onClick={() => setQuickViewProduct(product)}
-                      className="bg-white hover:bg-gray-100 text-slate-900 p-1.5 rounded shadow"
-                      title="Quick View"
-                    >
-                      <Eye className="w-3.5 h-3.5" />
+                      Quick View
                     </button>
                   </div>
 
+                  {/* GlamNGrace Style: Bottom Full-Width Quick Add Button (Brand Theme Color #ff2056) */}
+                  <button
+                    onClick={() => addToCart(product)}
+                    className="absolute inset-x-0 bottom-0 z-20 bg-[#ff2056] hover:bg-[#d6103e] active:bg-[#b80830] text-white text-[9.5px] sm:text-[10.5px] font-bold uppercase tracking-[0.15em] py-2 sm:py-2.5 transition-all duration-300 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 translate-y-0 sm:translate-y-2 sm:group-hover:translate-y-0 flex items-center justify-center gap-1.5 shadow-md cursor-pointer"
+                  >
+                    <ShoppingCart className="w-3.5 h-3.5" />
+                    <span>Add to Cart</span>
+                  </button>
                 </div>
 
                 {/* Details */}

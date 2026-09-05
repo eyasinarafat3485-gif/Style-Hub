@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Star, ShoppingBag, Heart, Check } from 'lucide-react';
+import { X, Star, ShoppingCart, Heart, Check } from 'lucide-react';
 import { useShop } from '../context/ShopContext';
 
 const ProductQuickViewModal = () => {
@@ -107,7 +107,7 @@ const ProductQuickViewModal = () => {
               }}
               className="w-full bg-[#ff2056] hover:bg-[#e01648] text-white py-3 rounded-md text-xs font-bold transition-all shadow flex items-center justify-center gap-2"
             >
-              <ShoppingBag className="w-4 h-4" />
+              <ShoppingCart className="w-4 h-4" />
               <span>Add to Cart ({formatPrice(quickViewProduct.price)})</span>
             </button>
 

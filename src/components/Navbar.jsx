@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { Search, User, Heart, ShoppingBag, ChevronDown, X, Menu } from 'lucide-react';
+import { Search, User, Heart, ShoppingCart, ChevronDown, X, Menu } from 'lucide-react';
 import { useShop } from '../context/ShopContext';
 
 const Navbar = () => {
@@ -133,13 +133,13 @@ const Navbar = () => {
             )}
           </button>
 
-          {/* Cart Bag */}
+          {/* Shopping Cart */}
           <button
             onClick={() => setIsCartOpen(true)}
-            className="relative p-2 text-gray-700 hover:text-[#ff2056] hover:bg-rose-50 rounded-full transition-colors"
+            className="relative p-2 text-gray-700 hover:text-[#ff2056] hover:bg-rose-50 rounded-full transition-colors cursor-pointer"
             title="Shopping Cart"
           >
-            <ShoppingBag className="w-5 h-5" />
+            <ShoppingCart className="w-5 h-5" />
             {cartItemCount > 0 && (
               <span className="absolute top-1 right-1 bg-[#ff2056] text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center animate-pulse">
                 {cartItemCount}

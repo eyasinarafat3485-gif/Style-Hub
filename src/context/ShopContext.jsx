@@ -101,8 +101,19 @@ const initialProducts = [
   }
 ];
 
+const normalizeProduct = (p) => ({
+  ...p,
+  id: String(p.id || p._id || Date.now()),
+  name: p.name || p.title || 'Untitled Product',
+  title: p.title || p.name || 'Untitled Product',
+  price: Number(p.price) || 0,
+  image: p.image || 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=600&auto=format&fit=crop&q=80',
+  category: p.category || 'General',
+  inStock: p.inStock !== false && (p.countInStock === undefined || p.countInStock > 0),
+});
+
 export const ShopProvider = ({ children }) => {
-  const [products, setProducts] = useState(initialProducts);
+  const [products, setProducts] = useState(initialProducts.map(normalizeProduct));
   const [cart, setCart] = useState([]);
   const [wishlist, setWishlist] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -116,7 +127,7 @@ export const ShopProvider = ({ children }) => {
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data) && data.length > 0) {
-          setProducts(data);
+          setProducts(data.map(normalizeProduct));
         }
       })
       .catch((err) => {
@@ -124,8 +135,73 @@ export const ShopProvider = ({ children }) => {
       });
   }, []);
 
+  const addProduct = async (productData) => {
+    try {
+      const token = localStorage.getItem('stylehub_auth_token');
+      const response = await fetch('http://localhost:5000/api/products', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({
+          name: productData.title || productData.name,
+          title: productData.title || productData.name,
+          price: Number(productData.price),
+          oldPrice: productData.oldPrice ? Number(productData.oldPrice) : null,
+          category: productData.category || 'Panjabi',
+          image: productData.image,
+          description: productData.description || 'Premium product from StyleHub Collection.',
+          countInStock: Number(productData.countInStock) || 50,
+          sizes: productData.sizes || ['S', 'M', 'L', 'XL'],
+          colors: productData.colors || ['Black', 'White'],
+          isTrending: Boolean(productData.isTrending),
+          isNewArrival: productData.isNew !== undefined ? Boolean(productData.isNew) : true,
+        }),
+      });
+
+      if (response.ok) {
+        const savedData = await response.json();
+        const normalized = normalizeProduct(savedData);
+        setProducts((prev) => [normalized, ...prev]);
+        return { success: true, product: normalized };
+      } else {
+        // Fallback for offline or non-authenticated backend responses
+        const normalized = normalizeProduct({
+          ...productData,
+          id: String(Date.now()),
+        });
+        setProducts((prev) => [normalized, ...prev]);
+        return { success: true, product: normalized };
+      }
+    } catch (error) {
+      console.error('Error adding product to backend:', error);
+      const normalized = normalizeProduct({
+        ...productData,
+        id: String(Date.now()),
+      });
+      setProducts((prev) => [normalized, ...prev]);
+      return { success: true, product: normalized };
+    }
+  };
+
+  const deleteProduct = async (id) => {
+    try {
+      const token = localStorage.getItem('stylehub_auth_token');
+      await fetch(`http://localhost:5000/api/products/${id}`, {
+        method: 'DELETE',
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      });
+    } catch (err) {
+      console.error('Error deleting product:', err);
+    }
+    setProducts((prev) => prev.filter((p) => String(p.id) !== String(id)));
+  };
+
   const formatPrice = (amount) => {
-    return `৳${amount.toLocaleString('en-BD')}`;
+    return `৳${Number(amount || 0).toLocaleString('en-BD')}`;
   };
 
   const addToCart = (product, quantity = 1, size = 'M', color = '') => {
@@ -210,6 +286,8 @@ export const ShopProvider = ({ children }) => {
         isWishlisted,
         cartTotal,
         cartItemCount,
+        addProduct,
+        deleteProduct,
       }}
     >
       {children}

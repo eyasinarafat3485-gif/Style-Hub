@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Filter, SlidersHorizontal, Search, Star, ShoppingCart, Eye, Heart } from 'lucide-react';
+import { Filter, SlidersHorizontal, Search, Star, ShoppingCart, Eye, Heart, ShoppingBag } from 'lucide-react';
 import { useShop } from '../context/ShopContext';
 
 const ShopPage = ({ initialCategory = '', initialFilter = '' }) => {

@@ -7,6 +7,7 @@ import {
   Gift,
   MapPin,
   User,
+  Settings,
   Home,
   LogOut,
   ChevronRight,
@@ -26,16 +27,17 @@ const UserSidebar = ({
   onClose,
   unreadNotifications = 3,
 }) => {
-  const { wishlist } = useShop();
+  const { wishlist, cart } = useShop();
   const initialLetter = (user?.name || user?.email || 'U').charAt(0).toUpperCase();
+
+  const totalOrdersAndCartCount = (cart?.length || 0) + (orderCount || 0);
 
   const menuItems = [
     { id: 'overview', label: 'Overview', icon: LayoutDashboard },
-    { id: 'orders', label: 'My Orders & Tracking', icon: Package, badge: orderCount ? `${orderCount}` : null },
+    { id: 'orders', label: 'My Orders & Tracking', icon: Package, badge: totalOrdersAndCartCount ? `${totalOrdersAndCartCount}` : null },
     { id: 'wishlist', label: 'Saved Wishlist', icon: Heart, badge: wishlist.length ? `${wishlist.length}` : null },
     { id: 'notifications', label: 'Notifications', icon: Bell, badge: unreadNotifications ? `${unreadNotifications}` : null },
-    { id: 'address', label: 'Delivery Address', icon: MapPin },
-    { id: 'account', label: 'Profile & Security', icon: User },
+    { id: 'account', label: 'Settings', icon: Settings },
   ];
 
   return (

@@ -67,8 +67,9 @@ const CartDrawer = () => {
                     <div className="flex items-center gap-2 pt-1">
                       <div className="flex items-center border border-gray-200 rounded text-xs">
                         <button
+                          disabled={item.quantity <= 1}
                           onClick={() => updateQuantity(item.id, item.selectedSize, item.quantity - 1)}
-                          className="px-2 py-0.5 hover:bg-gray-100 text-gray-600"
+                          className="px-2 py-0.5 hover:bg-gray-100 text-gray-600 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent"
                         >
                           <Minus className="w-3 h-3" />
                         </button>

@@ -150,6 +150,38 @@ export const AuthProvider = ({ children }) => {
     setToken(null);
   };
 
+  // Update User Profile
+  const updateProfile = async (profileData) => {
+    setAuthError(null);
+    try {
+      const storedToken = localStorage.getItem('stylehub_token');
+      const res = await fetch(`${API_BASE}/profile`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${storedToken}`,
+        },
+        body: JSON.stringify(profileData),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || 'Failed to update profile');
+      }
+
+      localStorage.setItem('stylehub_cached_user', JSON.stringify(data.user));
+      setUser(data.user);
+      if (data.token) {
+        localStorage.setItem('stylehub_token', data.token);
+        setToken(data.token);
+      }
+      return { success: true, user: data.user };
+    } catch (err) {
+      setAuthError(err.message);
+      return { success: false, error: err.message };
+    }
+  };
+
   const isAuthenticated = Boolean(user && token);
 
   return (
@@ -164,6 +196,7 @@ export const AuthProvider = ({ children }) => {
         register,
         loginWithGoogle,
         logout,
+        updateProfile,
         setUser,
       }}
     >

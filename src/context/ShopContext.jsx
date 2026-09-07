@@ -121,6 +121,51 @@ export const ShopProvider = ({ children }) => {
   const [quickViewProduct, setQuickViewProduct] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
 
+  const fetchUserCollections = async () => {
+    const token = localStorage.getItem('stylehub_token') || localStorage.getItem('stylehub_auth_token');
+    if (!token) return;
+
+    try {
+      const res = await fetch('http://localhost:5000/api/my-collections', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        if (Array.isArray(data.cart)) {
+          setCart(
+            data.cart.map((item) => ({
+              ...item,
+              id: item.productId,
+              title: item.name,
+              name: item.name,
+              price: item.price,
+              image: item.image,
+              selectedSize: item.selectedSize || 'M',
+              selectedColor: item.selectedColor || '',
+              quantity: item.quantity || 1,
+            }))
+          );
+        }
+        if (Array.isArray(data.wishlist)) {
+          setWishlist(
+            data.wishlist.map((item) => ({
+              ...item,
+              id: item.productId,
+              title: item.name,
+              name: item.name,
+              price: item.price,
+              image: item.image,
+            }))
+          );
+        }
+      }
+    } catch (err) {
+      console.warn('Failed to load user collections from MongoDB:', err.message);
+    }
+  };
+
   useEffect(() => {
     // Fetch products from backend Express API if running
     fetch('http://localhost:5000/api/products')
@@ -133,11 +178,13 @@ export const ShopProvider = ({ children }) => {
       .catch((err) => {
         console.log("Connected to frontend fallback data mode", err);
       });
+
+    fetchUserCollections();
   }, []);
 
   const addProduct = async (productData) => {
     try {
-      const token = localStorage.getItem('stylehub_auth_token');
+      const token = localStorage.getItem('stylehub_token') || localStorage.getItem('stylehub_auth_token');
       const response = await fetch('http://localhost:5000/api/products', {
         method: 'POST',
         headers: {
@@ -166,7 +213,6 @@ export const ShopProvider = ({ children }) => {
         setProducts((prev) => [normalized, ...prev]);
         return { success: true, product: normalized };
       } else {
-        // Fallback for offline or non-authenticated backend responses
         const normalized = normalizeProduct({
           ...productData,
           id: String(Date.now()),
@@ -187,7 +233,7 @@ export const ShopProvider = ({ children }) => {
 
   const deleteProduct = async (id) => {
     try {
-      const token = localStorage.getItem('stylehub_auth_token');
+      const token = localStorage.getItem('stylehub_token') || localStorage.getItem('stylehub_auth_token');
       await fetch(`http://localhost:5000/api/products/${id}`, {
         method: 'DELETE',
         headers: {
@@ -204,10 +250,10 @@ export const ShopProvider = ({ children }) => {
     return `৳${Number(amount || 0).toLocaleString('en-BD')}`;
   };
 
-  const addToCart = (product, quantity = 1, size = 'M', color = '') => {
+  const addToCart = async (product, quantity = 1, size = 'M', color = '', options = {}) => {
     setCart((prev) => {
       const existingIndex = prev.findIndex(
-        (item) => item.id === product.id && item.selectedSize === size
+        (item) => String(item.id) === String(product.id) && item.selectedSize === size
       );
       if (existingIndex > -1) {
         const updated = [...prev];
@@ -226,39 +272,142 @@ export const ShopProvider = ({ children }) => {
       }
     });
     setIsCartOpen(true);
+
+    const token = localStorage.getItem('stylehub_token') || localStorage.getItem('stylehub_auth_token');
+    if (token) {
+      try {
+        await fetch('http://localhost:5000/api/my-collections', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            itemType: 'cart',
+            productId: String(product.id || product._id),
+            name: product.name || product.title || 'Product',
+            price: Number(product.price) || 0,
+            image: product.image || '',
+            category: product.category || 'General',
+            quantity: Number(quantity) || 1,
+            selectedSize: size || 'M',
+            selectedColor: color || '',
+            fromWishlist: !!options?.fromWishlist,
+          }),
+        });
+      } catch (err) {
+        console.warn('MyCollection cart sync error:', err.message);
+      }
+    }
   };
 
-  const removeFromCart = (id, selectedSize) => {
-    setCart((prev) => prev.filter((item) => !(item.id === id && item.selectedSize === selectedSize)));
+  const removeFromCart = async (id, selectedSize) => {
+    setCart((prev) => prev.filter((item) => !(String(item.id) === String(id) && item.selectedSize === selectedSize)));
+
+    const token = localStorage.getItem('stylehub_token') || localStorage.getItem('stylehub_auth_token');
+    if (token) {
+      try {
+        await fetch(`http://localhost:5000/api/my-collections/item?productId=${id}&itemType=cart&selectedSize=${selectedSize}`, {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+      } catch (err) {
+        console.warn('MyCollection remove item error:', err.message);
+      }
+    }
   };
 
-  const updateQuantity = (id, selectedSize, newQty) => {
-    if (newQty <= 0) {
-      removeFromCart(id, selectedSize);
+  const updateQuantity = async (id, selectedSize, newQty) => {
+    if (newQty < 1) {
       return;
     }
     setCart((prev) =>
       prev.map((item) =>
-        item.id === id && item.selectedSize === selectedSize
+        String(item.id) === String(id) && item.selectedSize === selectedSize
           ? { ...item, quantity: newQty }
           : item
       )
     );
+
+    const token = localStorage.getItem('stylehub_token') || localStorage.getItem('stylehub_auth_token');
+    if (token) {
+      try {
+        const itemInCart = cart.find(
+          (i) => String(i.id) === String(id) && i.selectedSize === selectedSize
+        );
+        if (itemInCart && itemInCart._id) {
+          await fetch(`http://localhost:5000/api/my-collections/${itemInCart._id}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ quantity: newQty }),
+          });
+        }
+      } catch (err) {
+        console.warn('MyCollection update quantity error:', err.message);
+      }
+    }
   };
 
-  const toggleWishlist = (product) => {
+  const toggleWishlist = async (product) => {
     setWishlist((prev) => {
-      const exists = prev.some((item) => item.id === product.id);
+      const exists = prev.some((item) => String(item.id) === String(product.id));
       if (exists) {
-        return prev.filter((item) => item.id !== product.id);
+        return prev.filter((item) => String(item.id) !== String(product.id));
       } else {
         return [...prev, product];
       }
     });
+
+    const token = localStorage.getItem('stylehub_token') || localStorage.getItem('stylehub_auth_token');
+    if (token) {
+      try {
+        await fetch('http://localhost:5000/api/my-collections/wishlist/toggle', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            productId: String(product.id || product._id),
+            name: product.name || product.title || 'Product',
+            price: Number(product.price) || 0,
+            image: product.image || '',
+            category: product.category || 'General',
+          }),
+        });
+      } catch (err) {
+        console.warn('MyCollection wishlist toggle error:', err.message);
+      }
+    }
+  };
+
+  const removeFromWishlist = async (idOrProduct) => {
+    const targetId = typeof idOrProduct === 'object' ? (idOrProduct.id || idOrProduct._id) : idOrProduct;
+
+    setWishlist((prev) => prev.filter((item) => String(item.id || item._id) !== String(targetId)));
+
+    const token = localStorage.getItem('stylehub_token') || localStorage.getItem('stylehub_auth_token');
+    if (token) {
+      try {
+        await fetch(`http://localhost:5000/api/my-collections/item?productId=${targetId}&itemType=wishlist`, {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+      } catch (err) {
+        console.warn('MyCollection wishlist remove error:', err.message);
+      }
+    }
   };
 
   const isWishlisted = (id) => {
-    return wishlist.some((item) => item.id === id);
+    return wishlist.some((item) => String(item.id) === String(id));
   };
 
   const cartTotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -283,6 +432,7 @@ export const ShopProvider = ({ children }) => {
         removeFromCart,
         updateQuantity,
         toggleWishlist,
+        removeFromWishlist,
         isWishlisted,
         cartTotal,
         cartItemCount,

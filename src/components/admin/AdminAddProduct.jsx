@@ -18,8 +18,8 @@ const AdminAddProduct = ({ setActiveTab }) => {
   const { addProduct, categories, brands, attributes } = useShop();
 
   const allCategories = categories && categories.length > 0
-    ? categories.map((c) => c.name)
-    : ['Panjabi', 'Shirts', 'T-Shirts', 'Kurtis', 'Sarees', 'Men', 'Women', 'Kids'];
+    ? categories.map((c) => (c.name?.trim().toLowerCase() === 'shirts' ? 'Shirt' : c.name))
+    : ['Panjabi', 'Shirt', 'T-Shirts', 'Kurtis', 'Sarees', 'Men', 'Women', 'Kids'];
 
   // Dynamic Sizes from Attributes in Database
   const sizeAttributes = attributes

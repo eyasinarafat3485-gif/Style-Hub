@@ -6,8 +6,16 @@ import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 
 const Navbar = () => {
-  const { cartItemCount, wishlist, setIsCartOpen, setIsWishlistOpen, searchQuery, setSearchQuery } = useShop();
+  const { cartItemCount, wishlist, setIsCartOpen, setIsWishlistOpen, searchQuery, setSearchQuery, categories } = useShop();
   const { user, isAuthenticated, logout } = useAuth();
+
+  const navCategories = React.useMemo(() => {
+    if (categories && categories.length > 0) {
+      const list = categories.map((c) => (c.name?.trim().toLowerCase() === 'shirts' ? 'Shirt' : c.name));
+      return Array.from(new Set(list));
+    }
+    return ['Panjabi', 'Shirt', 'T-Shirts', 'Kurtis', 'Sarees', 'Men', 'Women', 'Kids'];
+  }, [categories]);
   const [showSearch, setShowSearch] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -86,12 +94,28 @@ const Navbar = () => {
           <div className="relative group cursor-pointer py-1 flex items-center gap-1 hover:text-[#ff2056] transition-colors">
             <Link to="/categories" className="hover:text-[#ff2056]">Categories</Link>
             <ChevronDown className="w-3.5 h-3.5 text-gray-400 group-hover:text-[#ff2056] transition-transform group-hover:rotate-180" />
-            <div className="absolute top-full left-0 hidden group-hover:block w-52 bg-white border border-gray-100 shadow-xl rounded-b-lg py-2 z-50 animate-fade-in">
-              <Link to="/shop?category=Panjabi" className="block px-4 py-2 text-xs hover:bg-rose-50 hover:text-[#ff2056]">Panjabi & Kurtis</Link>
-              <Link to="/men" className="block px-4 py-2 text-xs hover:bg-rose-50 hover:text-[#ff2056]">Men's Casual Wear</Link>
-              <Link to="/shop?category=T-Shirts" className="block px-4 py-2 text-xs hover:bg-rose-50 hover:text-[#ff2056]">T-Shirts & Polos</Link>
-              <Link to="/shop?category=Shirts" className="block px-4 py-2 text-xs hover:bg-rose-50 hover:text-[#ff2056]">Denim & Trousers</Link>
-              <Link to="/women" className="block px-4 py-2 text-xs hover:bg-rose-50 hover:text-[#ff2056]">Women's Ethnic</Link>
+            <div className="absolute top-full -left-2 hidden group-hover:block w-56 sm:w-60 bg-white border border-gray-100 shadow-xl rounded-xl p-1.5 z-50 animate-fade-in">
+              <div className="grid grid-cols-2 gap-x-1 gap-y-0.5">
+                {navCategories.map((cat) => (
+                  <Link
+                    key={cat}
+                    to={`/shop?category=${encodeURIComponent(cat)}`}
+                    className="flex items-center gap-1.5 px-2 py-1 rounded-md text-[11px] font-semibold text-gray-700 hover:bg-rose-50 hover:text-[#ff2056] transition-all group/item"
+                  >
+                    <span className="w-1 h-1 rounded-full bg-gray-300 group-hover/item:bg-[#ff2056] transition-all shrink-0"></span>
+                    <span className="truncate">{cat}</span>
+                  </Link>
+                ))}
+              </div>
+              <div className="pt-1 mt-1 border-t border-gray-100 flex items-center justify-between px-1.5">
+                <Link
+                  to="/categories"
+                  className="text-[10px] font-bold text-[#ff2056] hover:underline flex items-center gap-1"
+                >
+                  <span>All Categories</span>
+                  <span>→</span>
+                </Link>
+              </div>
             </div>
           </div>
 

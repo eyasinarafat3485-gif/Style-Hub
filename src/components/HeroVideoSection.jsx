@@ -96,7 +96,7 @@ const HeroVideoSection = () => {
           {/* CTA Action Buttons */}
           <div className="flex flex-wrap items-center gap-2.5 sm:gap-4 mt-3.5 sm:mt-6">
             <Link
-              to="/shop?category=Shirts"
+              to="/shop?category=Shirt"
               className="inline-flex items-center gap-2 px-4 sm:px-7 py-2 sm:py-3 bg-[#ff2056] hover:bg-[#e01648] text-white text-xs sm:text-sm uppercase tracking-wider font-bold rounded-lg shadow-xl shadow-rose-950/40 transition-all hover:scale-105 active:scale-95 group"
             >
               <span>Explore Shirts</span>

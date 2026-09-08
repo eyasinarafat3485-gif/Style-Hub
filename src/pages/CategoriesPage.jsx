@@ -45,8 +45,8 @@ const categoryList = [
     tags: ['Polo', 'Oversized', 'Crewneck']
   },
   {
-    name: 'Shirts',
-    slug: 'shirts',
+    name: 'Shirt',
+    slug: 'shirt',
     description: 'Breathable linen, casual plaid & formal cotton shirts',
     count: '31 Products',
     image: 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=600&auto=format&fit=crop&q=80',
@@ -159,7 +159,7 @@ const CategoriesPage = () => {
 
             {/* Filter Tabs */}
             <div className="flex items-center gap-2 overflow-x-auto pb-2 sm:pb-0 scrollbar-none">
-              {['All', 'Men', 'Shirts', 'T-Shirts'].map((catName) => (
+              {['All', 'Men', 'Shirt', 'T-Shirts'].map((catName) => (
                 <button
                   key={catName}
                   onClick={() => setSelectedCat(catName)}

@@ -42,6 +42,7 @@ const AdminSidebar = ({
   const isProductTabActive = productSubItems.includes(activeTab);
 
   const [isProductsOpen, setIsProductsOpen] = useState(true);
+  const [ordersCount, setOrdersCount] = useState(0);
 
   // Auto expand if activeTab is one of products sub-items
   useEffect(() => {
@@ -49,6 +50,29 @@ const AdminSidebar = ({
       setIsProductsOpen(true);
     }
   }, [activeTab, isProductTabActive]);
+
+  useEffect(() => {
+    const fetchOrdersCount = async () => {
+      try {
+        const token = localStorage.getItem('stylehub_token');
+        if (!token) return;
+        const res = await fetch('http://localhost:5000/api/orders', {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const data = await res.json();
+        if (data.success && Array.isArray(data.orders)) {
+          const pending = data.orders.filter((o) => o.status === 'Pending').length;
+          setOrdersCount(pending > 0 ? pending : data.orders.length);
+        }
+      } catch (err) {
+        // silent catch
+      }
+    };
+    fetchOrdersCount();
+  }, [activeTab]);
 
   const initialLetter = (user?.name || user?.email || 'A').charAt(0).toUpperCase();
 
@@ -228,7 +252,7 @@ const AdminSidebar = ({
                     : 'bg-slate-800 text-[#ff2056] border border-rose-500/20'
                 }`}
               >
-                12 New
+                {ordersCount > 0 ? `${ordersCount} New` : 'Live'}
               </span>
             </button>
 

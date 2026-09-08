@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   ShoppingBag,
   Plus,
@@ -15,11 +15,43 @@ import { useShop } from '../../context/ShopContext';
 import { toast } from 'react-toastify';
 
 const AdminAddProduct = ({ setActiveTab }) => {
-  const { addProduct } = useShop();
+  const { addProduct, categories, brands, attributes } = useShop();
+
+  const allCategories = categories && categories.length > 0
+    ? categories.map((c) => c.name)
+    : ['Panjabi', 'Shirts', 'T-Shirts', 'Kurtis', 'Sarees', 'Men', 'Women', 'Kids'];
+
+  // Dynamic Sizes from Attributes in Database
+  const sizeAttributes = attributes
+    ? attributes.filter((a) => a.type === 'Size' || (a.name && a.name.toLowerCase().includes('size')))
+    : [];
+  const dbSizes = sizeAttributes.flatMap((a) => a.values || []);
+  const availableSizes = dbSizes.length > 0
+    ? Array.from(new Set(dbSizes))
+    : ['S', 'M', 'L', 'XL', 'XXL', '30', '32', '34'];
+
+  // Dynamic Colors from Attributes in Database
+  const colorAttributes = attributes
+    ? attributes.filter((a) => a.type === 'Color' || (a.name && a.name.toLowerCase().includes('color')))
+    : [];
+  const dbColors = colorAttributes.flatMap((a) => a.values || []);
+  const availableColors = dbColors.length > 0
+    ? Array.from(new Set(dbColors))
+    : ['Black', 'White', 'Navy Blue', 'Maroon', 'Olive Green', 'Crimson Red', 'Beige'];
+
+  // Other Custom Attributes (Material, Fit, Other)
+  const otherAttributes = attributes
+    ? attributes.filter(
+        (a) =>
+          a.type !== 'Size' &&
+          a.type !== 'Color' &&
+          !(a.name && (a.name.toLowerCase().includes('size') || a.name.toLowerCase().includes('color')))
+      )
+    : [];
 
   // Form States
   const [title, setTitle] = useState('');
-  const [category, setCategory] = useState('Panjabi');
+  const [category, setCategory] = useState(allCategories[0] || 'Panjabi');
   const [price, setPrice] = useState('');
   const [oldPrice, setOldPrice] = useState('');
   const [countInStock, setCountInStock] = useState('50');
@@ -33,9 +65,31 @@ const AdminAddProduct = ({ setActiveTab }) => {
   const [selectedColors, setSelectedColors] = useState(['Black', 'Navy Blue', 'White']);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const allCategories = ['Panjabi', 'Shirts', 'T-Shirts', 'Kurtis', 'Sarees', 'Men', 'Women', 'Kids'];
-  const availableSizes = ['S', 'M', 'L', 'XL', 'XXL', '30', '32', '34'];
-  const availableColors = ['Black', 'White', 'Navy Blue', 'Maroon', 'Olive Green', 'Crimson Red', 'Beige'];
+  useEffect(() => {
+    if (allCategories.length > 0 && !allCategories.includes(category)) {
+      setCategory(allCategories[0]);
+    }
+  }, [categories]);
+
+  // Sync selectedSizes with availableSizes when DB attributes change
+  useEffect(() => {
+    if (availableSizes.length > 0) {
+      setSelectedSizes((prev) => {
+        const valid = prev.filter((s) => availableSizes.includes(s));
+        return valid.length > 0 ? valid : [availableSizes[0]];
+      });
+    }
+  }, [attributes]);
+
+  // Sync selectedColors with availableColors when DB attributes change
+  useEffect(() => {
+    if (availableColors.length > 0) {
+      setSelectedColors((prev) => {
+        const valid = prev.filter((c) => availableColors.includes(c));
+        return valid.length > 0 ? valid : [availableColors[0]];
+      });
+    }
+  }, [attributes]);
 
   const toggleSize = (size) => {
     if (selectedSizes.includes(size)) {
@@ -280,6 +334,29 @@ const AdminAddProduct = ({ setActiveTab }) => {
                 })}
               </div>
             </div>
+
+            {/* Other Dynamic Custom Attributes (Material, Fit, etc.) */}
+            {otherAttributes.length > 0 && (
+              <div className="space-y-3 pt-3 border-t border-gray-100">
+                {otherAttributes.map((attr) => (
+                  <div key={attr._id || attr.id} className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-700 block">
+                      {attr.name} ({attr.type}):
+                    </label>
+                    <div className="flex flex-wrap gap-2">
+                      {Array.isArray(attr.values) && attr.values.map((v, i) => (
+                        <span
+                          key={i}
+                          className="px-2.5 py-1 bg-slate-100 border border-slate-200 text-xs font-semibold rounded-md text-slate-700"
+                        >
+                          {v}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 

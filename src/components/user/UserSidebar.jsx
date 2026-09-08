@@ -4,9 +4,6 @@ import {
   Package,
   Heart,
   Bell,
-  Gift,
-  MapPin,
-  User,
   Settings,
   Home,
   LogOut,
@@ -36,7 +33,7 @@ const UserSidebar = ({
     { id: 'overview', label: 'Overview', icon: LayoutDashboard },
     { id: 'orders', label: 'My Orders & Tracking', icon: Package, badge: totalOrdersAndCartCount ? `${totalOrdersAndCartCount}` : null },
     { id: 'wishlist', label: 'Saved Wishlist', icon: Heart, badge: wishlist.length ? `${wishlist.length}` : null },
-    { id: 'notifications', label: 'Notifications', icon: Bell, badge: unreadNotifications ? `${unreadNotifications}` : null },
+    // { id: 'notifications', label: 'Notifications', icon: Bell, badge: unreadNotifications ? `${unreadNotifications}` : null },
     { id: 'account', label: 'Settings', icon: Settings },
   ];
 

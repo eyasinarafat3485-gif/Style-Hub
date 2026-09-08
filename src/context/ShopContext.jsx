@@ -121,6 +121,64 @@ export const ShopProvider = ({ children }) => {
   const [quickViewProduct, setQuickViewProduct] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
 
+  // Admin Metadata States
+  const [categories, setCategories] = useState([]);
+  const [brands, setBrands] = useState([]);
+  const [tags, setTags] = useState([]);
+  const [attributes, setAttributes] = useState([]);
+
+  // Fetch Categories from Backend
+  const fetchCategories = async () => {
+    try {
+      const res = await fetch('http://localhost:5000/api/categories');
+      const data = await res.json();
+      if (data.success && Array.isArray(data.categories)) {
+        setCategories(data.categories);
+      }
+    } catch (err) {
+      console.warn('Failed to fetch categories:', err.message);
+    }
+  };
+
+  // Fetch Brands from Backend
+  const fetchBrands = async () => {
+    try {
+      const res = await fetch('http://localhost:5000/api/brands');
+      const data = await res.json();
+      if (data.success && Array.isArray(data.brands)) {
+        setBrands(data.brands);
+      }
+    } catch (err) {
+      console.warn('Failed to fetch brands:', err.message);
+    }
+  };
+
+  // Fetch Tags from Backend
+  const fetchTags = async () => {
+    try {
+      const res = await fetch('http://localhost:5000/api/tags');
+      const data = await res.json();
+      if (data.success && Array.isArray(data.tags)) {
+        setTags(data.tags);
+      }
+    } catch (err) {
+      console.warn('Failed to fetch tags:', err.message);
+    }
+  };
+
+  // Fetch Attributes from Backend
+  const fetchAttributes = async () => {
+    try {
+      const res = await fetch('http://localhost:5000/api/attributes');
+      const data = await res.json();
+      if (data.success && Array.isArray(data.attributes)) {
+        setAttributes(data.attributes);
+      }
+    } catch (err) {
+      console.warn('Failed to fetch attributes:', err.message);
+    }
+  };
+
   const fetchUserCollections = async () => {
     const token = localStorage.getItem('stylehub_token') || localStorage.getItem('stylehub_auth_token');
     if (!token) return;
@@ -167,7 +225,6 @@ export const ShopProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    // Fetch products from backend Express API if running
     fetch('http://localhost:5000/api/products')
       .then((res) => res.json())
       .then((data) => {
@@ -180,7 +237,155 @@ export const ShopProvider = ({ children }) => {
       });
 
     fetchUserCollections();
+    fetchCategories();
+    fetchBrands();
+    fetchTags();
+    fetchAttributes();
   }, []);
+
+  // Category Add / Delete API
+  const addCategory = async (categoryData) => {
+    try {
+      const res = await fetch('http://localhost:5000/api/categories', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(categoryData),
+      });
+      const data = await res.json();
+      if (data.success && data.category) {
+        setCategories((prev) => [data.category, ...prev]);
+        return { success: true, category: data.category };
+      } else {
+        return { success: false, message: data.message || 'Failed to add category' };
+      }
+    } catch (err) {
+      return { success: false, message: err.message };
+    }
+  };
+
+  const deleteCategory = async (id) => {
+    try {
+      const res = await fetch(`http://localhost:5000/api/categories/${id}`, {
+        method: 'DELETE',
+      });
+      const data = await res.json();
+      if (data.success) {
+        setCategories((prev) => prev.filter((c) => String(c._id || c.id) !== String(id)));
+        return { success: true };
+      }
+    } catch (err) {
+      console.error('Failed to delete category:', err);
+    }
+    return { success: false };
+  };
+
+  // Brand Add / Delete API
+  const addBrand = async (brandData) => {
+    try {
+      const res = await fetch('http://localhost:5000/api/brands', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(brandData),
+      });
+      const data = await res.json();
+      if (data.success && data.brand) {
+        setBrands((prev) => [data.brand, ...prev]);
+        return { success: true, brand: data.brand };
+      } else {
+        return { success: false, message: data.message || 'Failed to add brand' };
+      }
+    } catch (err) {
+      return { success: false, message: err.message };
+    }
+  };
+
+  const deleteBrand = async (id) => {
+    try {
+      const res = await fetch(`http://localhost:5000/api/brands/${id}`, {
+        method: 'DELETE',
+      });
+      const data = await res.json();
+      if (data.success) {
+        setBrands((prev) => prev.filter((b) => String(b._id || b.id) !== String(id)));
+        return { success: true };
+      }
+    } catch (err) {
+      console.error('Failed to delete brand:', err);
+    }
+    return { success: false };
+  };
+
+  // Tag Add / Delete API
+  const addTag = async (tagData) => {
+    try {
+      const res = await fetch('http://localhost:5000/api/tags', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(tagData),
+      });
+      const data = await res.json();
+      if (data.success && data.tag) {
+        setTags((prev) => [data.tag, ...prev]);
+        return { success: true, tag: data.tag };
+      } else {
+        return { success: false, message: data.message || 'Failed to add tag' };
+      }
+    } catch (err) {
+      return { success: false, message: err.message };
+    }
+  };
+
+  const deleteTag = async (id) => {
+    try {
+      const res = await fetch(`http://localhost:5000/api/tags/${id}`, {
+        method: 'DELETE',
+      });
+      const data = await res.json();
+      if (data.success) {
+        setTags((prev) => prev.filter((t) => String(t._id || t.id) !== String(id)));
+        return { success: true };
+      }
+    } catch (err) {
+      console.error('Failed to delete tag:', err);
+    }
+    return { success: false };
+  };
+
+  // Attribute Add / Delete API
+  const addAttribute = async (attrData) => {
+    try {
+      const res = await fetch('http://localhost:5000/api/attributes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(attrData),
+      });
+      const data = await res.json();
+      if (data.success && data.attribute) {
+        setAttributes((prev) => [data.attribute, ...prev]);
+        return { success: true, attribute: data.attribute };
+      } else {
+        return { success: false, message: data.message || 'Failed to add attribute' };
+      }
+    } catch (err) {
+      return { success: false, message: err.message };
+    }
+  };
+
+  const deleteAttribute = async (id) => {
+    try {
+      const res = await fetch(`http://localhost:5000/api/attributes/${id}`, {
+        method: 'DELETE',
+      });
+      const data = await res.json();
+      if (data.success) {
+        setAttributes((prev) => prev.filter((a) => String(a._id || a.id) !== String(id)));
+        return { success: true };
+      }
+    } catch (err) {
+      console.error('Failed to delete attribute:', err);
+    }
+    return { success: false };
+  };
 
   const addProduct = async (productData) => {
     try {
@@ -419,6 +624,10 @@ export const ShopProvider = ({ children }) => {
         products,
         cart,
         wishlist,
+        categories,
+        brands,
+        tags,
+        attributes,
         isCartOpen,
         setIsCartOpen,
         isWishlistOpen,
@@ -438,6 +647,18 @@ export const ShopProvider = ({ children }) => {
         cartItemCount,
         addProduct,
         deleteProduct,
+        addCategory,
+        deleteCategory,
+        addBrand,
+        deleteBrand,
+        addTag,
+        deleteTag,
+        addAttribute,
+        deleteAttribute,
+        refreshCategories: fetchCategories,
+        refreshBrands: fetchBrands,
+        refreshTags: fetchTags,
+        refreshAttributes: fetchAttributes,
       }}
     >
       {children}

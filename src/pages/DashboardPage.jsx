@@ -41,7 +41,29 @@ import {
 
 const DashboardPage = () => {
   const { user, logout, isLoading } = useAuth();
-  const { cart, wishlist, formatPrice, removeFromWishlist, addToCart, removeFromCart, updateQuantity, cartTotal, setIsCartOpen } = useShop();
+  const {
+    cart,
+    wishlist,
+    formatPrice,
+    removeFromWishlist,
+    addToCart,
+    removeFromCart,
+    updateQuantity,
+    cartTotal,
+    setIsCartOpen,
+    categories,
+    brands,
+    tags,
+    attributes,
+    addCategory,
+    deleteCategory,
+    addBrand,
+    deleteBrand,
+    addTag,
+    deleteTag,
+    addAttribute,
+    deleteAttribute,
+  } = useShop();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -66,11 +88,103 @@ const DashboardPage = () => {
   const [isAddProductModalOpen, setIsAddProductModalOpen] = useState(false);
   const [globalSearch, setGlobalSearch] = useState('');
 
-  // Delete Confirmation Modal State
+  // Admin Management Modal States
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+  const [categoryInput, setCategoryInput] = useState({ name: '', description: '', slug: '', image: '' });
+  const [isCategorySubmitting, setIsCategorySubmitting] = useState(false);
+
+  const [isBrandModalOpen, setIsBrandModalOpen] = useState(false);
+  const [brandInput, setBrandInput] = useState({ name: '', status: 'Active', description: '', logo: '' });
+  const [isBrandSubmitting, setIsBrandSubmitting] = useState(false);
+
+  const [isTagModalOpen, setIsTagModalOpen] = useState(false);
+  const [tagInput, setTagInput] = useState({ name: '' });
+  const [isTagSubmitting, setIsTagSubmitting] = useState(false);
+
+  const [isAttributeModalOpen, setIsAttributeModalOpen] = useState(false);
+  const [attributeInput, setAttributeInput] = useState({ name: '', type: 'Size', values: '' });
+  const [isAttributeSubmitting, setIsAttributeSubmitting] = useState(false);
+
+  // Submit Handlers for Modals
+  const handleCreateCategorySubmit = async (e) => {
+    e.preventDefault();
+    if (!categoryInput.name.trim()) {
+      toast.warning('Please enter category name');
+      return;
+    }
+    setIsCategorySubmitting(true);
+    const res = await addCategory(categoryInput);
+    setIsCategorySubmitting(false);
+    if (res.success) {
+      toast.success(`🎉 Category "${res.category.name}" added successfully!`);
+      setIsCategoryModalOpen(false);
+      setCategoryInput({ name: '', description: '', slug: '', image: '' });
+    } else {
+      toast.error(res.message || 'Failed to add category');
+    }
+  };
+
+  const handleCreateBrandSubmit = async (e) => {
+    e.preventDefault();
+    if (!brandInput.name.trim()) {
+      toast.warning('Please enter brand name');
+      return;
+    }
+    setIsBrandSubmitting(true);
+    const res = await addBrand(brandInput);
+    setIsBrandSubmitting(false);
+    if (res.success) {
+      toast.success(`🎉 Brand "${res.brand.name}" added successfully!`);
+      setIsBrandModalOpen(false);
+      setBrandInput({ name: '', status: 'Active', description: '', logo: '' });
+    } else {
+      toast.error(res.message || 'Failed to add brand');
+    }
+  };
+
+  const handleCreateTagSubmit = async (e) => {
+    e.preventDefault();
+    if (!tagInput.name.trim()) {
+      toast.warning('Please enter tag name');
+      return;
+    }
+    setIsTagSubmitting(true);
+    const res = await addTag(tagInput);
+    setIsTagSubmitting(false);
+    if (res.success) {
+      toast.success(`🎉 Tag "#${res.tag.name}" added successfully!`);
+      setIsTagModalOpen(false);
+      setTagInput({ name: '' });
+    } else {
+      toast.error(res.message || 'Failed to add tag');
+    }
+  };
+
+  const handleCreateAttributeSubmit = async (e) => {
+    e.preventDefault();
+    if (!attributeInput.name.trim()) {
+      toast.warning('Please enter attribute name');
+      return;
+    }
+    setIsAttributeSubmitting(true);
+    const res = await addAttribute(attributeInput);
+    setIsAttributeSubmitting(false);
+    if (res.success) {
+      toast.success(`🎉 Attribute "${res.attribute.name}" added successfully!`);
+      setIsAttributeModalOpen(false);
+      setAttributeInput({ name: '', type: 'Size', values: '' });
+    } else {
+      toast.error(res.message || 'Failed to add attribute');
+    }
+  };
+
+  // Unified Delete Confirmation Modal State
   const [deleteConfirmModal, setDeleteConfirmModal] = useState({
     isOpen: false,
     item: null,
-    type: 'cart', // 'cart' | 'wishlist'
+    type: 'cart', // 'cart' | 'wishlist' | 'Category' | 'Brand' | 'Tag' | 'Attribute'
+    name: '',
+    isDeleting: false,
   });
 
   const promptRemoveCartItem = (item) => {
@@ -78,6 +192,8 @@ const DashboardPage = () => {
       isOpen: true,
       item,
       type: 'cart',
+      name: item.name || item.title || 'Cart Item',
+      isDeleting: false,
     });
   };
 
@@ -86,21 +202,54 @@ const DashboardPage = () => {
       isOpen: true,
       item: product,
       type: 'wishlist',
+      name: product.name || product.title || 'Wishlist Item',
+      isDeleting: false,
     });
   };
 
-  const handleConfirmDelete = () => {
+  const promptAdminDelete = (type, item) => {
+    setDeleteConfirmModal({
+      isOpen: true,
+      item,
+      type,
+      name: item.name || item.title || 'Item',
+      isDeleting: false,
+    });
+  };
+
+  const handleConfirmDelete = async () => {
     if (!deleteConfirmModal.item) return;
+    setDeleteConfirmModal((prev) => ({ ...prev, isDeleting: true }));
 
-    if (deleteConfirmModal.type === 'cart') {
-      removeFromCart(deleteConfirmModal.item.id || deleteConfirmModal.item._id, deleteConfirmModal.item.selectedSize);
-      toast.success('Item removed from cart');
-    } else if (deleteConfirmModal.type === 'wishlist') {
-      removeFromWishlist(deleteConfirmModal.item.id || deleteConfirmModal.item._id);
-      toast.success('Item removed from wishlist');
+    try {
+      const type = deleteConfirmModal.type;
+      const targetItem = deleteConfirmModal.item;
+      const targetId = targetItem._id || targetItem.id;
+
+      if (type === 'cart') {
+        removeFromCart(targetId, targetItem.selectedSize);
+        toast.success('Item removed from cart');
+      } else if (type === 'wishlist') {
+        removeFromWishlist(targetId);
+        toast.success('Item removed from wishlist');
+      } else if (type === 'Category') {
+        await deleteCategory(targetId);
+        toast.info(`Category "${deleteConfirmModal.name}" deleted.`);
+      } else if (type === 'Brand') {
+        await deleteBrand(targetId);
+        toast.info(`Brand "${deleteConfirmModal.name}" deleted.`);
+      } else if (type === 'Tag') {
+        await deleteTag(targetId);
+        toast.info(`Tag "#${deleteConfirmModal.name}" deleted.`);
+      } else if (type === 'Attribute') {
+        await deleteAttribute(targetId);
+        toast.info(`Attribute "${deleteConfirmModal.name}" deleted.`);
+      }
+    } catch (err) {
+      toast.error('Failed to delete item');
+    } finally {
+      setDeleteConfirmModal({ isOpen: false, item: null, type: 'cart', name: '', isDeleting: false });
     }
-
-    setDeleteConfirmModal({ isOpen: false, item: null, type: 'cart' });
   };
 
   // Dynamic MongoDB User Orders State
@@ -336,29 +485,38 @@ const DashboardPage = () => {
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-100 pb-5">
                       <div>
                         <h3 className="text-xl font-bold font-serif text-slate-900">Brand Management</h3>
-                        <p className="text-xs text-gray-500">Manage registered apparel and luxury store brands</p>
+                        <p className="text-xs text-gray-500">Manage registered apparel and luxury store brands in database</p>
                       </div>
-                      <button className="px-4 py-2 bg-[#ff2056] text-white text-xs font-bold rounded-xl hover:bg-[#d6103e] transition-all shadow-md shadow-rose-600/20 cursor-pointer self-start sm:self-auto">
-                        + Add New Brand
+                      <button
+                        onClick={() => setIsBrandModalOpen(true)}
+                        className="px-4 py-2 bg-[#ff2056] text-white text-xs font-bold rounded-xl hover:bg-[#d6103e] transition-all shadow-md shadow-rose-600/20 cursor-pointer self-start sm:self-auto flex items-center gap-1.5"
+                      >
+                        <Sparkles className="w-3.5 h-3.5" />
+                        <span>+ Add New Brand</span>
                       </button>
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                      {[
-                        { name: 'StyleHub Signature', items: '42 Products', status: 'Featured' },
-                        { name: 'Royal Silk Atelier', items: '28 Products', status: 'Active' },
-                        { name: 'Velvet Heritage', items: '19 Products', status: 'Active' },
-                        { name: 'Urban Denim Co.', items: '34 Products', status: 'Active' },
-                      ].map((brand, idx) => (
-                        <div key={idx} className="p-4 bg-slate-50 border border-slate-200 rounded-xl hover:shadow-md transition-all">
-                          <div className="flex items-center justify-between">
-                            <span className="text-[10px] font-bold text-rose-500 bg-rose-50 px-2 py-0.5 rounded-full border border-rose-100">{brand.status}</span>
-                            <span className="text-xs text-gray-400">ID: #BR-00{idx + 1}</span>
+                    {brands.length === 0 ? (
+                      <div className="text-center py-8 text-xs text-gray-400">No brands registered yet. Click + Add New Brand to create one.</div>
+                    ) : (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        {brands.map((brand, idx) => (
+                          <div key={brand._id || brand.id || idx} className="p-4 bg-slate-50 border border-slate-200 rounded-xl hover:shadow-md transition-all relative group">
+                            <div className="flex items-center justify-between">
+                              <span className="text-[10px] font-bold text-rose-500 bg-rose-50 px-2 py-0.5 rounded-full border border-rose-100">{brand.status || 'Active'}</span>
+                              <button
+                                onClick={() => promptAdminDelete('Brand', brand)}
+                                className="text-gray-400 hover:text-rose-600 opacity-0 group-hover:opacity-100 transition-opacity p-1 cursor-pointer"
+                                title="Delete Brand"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                            <h4 className="font-bold text-slate-900 text-sm mt-3">{brand.name}</h4>
+                            <p className="text-xs text-gray-500 mt-0.5">{brand.description || `${brand.itemCount || 0} Products`}</p>
                           </div>
-                          <h4 className="font-bold text-slate-900 text-sm mt-3">{brand.name}</h4>
-                          <p className="text-xs text-gray-500 mt-0.5">{brand.items}</p>
-                        </div>
-                      ))}
-                    </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -367,30 +525,40 @@ const DashboardPage = () => {
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-100 pb-5">
                       <div>
                         <h3 className="text-xl font-bold font-serif text-slate-900">Product Categories</h3>
-                        <p className="text-xs text-gray-500">Organize clothing, footwear, and accessory hierarchies</p>
+                        <p className="text-xs text-gray-500">Organize clothing, footwear, and accessory hierarchies in MongoDB</p>
                       </div>
-                      <button className="px-4 py-2 bg-[#ff2056] text-white text-xs font-bold rounded-xl hover:bg-[#d6103e] transition-all shadow-md shadow-rose-600/20 cursor-pointer self-start sm:self-auto">
-                        + Create Category
+                      <button
+                        onClick={() => setIsCategoryModalOpen(true)}
+                        className="px-4 py-2 bg-[#ff2056] text-white text-xs font-bold rounded-xl hover:bg-[#d6103e] transition-all shadow-md shadow-rose-600/20 cursor-pointer self-start sm:self-auto flex items-center gap-1.5"
+                      >
+                        <Sparkles className="w-3.5 h-3.5" />
+                        <span>+ Create Category</span>
                       </button>
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                      {[
-                        { name: "Men's Panjabi & Ethnic", count: "36 Items", slug: "/category/panjabi" },
-                        { name: "Women's Designer Sarees", count: "48 Items", slug: "/category/sarees" },
-                        { name: "Casual Premium Shirts", count: "29 Items", slug: "/category/shirts" },
-                        { name: "Festive Silk Lehengas", count: "18 Items", slug: "/category/lehenga" },
-                        { name: "Luxury Accessories & Belts", count: "22 Items", slug: "/category/accessories" },
-                        { name: "Footwear & Leather Shoes", count: "15 Items", slug: "/category/footwear" },
-                      ].map((cat, idx) => (
-                        <div key={idx} className="p-4 bg-slate-50 border border-slate-200/80 rounded-xl flex items-center justify-between">
-                          <div>
-                            <h4 className="font-bold text-slate-900 text-xs sm:text-sm">{cat.name}</h4>
-                            <span className="text-[11px] text-gray-500">{cat.count}</span>
+                    {categories.length === 0 ? (
+                      <div className="text-center py-8 text-xs text-gray-400">No categories found in database. Click + Create Category to add.</div>
+                    ) : (
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        {categories.map((cat, idx) => (
+                          <div key={cat._id || cat.id || idx} className="p-4 bg-slate-50 border border-slate-200/80 rounded-xl flex items-center justify-between group hover:border-rose-200 transition-all">
+                            <div>
+                              <h4 className="font-bold text-slate-900 text-xs sm:text-sm">{cat.name}</h4>
+                              <span className="text-[11px] text-gray-500">{cat.description || `${cat.itemCount || 0} Items`}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className="text-[10px] bg-slate-200 text-slate-700 px-2 py-1 rounded-md font-mono">{cat.slug || `/category/${cat.name.toLowerCase()}`}</span>
+                              <button
+                                onClick={() => promptAdminDelete('Category', cat)}
+                                className="text-gray-400 hover:text-rose-600 opacity-0 group-hover:opacity-100 transition-opacity p-1 cursor-pointer"
+                                title="Delete Category"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
                           </div>
-                          <span className="text-[10px] bg-slate-200 text-slate-700 px-2 py-1 rounded-md font-mono">{cat.slug}</span>
-                        </div>
-                      ))}
-                    </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -401,18 +569,33 @@ const DashboardPage = () => {
                         <h3 className="text-xl font-bold font-serif text-slate-900">Product Tags</h3>
                         <p className="text-xs text-gray-500">Filter tags for marketing badging and search indexing</p>
                       </div>
-                      <button className="px-4 py-2 bg-[#ff2056] text-white text-xs font-bold rounded-xl hover:bg-[#d6103e] transition-all shadow-md shadow-rose-600/20 cursor-pointer self-start sm:self-auto">
-                        + Add Tag
+                      <button
+                        onClick={() => setIsTagModalOpen(true)}
+                        className="px-4 py-2 bg-[#ff2056] text-white text-xs font-bold rounded-xl hover:bg-[#d6103e] transition-all shadow-md shadow-rose-600/20 cursor-pointer self-start sm:self-auto flex items-center gap-1.5"
+                      >
+                        <Sparkles className="w-3.5 h-3.5" />
+                        <span>+ Add Tag</span>
                       </button>
                     </div>
-                    <div className="flex flex-wrap gap-2 pt-2">
-                      {['#NewArrival', '#TrendingNow', '#EidCollection', '#HandmadeSilk', '#PremiumCotton', '#BestSeller', '#LimitedEdition', '#Discount20', '#FormalStyle'].map((tag, idx) => (
-                        <span key={idx} className="px-3 py-1.5 bg-slate-100 text-slate-800 border border-slate-200 rounded-lg text-xs font-semibold flex items-center gap-2 hover:border-[#ff2056] hover:text-[#ff2056] transition-colors cursor-pointer">
-                          {tag}
-                          <span className="text-[10px] text-gray-400 bg-white px-1.5 py-0.5 rounded-full border border-gray-200">12</span>
-                        </span>
-                      ))}
-                    </div>
+                    {tags.length === 0 ? (
+                      <div className="text-center py-8 text-xs text-gray-400">No tags stored. Click + Add Tag to create one.</div>
+                    ) : (
+                      <div className="flex flex-wrap gap-2 pt-2">
+                        {tags.map((tag, idx) => (
+                          <span key={tag._id || tag.id || idx} className="px-3 py-1.5 bg-slate-100 text-slate-800 border border-slate-200 rounded-lg text-xs font-semibold flex items-center gap-2 hover:border-[#ff2056] hover:text-[#ff2056] transition-colors group">
+                            <span>#{tag.name}</span>
+                            <span className="text-[10px] text-gray-400 bg-white px-1.5 py-0.5 rounded-full border border-gray-200">{tag.count || 0}</span>
+                            <button
+                              onClick={() => promptAdminDelete('Tag', tag)}
+                              className="text-gray-400 hover:text-rose-600 opacity-0 group-hover:opacity-100 transition-opacity ml-1 cursor-pointer"
+                              title="Delete Tag"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -421,39 +604,45 @@ const DashboardPage = () => {
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-100 pb-5">
                       <div>
                         <h3 className="text-xl font-bold font-serif text-slate-900">Product Attributes & Variants</h3>
-                        <p className="text-xs text-gray-500">Manage size scales, color swatches, and material options</p>
+                        <p className="text-xs text-gray-500">Manage size scales, color swatches, and material options in database</p>
                       </div>
-                      <button className="px-4 py-2 bg-[#ff2056] text-white text-xs font-bold rounded-xl hover:bg-[#d6103e] transition-all shadow-md shadow-rose-600/20 cursor-pointer self-start sm:self-auto">
-                        + Add Attribute
+                      <button
+                        onClick={() => setIsAttributeModalOpen(true)}
+                        className="px-4 py-2 bg-[#ff2056] text-white text-xs font-bold rounded-xl hover:bg-[#d6103e] transition-all shadow-md shadow-rose-600/20 cursor-pointer self-start sm:self-auto flex items-center gap-1.5"
+                      >
+                        <Sparkles className="w-3.5 h-3.5" />
+                        <span>+ Add Attribute</span>
                       </button>
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="p-5 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
-                        <h4 className="font-bold text-slate-900 text-sm">Apparel Sizes</h4>
-                        <div className="flex flex-wrap gap-2">
-                          {['S', 'M', 'L', 'XL', 'XXL', 'Custom Tailored'].map((s, i) => (
-                            <span key={i} className="px-2.5 py-1 bg-white border border-gray-300 text-xs font-bold rounded-md text-slate-700">{s}</span>
-                          ))}
-                        </div>
+                    {attributes.length === 0 ? (
+                      <div className="text-center py-8 text-xs text-gray-400">No attributes stored. Click + Add Attribute to create one.</div>
+                    ) : (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {attributes.map((attr, idx) => (
+                          <div key={attr._id || attr.id || idx} className="p-5 bg-slate-50 border border-slate-200 rounded-xl space-y-3 relative group">
+                            <div className="flex items-center justify-between">
+                              <h4 className="font-bold text-slate-900 text-sm">{attr.name} ({attr.type})</h4>
+                              <button
+                                onClick={() => promptAdminDelete('Attribute', attr)}
+                                className="text-gray-400 hover:text-rose-600 opacity-0 group-hover:opacity-100 transition-opacity p-1 cursor-pointer"
+                                title="Delete Attribute"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                            <div className="flex flex-wrap gap-2">
+                              {Array.isArray(attr.values) && attr.values.length > 0 ? (
+                                attr.values.map((v, i) => (
+                                  <span key={i} className="px-2.5 py-1 bg-white border border-gray-300 text-xs font-bold rounded-md text-slate-700">{v}</span>
+                                ))
+                              ) : (
+                                <span className="text-xs text-gray-400">No values configured</span>
+                              )}
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                      <div className="p-5 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
-                        <h4 className="font-bold text-slate-900 text-sm">Color Swatches</h4>
-                        <div className="flex flex-wrap gap-2">
-                          {[
-                            { name: 'Royal Navy', hex: 'bg-indigo-950' },
-                            { name: 'Crimson Red', hex: 'bg-rose-600' },
-                            { name: 'Emerald Green', hex: 'bg-emerald-600' },
-                            { name: 'Gold Silk', hex: 'bg-amber-400' },
-                            { name: 'Pure Pearl', hex: 'bg-slate-100 border-gray-300' },
-                          ].map((c, i) => (
-                            <span key={i} className="px-2.5 py-1 bg-white border border-gray-300 text-xs font-medium rounded-md text-slate-700 flex items-center gap-1.5">
-                              <span className={`w-3 h-3 rounded-full ${c.hex} border border-gray-200`} />
-                              {c.name}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
+                    )}
                   </div>
                 )}
 
@@ -1323,6 +1512,329 @@ const DashboardPage = () => {
                 className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl shadow-sm transition-all cursor-pointer w-full text-center"
               >
                 Close Details
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 1. Add Category Modal */}
+      {isCategoryModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-gray-100 space-y-4 animate-scaleUp">
+            <div className="flex items-center justify-between pb-3 border-b border-gray-100">
+              <h3 className="text-base font-bold text-slate-900 font-serif">Add New Category</h3>
+              <button
+                onClick={() => setIsCategoryModalOpen(false)}
+                className="p-1.5 text-gray-400 hover:text-slate-900 rounded-full hover:bg-slate-100"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateCategorySubmit} className="space-y-4">
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-700 block">Category Name *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Designer Blazers"
+                  value={categoryInput.name}
+                  onChange={(e) => setCategoryInput({ ...categoryInput, name: e.target.value })}
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:bg-white focus:outline-none focus:border-[#ff2056]"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-700 block">Description / Note (Optional)</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Formal suits and executive wear"
+                  value={categoryInput.description}
+                  onChange={(e) => setCategoryInput({ ...categoryInput, description: e.target.value })}
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:bg-white focus:outline-none focus:border-[#ff2056]"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-700 block">Custom URL Slug (Optional)</label>
+                <input
+                  type="text"
+                  placeholder="e.g. /category/blazers"
+                  value={categoryInput.slug}
+                  onChange={(e) => setCategoryInput({ ...categoryInput, slug: e.target.value })}
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:bg-white focus:outline-none focus:border-[#ff2056]"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-gray-100">
+                <button
+                  type="button"
+                  onClick={() => setIsCategoryModalOpen(false)}
+                  className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-slate-700 text-xs font-bold rounded-xl"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isCategorySubmitting}
+                  className="px-5 py-2 bg-[#ff2056] hover:bg-[#d6103e] text-white text-xs font-bold rounded-xl shadow-md shadow-rose-600/20 disabled:opacity-50"
+                >
+                  {isCategorySubmitting ? 'Adding...' : 'Add Category'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* 2. Add Brand Modal */}
+      {isBrandModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-gray-100 space-y-4 animate-scaleUp">
+            <div className="flex items-center justify-between pb-3 border-b border-gray-100">
+              <h3 className="text-base font-bold text-slate-900 font-serif">Add New Brand</h3>
+              <button
+                onClick={() => setIsBrandModalOpen(false)}
+                className="p-1.5 text-gray-400 hover:text-slate-900 rounded-full hover:bg-slate-100"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateBrandSubmit} className="space-y-4">
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-700 block">Brand Name *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Apex Luxury Heritage"
+                  value={brandInput.name}
+                  onChange={(e) => setBrandInput({ ...brandInput, name: e.target.value })}
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:bg-white focus:outline-none focus:border-[#ff2056]"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-700 block">Brand Status</label>
+                <select
+                  value={brandInput.status}
+                  onChange={(e) => setBrandInput({ ...brandInput, status: e.target.value })}
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:bg-white focus:outline-none focus:border-[#ff2056]"
+                >
+                  <option value="Active">Active</option>
+                  <option value="Featured">Featured</option>
+                  <option value="Inactive">Inactive</option>
+                </select>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-700 block">Description (Optional)</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Premium leather goods & footwear"
+                  value={brandInput.description}
+                  onChange={(e) => setBrandInput({ ...brandInput, description: e.target.value })}
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:bg-white focus:outline-none focus:border-[#ff2056]"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-gray-100">
+                <button
+                  type="button"
+                  onClick={() => setIsBrandModalOpen(false)}
+                  className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-slate-700 text-xs font-bold rounded-xl"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isBrandSubmitting}
+                  className="px-5 py-2 bg-[#ff2056] hover:bg-[#d6103e] text-white text-xs font-bold rounded-xl shadow-md shadow-rose-600/20 disabled:opacity-50"
+                >
+                  {isBrandSubmitting ? 'Saving...' : 'Save Brand'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* 3. Add Tag Modal */}
+      {isTagModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs">
+          <div className="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-gray-100 space-y-4 animate-scaleUp">
+            <div className="flex items-center justify-between pb-3 border-b border-gray-100">
+              <h3 className="text-base font-bold text-slate-900 font-serif">Add Marketing Tag</h3>
+              <button
+                onClick={() => setIsTagModalOpen(false)}
+                className="p-1.5 text-gray-400 hover:text-slate-900 rounded-full hover:bg-slate-100"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateTagSubmit} className="space-y-4">
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-700 block">Tag Name *</label>
+                <div className="relative">
+                  <span className="absolute left-3.5 top-2.5 text-xs text-gray-400 font-bold">#</span>
+                  <input
+                    type="text"
+                    required
+                    placeholder="FestiveOffer"
+                    value={tagInput.name}
+                    onChange={(e) => setTagInput({ ...tagInput, name: e.target.value })}
+                    className="w-full pl-8 pr-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:bg-white focus:outline-none focus:border-[#ff2056]"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-gray-100">
+                <button
+                  type="button"
+                  onClick={() => setIsTagModalOpen(false)}
+                  className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-slate-700 text-xs font-bold rounded-xl"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isTagSubmitting}
+                  className="px-5 py-2 bg-[#ff2056] hover:bg-[#d6103e] text-white text-xs font-bold rounded-xl shadow-md shadow-rose-600/20 disabled:opacity-50"
+                >
+                  {isTagSubmitting ? 'Creating...' : 'Create Tag'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* 4. Add Attribute Modal */}
+      {isAttributeModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-gray-100 space-y-4 animate-scaleUp">
+            <div className="flex items-center justify-between pb-3 border-b border-gray-100">
+              <h3 className="text-base font-bold text-slate-900 font-serif">Add Variant Attribute</h3>
+              <button
+                onClick={() => setIsAttributeModalOpen(false)}
+                className="p-1.5 text-gray-400 hover:text-slate-900 rounded-full hover:bg-slate-100"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateAttributeSubmit} className="space-y-4">
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-700 block">Attribute Name *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Denim Waist Sizes"
+                  value={attributeInput.name}
+                  onChange={(e) => setAttributeInput({ ...attributeInput, name: e.target.value })}
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:bg-white focus:outline-none focus:border-[#ff2056]"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-700 block">Attribute Type</label>
+                <select
+                  value={attributeInput.type}
+                  onChange={(e) => setAttributeInput({ ...attributeInput, type: e.target.value })}
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:bg-white focus:outline-none focus:border-[#ff2056]"
+                >
+                  <option value="Size">Size</option>
+                  <option value="Color">Color</option>
+                  <option value="Material">Material</option>
+                  <option value="Fit">Fit</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-700 block">Values (comma separated)</label>
+                <input
+                  type="text"
+                  placeholder="e.g. 28, 30, 32, 34, 36"
+                  value={attributeInput.values}
+                  onChange={(e) => setAttributeInput({ ...attributeInput, values: e.target.value })}
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:bg-white focus:outline-none focus:border-[#ff2056]"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-gray-100">
+                <button
+                  type="button"
+                  onClick={() => setIsAttributeModalOpen(false)}
+                  className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-slate-700 text-xs font-bold rounded-xl"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isAttributeSubmitting}
+                  className="px-5 py-2 bg-[#ff2056] hover:bg-[#d6103e] text-white text-xs font-bold rounded-xl shadow-md shadow-rose-600/20 disabled:opacity-50"
+                >
+                  {isAttributeSubmitting ? 'Saving...' : 'Save Attribute'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* 5. Custom Professional Delete Confirmation Modal */}
+      {deleteConfirmModal.isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/65 backdrop-blur-xs animate-fadeIn">
+          <div className="bg-white rounded-3xl max-w-sm w-full p-6 sm:p-7 shadow-2xl border border-gray-100 text-center space-y-5 animate-scaleUp relative">
+            {/* Close Button */}
+            <button
+              onClick={() => setDeleteConfirmModal({ isOpen: false, item: null, type: 'cart', name: '', isDeleting: false })}
+              className="absolute top-4 right-4 p-1.5 rounded-full text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            {/* Warning Icon Badge */}
+            <div className="w-14 h-14 rounded-2xl bg-rose-50 text-[#ff2056] border border-rose-100 flex items-center justify-center mx-auto shadow-xs">
+              <Trash2 className="w-7 h-7" />
+            </div>
+
+            {/* Title & Description */}
+            <div className="space-y-1.5">
+              <h3 className="text-base font-bold font-serif text-slate-900 capitalize">
+                Delete {deleteConfirmModal.type}?
+              </h3>
+              <p className="text-xs text-slate-500 leading-relaxed max-w-xs mx-auto font-sans">
+                Are you sure you want to remove <strong className="text-slate-900 font-bold">"{deleteConfirmModal.name}"</strong>? This will remove it permanently from the database.
+              </p>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex items-center justify-center gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setDeleteConfirmModal({ isOpen: false, item: null, type: 'cart', name: '', isDeleting: false })}
+                className="w-1/2 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition-all cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={deleteConfirmModal.isDeleting}
+                onClick={handleConfirmDelete}
+                className="w-1/2 py-2.5 bg-[#ff2056] hover:bg-[#d6103e] text-white text-xs font-bold rounded-xl shadow-md shadow-rose-600/25 transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-1.5"
+              >
+                {deleteConfirmModal.isDeleting ? (
+                  <span>Deleting...</span>
+                ) : (
+                  <>
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Confirm Delete</span>
+                  </>
+                )}
               </button>
             </div>
           </div>

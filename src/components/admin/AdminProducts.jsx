@@ -164,70 +164,165 @@ const AdminProducts = ({ isModalOpen, setIsModalOpen }) => {
         </div>
       </div>
 
-      {/* Products Table */}
+      {/* Products Display: Desktop Table + Mobile Responsive Cards */}
       <div className="bg-white rounded-2xl border border-gray-200/80 shadow-xs overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead>
-              <tr className="bg-slate-50 text-gray-500 font-bold uppercase tracking-wider border-b border-gray-100">
-                <th className="py-3.5 px-4">Product</th>
-                <th className="py-3.5 px-4">Category</th>
-                <th className="py-3.5 px-4">Price</th>
-                <th className="py-3.5 px-4">Stock Status</th>
-                <th className="py-3.5 px-4">Badges</th>
-                <th className="py-3.5 px-4 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100 text-slate-800">
+        {filteredProducts.length === 0 ? (
+          <div className="py-16 text-center space-y-3">
+            <ShoppingBag className="w-12 h-12 text-gray-300 mx-auto stroke-1" />
+            <h4 className="text-sm font-bold text-slate-800">No Products Found</h4>
+            <p className="text-xs text-gray-400 max-w-sm mx-auto">
+              {searchTerm || selectedCategory !== 'All'
+                ? 'No products match your search or filter criteria.'
+                : 'Your store catalog is empty. Click "+ Add New Product" to get started.'}
+            </p>
+          </div>
+        ) : (
+          <>
+            {/* 1. DESKTOP & TABLET TABLE VIEW (md+) */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-left text-xs min-w-[720px]">
+                <thead>
+                  <tr className="bg-slate-50 text-gray-500 font-bold uppercase tracking-wider border-b border-gray-100 text-[11px]">
+                    <th className="py-3.5 px-4">Product</th>
+                    <th className="py-3.5 px-4">Category</th>
+                    <th className="py-3.5 px-4">Price</th>
+                    <th className="py-3.5 px-4">Stock Status</th>
+                    <th className="py-3.5 px-4">Badges</th>
+                    <th className="py-3.5 px-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100 text-slate-800">
+                  {filteredProducts.map((product) => {
+                    const displayTitle = product.title || product.name || 'Untitled Product';
+                    return (
+                      <tr key={product.id} className="hover:bg-rose-50/30 transition-colors">
+                        {/* Product Info */}
+                        <td className="py-3.5 px-4">
+                          <div className="flex items-center gap-3">
+                            <img
+                              src={product.image}
+                              alt={displayTitle}
+                              className="w-12 h-14 rounded-lg object-cover border border-gray-200 shadow-xs shrink-0"
+                            />
+                            <div>
+                              <p className="font-bold text-slate-900 text-xs sm:text-sm line-clamp-1">{displayTitle}</p>
+                              <span className="text-[11px] text-gray-400 font-mono">ID: #{product.id}</span>
+                            </div>
+                          </div>
+                        </td>
+
+                        {/* Category */}
+                        <td className="py-3.5 px-4">
+                          <span className="px-2.5 py-1 rounded-md bg-gray-100 font-semibold text-slate-700">
+                            {product.category || 'General'}
+                          </span>
+                        </td>
+
+                        {/* Price */}
+                        <td className="py-3.5 px-4">
+                          <div className="flex flex-col">
+                            <span className="font-bold text-slate-900">{formatPrice(product.price)}</span>
+                            {product.oldPrice && (
+                              <span className="text-[11px] text-gray-400 line-through">
+                                {formatPrice(product.oldPrice)}
+                              </span>
+                            )}
+                          </div>
+                        </td>
+
+                        {/* Stock */}
+                        <td className="py-3.5 px-4">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                            <CheckCircle2 className="w-3 h-3" />
+                            In Stock
+                          </span>
+                        </td>
+
+                        {/* Badges */}
+                        <td className="py-3.5 px-4">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            {product.isNew && (
+                              <span className="px-1.5 py-0.5 rounded bg-blue-50 text-blue-600 font-bold text-[9px] uppercase">
+                                New
+                              </span>
+                            )}
+                            {product.isTrending && (
+                              <span className="px-1.5 py-0.5 rounded bg-rose-50 text-[#ff2056] font-bold text-[9px] uppercase">
+                                Trending
+                              </span>
+                            )}
+                          </div>
+                        </td>
+
+                        {/* Actions */}
+                        <td className="py-3.5 px-4 text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            <button
+                              onClick={() => setQuickViewProduct(product)}
+                              className="p-1.5 rounded-lg bg-gray-100 hover:bg-slate-900 hover:text-white text-gray-600 transition-colors cursor-pointer"
+                              title="Preview Product"
+                            >
+                              <Eye className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              onClick={() => promptDeleteProduct(product.id, displayTitle)}
+                              className="p-1.5 rounded-lg bg-rose-50 hover:bg-[#ff2056] text-[#ff2056] hover:text-white transition-colors cursor-pointer"
+                              title="Delete Product"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {/* 2. MOBILE RESPONSIVE CARD VIEW (< md) */}
+            <div className="block md:hidden divide-y divide-gray-100">
               {filteredProducts.map((product) => {
                 const displayTitle = product.title || product.name || 'Untitled Product';
                 return (
-                  <tr key={product.id} className="hover:bg-rose-50/30 transition-colors">
-                    {/* Product Info */}
-                    <td className="py-3.5 px-4">
-                      <div className="flex items-center gap-3">
-                        <img
-                          src={product.image}
-                          alt={displayTitle}
-                          className="w-12 h-14 rounded-lg object-cover border border-gray-200 shadow-xs shrink-0"
-                        />
-                        <div>
-                          <p className="font-bold text-slate-900 text-xs sm:text-sm line-clamp-1">{displayTitle}</p>
-                          <span className="text-[11px] text-gray-400">ID: #{product.id}</span>
+                  <div key={product.id} className="p-4 space-y-3 hover:bg-slate-50/60 transition-colors">
+                    <div className="flex items-start gap-3">
+                      <img
+                        src={product.image}
+                        alt={displayTitle}
+                        className="w-16 h-18 rounded-xl object-cover border border-gray-200 shadow-xs shrink-0"
+                      />
+                      <div className="min-w-0 flex-1 space-y-1">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-700 text-[10px] font-bold">
+                            {product.category || 'General'}
+                          </span>
+                          <span className="text-[10px] text-gray-400 font-mono">
+                            #{String(product.id).slice(-6)}
+                          </span>
+                        </div>
+                        <h4 className="font-bold text-slate-900 text-xs sm:text-sm line-clamp-2 leading-snug">
+                          {displayTitle}
+                        </h4>
+                        <div className="flex items-center gap-2 pt-0.5">
+                          <span className="font-extrabold text-slate-900 text-xs sm:text-sm">
+                            {formatPrice(product.price)}
+                          </span>
+                          {product.oldPrice && (
+                            <span className="text-[11px] text-gray-400 line-through">
+                              {formatPrice(product.oldPrice)}
+                            </span>
+                          )}
                         </div>
                       </div>
-                    </td>
+                    </div>
 
-                    {/* Category */}
-                    <td className="py-3.5 px-4">
-                      <span className="px-2.5 py-1 rounded-md bg-gray-100 font-semibold text-slate-700">
-                        {product.category || 'General'}
-                      </span>
-                    </td>
-
-                    {/* Price */}
-                    <td className="py-3.5 px-4">
-                      <div className="flex flex-col">
-                        <span className="font-bold text-slate-900">{formatPrice(product.price)}</span>
-                        {product.oldPrice && (
-                          <span className="text-[11px] text-gray-400 line-through">
-                            {formatPrice(product.oldPrice)}
-                          </span>
-                        )}
-                      </div>
-                    </td>
-
-                    {/* Stock */}
-                    <td className="py-3.5 px-4">
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                        <CheckCircle2 className="w-3 h-3" />
-                        In Stock
-                      </span>
-                    </td>
-
-                    {/* Badges */}
-                    <td className="py-3.5 px-4">
+                    <div className="flex items-center justify-between gap-2 pt-1 border-t border-gray-100">
                       <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                          <CheckCircle2 className="w-3 h-3" />
+                          In Stock
+                        </span>
                         {product.isNew && (
                           <span className="px-1.5 py-0.5 rounded bg-blue-50 text-blue-600 font-bold text-[9px] uppercase">
                             New
@@ -239,17 +334,14 @@ const AdminProducts = ({ isModalOpen, setIsModalOpen }) => {
                           </span>
                         )}
                       </div>
-                    </td>
 
-                    {/* Actions */}
-                    <td className="py-3.5 px-4 text-right">
-                      <div className="flex items-center justify-end gap-2">
+                      <div className="flex items-center gap-2">
                         <button
                           onClick={() => setQuickViewProduct(product)}
-                          className="p-1.5 rounded-lg bg-gray-100 hover:bg-slate-900 hover:text-white text-gray-600 transition-colors cursor-pointer"
-                          title="Preview Product"
+                          className="px-2.5 py-1.5 rounded-lg bg-gray-100 hover:bg-slate-900 hover:text-white text-gray-700 transition-colors text-xs font-bold flex items-center gap-1 cursor-pointer"
                         >
                           <Eye className="w-3.5 h-3.5" />
+                          <span>Preview</span>
                         </button>
                         <button
                           onClick={() => promptDeleteProduct(product.id, displayTitle)}
@@ -259,13 +351,13 @@ const AdminProducts = ({ isModalOpen, setIsModalOpen }) => {
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
                       </div>
-                    </td>
-                  </tr>
+                    </div>
+                  </div>
                 );
               })}
-            </tbody>
-          </table>
-        </div>
+            </div>
+          </>
+        )}
       </div>
 
       {/* Add Product Modal */}

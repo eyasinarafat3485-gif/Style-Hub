@@ -326,13 +326,12 @@ const AdminCustomers = ({ currentUser }) => {
                                 className="w-9 h-9 rounded-full object-cover border border-gray-200 shrink-0"
                               />
                             ) : (
-                              <div className={`w-9 h-9 rounded-full font-bold text-xs flex items-center justify-center shrink-0 ${
-                                cust.role === 'admin'
+                              <div className={`w-9 h-9 rounded-full font-bold text-xs flex items-center justify-center shrink-0 ${cust.role === 'admin'
                                   ? 'bg-slate-900 text-white'
                                   : cust.isRegistered
-                                  ? 'bg-amber-100 text-amber-800'
-                                  : 'bg-rose-100 text-[#ff2056]'
-                              }`}>
+                                    ? 'bg-amber-100 text-amber-800'
+                                    : 'bg-rose-100 text-[#ff2056]'
+                                }`}>
                                 {cust.name ? cust.name.charAt(0).toUpperCase() : 'C'}
                               </div>
                             )}
@@ -384,13 +383,12 @@ const AdminCustomers = ({ currentUser }) => {
 
                         {/* Auth Provider */}
                         <td className="py-3.5 px-4 capitalize font-medium text-gray-600">
-                          <span className={`px-2 py-0.5 rounded-md text-[11px] font-bold border ${
-                            cust.authProvider === 'checkout' || !cust.isRegistered
+                          <span className={`px-2 py-0.5 rounded-md text-[11px] font-bold border ${cust.authProvider === 'checkout' || !cust.isRegistered
                               ? 'bg-amber-50 text-amber-800 border-amber-200'
                               : cust.authProvider === 'google'
-                              ? 'bg-blue-50 text-blue-800 border-blue-200'
-                              : 'bg-slate-100 text-slate-700 border-slate-200'
-                          }`}>
+                                ? 'bg-blue-50 text-blue-800 border-blue-200'
+                                : 'bg-slate-100 text-slate-700 border-slate-200'
+                            }`}>
                             {cust.authProvider === 'checkout' || !cust.isRegistered ? 'Checkout' : cust.authProvider === 'google' ? 'Google' : 'Local'}
                           </span>
                         </td>
@@ -419,19 +417,18 @@ const AdminCustomers = ({ currentUser }) => {
                               <button
                                 disabled={isSelf || isUpdating}
                                 onClick={() => handleRoleToggle(cust._id, cust.role, cust.name)}
-                                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                                  isSelf
+                                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${isSelf
                                     ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                                     : cust.role === 'admin'
-                                    ? 'bg-gray-100 hover:bg-gray-200 text-slate-700'
-                                    : 'bg-rose-50 hover:bg-[#ff2056] text-[#ff2056] hover:text-white'
-                                }`}
+                                      ? 'bg-gray-100 hover:bg-gray-200 text-slate-700'
+                                      : 'bg-rose-50 hover:bg-[#ff2056] text-[#ff2056] hover:text-white'
+                                  }`}
                               >
                                 {isUpdating
                                   ? 'Updating...'
                                   : cust.role === 'admin'
-                                  ? 'Revoke Admin'
-                                  : 'Make Admin'}
+                                    ? 'Remove Admin'
+                                    : 'Make Admin'}
                               </button>
                             ) : (
                               <span className="text-[10px] font-semibold text-gray-400 px-2 py-1 rounded-lg bg-gray-50 border border-gray-200">
@@ -480,13 +477,12 @@ const AdminCustomers = ({ currentUser }) => {
                             className="w-10 h-10 rounded-full object-cover border border-gray-200 shrink-0"
                           />
                         ) : (
-                          <div className={`w-10 h-10 rounded-full font-bold text-xs flex items-center justify-center shrink-0 ${
-                            cust.role === 'admin'
+                          <div className={`w-10 h-10 rounded-full font-bold text-xs flex items-center justify-center shrink-0 ${cust.role === 'admin'
                               ? 'bg-slate-900 text-white'
                               : cust.isRegistered
-                              ? 'bg-amber-100 text-amber-800'
-                              : 'bg-rose-100 text-[#ff2056]'
-                          }`}>
+                                ? 'bg-amber-100 text-amber-800'
+                                : 'bg-rose-100 text-[#ff2056]'
+                            }`}>
                             {cust.name ? cust.name.charAt(0).toUpperCase() : 'C'}
                           </div>
                         )}
@@ -550,19 +546,18 @@ const AdminCustomers = ({ currentUser }) => {
                           <button
                             disabled={isSelf || isUpdating}
                             onClick={() => handleRoleToggle(cust._id, cust.role, cust.name)}
-                            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                              isSelf
+                            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${isSelf
                                 ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                                 : cust.role === 'admin'
-                                ? 'bg-gray-100 hover:bg-gray-200 text-slate-700'
-                                : 'bg-rose-50 hover:bg-[#ff2056] text-[#ff2056] hover:text-white'
-                            }`}
+                                  ? 'bg-gray-100 hover:bg-gray-200 text-slate-700'
+                                  : 'bg-rose-50 hover:bg-[#ff2056] text-[#ff2056] hover:text-white'
+                              }`}
                           >
                             {isUpdating
                               ? 'Updating...'
                               : cust.role === 'admin'
-                              ? 'Revoke Admin'
-                              : 'Make Admin'}
+                                ? 'Remove Admin'
+                                : 'Make Admin'}
                           </button>
                         ) : (
                           <span className="text-[10px] text-gray-400 px-2 py-0.5 rounded bg-gray-50 border">

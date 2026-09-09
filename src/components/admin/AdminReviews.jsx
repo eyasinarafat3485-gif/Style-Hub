@@ -260,39 +260,154 @@ const AdminReviews = () => {
         </span>
       </div>
 
-      {/* Short & Compact Professional Review Table */}
-      <div className="overflow-x-auto rounded-xl border border-gray-200">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="bg-slate-50 border-b border-gray-200 text-[11px] font-extrabold uppercase tracking-wider text-slate-700">
-              <th className="py-2.5 px-3 w-10 text-center">#</th>
-              <th className="py-2.5 px-3">Customer</th>
-              <th className="py-2.5 px-3">Product</th>
-              <th className="py-2.5 px-3 w-28">Rating</th>
-              <th className="py-2.5 px-3">Review / Comment</th>
-              <th className="py-2.5 px-3 w-28">Date</th>
-              <th className="py-2.5 px-3 w-16 text-center">Action</th>
-            </tr>
-          </thead>
+      {/* Review Content: Desktop Table + Mobile Responsive Cards */}
+      <div className="rounded-xl border border-gray-200 overflow-hidden bg-white">
+        {isLoading ? (
+          <div className="py-12 text-center text-xs text-gray-500 space-y-2">
+            <div className="w-7 h-7 border-2 border-rose-200 border-t-[#ff2056] rounded-full animate-spin mx-auto" />
+            <p>Loading real reviews from database...</p>
+          </div>
+        ) : currentReviews.length === 0 ? (
+          <div className="py-12 text-center text-xs text-gray-500">
+            {searchTerm ? 'No reviews match your search query.' : 'No customer reviews found in MongoDB database.'}
+          </div>
+        ) : (
+          <>
+            {/* 1. DESKTOP VIEW (md+) */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-left border-collapse min-w-[700px]">
+                <thead>
+                  <tr className="bg-slate-50 border-b border-gray-200 text-[11px] font-extrabold uppercase tracking-wider text-slate-700">
+                    <th className="py-2.5 px-3 w-10 text-center">#</th>
+                    <th className="py-2.5 px-3">Customer</th>
+                    <th className="py-2.5 px-3">Product</th>
+                    <th className="py-2.5 px-3 w-28">Rating</th>
+                    <th className="py-2.5 px-3">Review / Comment</th>
+                    <th className="py-2.5 px-3 w-28">Date</th>
+                    <th className="py-2.5 px-3 w-16 text-center">Action</th>
+                  </tr>
+                </thead>
 
-          <tbody className="divide-y divide-gray-100 text-xs text-slate-800">
-            {isLoading ? (
-              <tr>
-                <td colSpan={7} className="py-8 text-center text-xs text-gray-500">
-                  Loading real reviews from database...
-                </td>
-              </tr>
-            ) : currentReviews.length === 0 ? (
-              <tr>
-                <td colSpan={7} className="py-8 text-center text-xs text-gray-500">
-                  {searchTerm ? 'No reviews match your search query.' : 'No customer reviews found in MongoDB database.'}
-                </td>
-              </tr>
-            ) : (
-              currentReviews.map((rev, index) => {
+                <tbody className="divide-y divide-gray-100 text-xs text-slate-800">
+                  {currentReviews.map((rev, index) => {
+                    const globalIndex = indexOfFirstItem + index + 1;
+                    const avatarBg = getAvatarBgClass(rev.name || rev.email);
+
+                    const effectiveAvatar =
+                      rev.userAvatar ||
+                      (user && user.email && rev.email && user.email.toLowerCase() === rev.email.toLowerCase()
+                        ? user.avatar || user.picture || user.image
+                        : '');
+
+                    return (
+                      <tr key={rev._id || index} className="hover:bg-slate-50/80 transition-colors">
+                        {/* Index */}
+                        <td className="py-2.5 px-3 text-center text-gray-400 font-mono text-[11px]">
+                          {globalIndex}
+                        </td>
+
+                        {/* Customer Info */}
+                        <td className="py-2.5 px-3">
+                          <div className="flex items-center gap-2.5">
+                            <UserAvatar
+                              userAvatar={effectiveAvatar}
+                              name={rev.name}
+                              bgClass={avatarBg}
+                            />
+                            <div className="min-w-0">
+                              <span className="font-bold text-slate-900 block truncate leading-tight">
+                                {rev.name}
+                              </span>
+                              <span className="text-[10px] text-gray-400 truncate block">
+                                {rev.email}
+                              </span>
+                            </div>
+                          </div>
+                        </td>
+
+                        {/* Product Badge */}
+                        <td className="py-2.5 px-3">
+                          <div className="flex items-center gap-2 max-w-[180px]">
+                            {rev.productImage && (
+                              <img
+                                src={rev.productImage}
+                                alt={rev.productName || 'Product'}
+                                className="w-7 h-7 rounded-md object-cover border border-gray-200 shrink-0"
+                              />
+                            )}
+                            <span className="font-semibold text-slate-800 text-[11px] truncate">
+                              {rev.productName || `Product #${rev.productId}`}
+                            </span>
+                          </div>
+                        </td>
+
+                        {/* Rating */}
+                        <td className="py-2.5 px-3">
+                          <div className="flex items-center gap-1">
+                            <div className="flex items-center text-amber-400">
+                              {[...Array(5)].map((_, i) => (
+                                <Star
+                                  key={i}
+                                  className={`w-3 h-3 ${
+                                    i < Number(rev.rating || 5)
+                                      ? 'fill-amber-400 text-amber-400'
+                                      : 'text-gray-200'
+                                  }`}
+                                />
+                              ))}
+                            </div>
+                            <span className="font-bold text-[11px] text-slate-900 ml-0.5">
+                              {rev.rating}.0
+                            </span>
+                          </div>
+                        </td>
+
+                        {/* Comment (Max 2 lines with ...) */}
+                        <td className="py-2.5 px-3 max-w-xs">
+                          <p
+                            className="text-gray-700 text-xs italic font-normal line-clamp-2 leading-snug overflow-hidden text-ellipsis"
+                            title={rev.comment}
+                          >
+                            "{rev.comment}"
+                          </p>
+                        </td>
+
+                        {/* Date */}
+                        <td className="py-2.5 px-3 text-[11px] font-medium text-gray-500 whitespace-nowrap">
+                          {rev.createdAt ? new Date(rev.createdAt).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }) : 'Recently'}
+                        </td>
+
+                        {/* Actions (View & Delete) */}
+                        <td className="py-2.5 px-3 text-center">
+                          <div className="flex items-center justify-center gap-1">
+                            <button
+                              onClick={() => handleViewProduct(rev.productId, rev.productName, rev.productImage)}
+                              className="p-1.5 text-gray-500 hover:text-[#ff2056] hover:bg-rose-50 rounded-lg transition-all cursor-pointer"
+                              title="View product & customer reviews"
+                            >
+                              <Eye className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              onClick={() => promptDeleteReview(rev._id, rev.name)}
+                              className="p-1.5 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all cursor-pointer"
+                              title="Delete review"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {/* 2. MOBILE VIEW (< md) */}
+            <div className="block md:hidden divide-y divide-gray-100">
+              {currentReviews.map((rev, index) => {
                 const globalIndex = indexOfFirstItem + index + 1;
                 const avatarBg = getAvatarBgClass(rev.name || rev.email);
-
                 const effectiveAvatar =
                   rev.userAvatar ||
                   (user && user.email && rev.email && user.email.toLowerCase() === rev.email.toLowerCase()
@@ -300,108 +415,66 @@ const AdminReviews = () => {
                     : '');
 
                 return (
-                  <tr key={rev._id || index} className="hover:bg-slate-50/80 transition-colors">
-                    {/* Index */}
-                    <td className="py-2.5 px-3 text-center text-gray-400 font-mono text-[11px]">
-                      {globalIndex}
-                    </td>
-
-                    {/* Customer Info */}
-                    <td className="py-2.5 px-3">
+                  <div key={rev._id || index} className="p-4 space-y-2.5 hover:bg-slate-50/60 transition-colors">
+                    <div className="flex items-start justify-between gap-2">
                       <div className="flex items-center gap-2.5">
                         <UserAvatar
                           userAvatar={effectiveAvatar}
                           name={rev.name}
                           bgClass={avatarBg}
                         />
-                        <div className="min-w-0">
-                          <span className="font-bold text-slate-900 block truncate leading-tight">
-                            {rev.name}
-                          </span>
-                          <span className="text-[10px] text-gray-400 truncate block">
-                            {rev.email}
-                          </span>
+                        <div>
+                          <p className="font-bold text-slate-900 text-xs">{rev.name}</p>
+                          <span className="text-[10px] text-gray-400 block">{rev.email}</span>
                         </div>
                       </div>
-                    </td>
+                      <div className="flex items-center gap-1 text-amber-500 font-bold text-xs bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200/60">
+                        <Star className="w-3 h-3 fill-amber-400" />
+                        <span>{rev.rating}.0</span>
+                      </div>
+                    </div>
 
-                    {/* Product Badge */}
-                    <td className="py-2.5 px-3">
-                      <div className="flex items-center gap-2 max-w-[180px]">
+                    {/* Product & Comment */}
+                    <div className="bg-slate-50 p-2.5 rounded-xl space-y-1.5">
+                      <div className="flex items-center gap-2">
                         {rev.productImage && (
                           <img
                             src={rev.productImage}
-                            alt={rev.productName || 'Product'}
+                            alt={rev.productName}
                             className="w-7 h-7 rounded-md object-cover border border-gray-200 shrink-0"
                           />
                         )}
-                        <span className="font-semibold text-slate-800 text-[11px] truncate">
+                        <span className="font-semibold text-slate-800 text-[11px] line-clamp-1">
                           {rev.productName || `Product #${rev.productId}`}
                         </span>
                       </div>
-                    </td>
+                      <p className="text-xs text-gray-700 italic">"{rev.comment}"</p>
+                    </div>
 
-                    {/* Rating */}
-                    <td className="py-2.5 px-3">
-                      <div className="flex items-center gap-1">
-                        <div className="flex items-center text-amber-400">
-                          {[...Array(5)].map((_, i) => (
-                            <Star
-                              key={i}
-                              className={`w-3 h-3 ${
-                                i < Number(rev.rating || 5)
-                                  ? 'fill-amber-400 text-amber-400'
-                                  : 'text-gray-200'
-                              }`}
-                            />
-                          ))}
-                        </div>
-                        <span className="font-bold text-[11px] text-slate-900 ml-0.5">
-                          {rev.rating}.0
-                        </span>
-                      </div>
-                    </td>
-
-                    {/* Comment (Max 2 lines with ...) */}
-                    <td className="py-2.5 px-3 max-w-xs">
-                      <p
-                        className="text-gray-700 text-xs italic font-normal line-clamp-2 leading-snug overflow-hidden text-ellipsis"
-                        title={rev.comment}
-                      >
-                        "{rev.comment}"
-                      </p>
-                    </td>
-
-                    {/* Date */}
-                    <td className="py-2.5 px-3 text-[11px] font-medium text-gray-500 whitespace-nowrap">
-                      {rev.createdAt ? new Date(rev.createdAt).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }) : 'Recently'}
-                    </td>
-
-                    {/* Actions (View & Delete) */}
-                    <td className="py-2.5 px-3 text-center">
-                      <div className="flex items-center justify-center gap-1">
+                    <div className="flex items-center justify-between pt-1 text-[11px] text-gray-400 border-t border-gray-50">
+                      <span>{rev.createdAt ? new Date(rev.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Recently'}</span>
+                      <div className="flex items-center gap-2">
                         <button
                           onClick={() => handleViewProduct(rev.productId, rev.productName, rev.productImage)}
-                          className="p-1.5 text-gray-500 hover:text-[#ff2056] hover:bg-rose-50 rounded-lg transition-all cursor-pointer"
-                          title="View product & customer reviews"
+                          className="px-2 py-1 bg-gray-100 hover:bg-slate-900 hover:text-white text-gray-700 rounded-md font-bold text-xs flex items-center gap-1 transition-colors"
                         >
-                          <Eye className="w-3.5 h-3.5" />
+                          <Eye className="w-3 h-3" />
+                          <span>View</span>
                         </button>
                         <button
                           onClick={() => promptDeleteReview(rev._id, rev.name)}
-                          className="p-1.5 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all cursor-pointer"
-                          title="Delete review"
+                          className="p-1 bg-rose-50 text-[#ff2056] hover:bg-[#ff2056] hover:text-white rounded-md transition-colors"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
                       </div>
-                    </td>
-                  </tr>
+                    </div>
+                  </div>
                 );
-              })
-            )}
-          </tbody>
-        </table>
+              })}
+            </div>
+          </>
+        )}
       </div>
 
       {/* Pagination Footer (10 items per page) */}

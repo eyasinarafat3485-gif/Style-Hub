@@ -16,6 +16,7 @@ import AdminOrders from '../components/admin/AdminOrders';
 import AdminCustomers from '../components/admin/AdminCustomers';
 import AdminReviews from '../components/admin/AdminReviews';
 import AdminSettings from '../components/admin/AdminSettings';
+import AdminAnalytics from '../components/admin/AdminAnalytics';
 
 // User Components
 import UserSidebar from '../components/user/UserSidebar';
@@ -881,29 +882,7 @@ const DashboardPage = () => {
                 )}
 
                 {activeTab === 'analytics' && (
-                  <div className="bg-white rounded-2xl border border-gray-200/80 p-8 shadow-xs text-center space-y-4">
-                    <h3 className="text-xl font-bold font-serif text-slate-900">Reports & Live Analytics</h3>
-                    <p className="text-xs text-gray-500 max-w-md mx-auto">
-                      Real-time revenue metrics, shopping cart conversion rates, and product inventory velocity.
-                    </p>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 text-left">
-                      <div className="p-4 bg-emerald-50/60 border border-emerald-200 rounded-xl">
-                        <span className="text-[11px] font-bold text-emerald-700 uppercase">Conversion Rate</span>
-                        <h4 className="text-2xl font-extrabold text-slate-900 mt-1">3.84%</h4>
-                        <span className="text-[10px] text-emerald-600 font-medium">+0.6% vs last week</span>
-                      </div>
-                      <div className="p-4 bg-blue-50/60 border border-blue-200 rounded-xl">
-                        <span className="text-[11px] font-bold text-blue-700 uppercase">Avg. Order Value</span>
-                        <h4 className="text-2xl font-extrabold text-slate-900 mt-1">৳ 2,450</h4>
-                        <span className="text-[10px] text-blue-600 font-medium">+৳ 120 per checkout</span>
-                      </div>
-                      <div className="p-4 bg-rose-50/60 border border-rose-200 rounded-xl">
-                        <span className="text-[11px] font-bold text-[#ff2056] uppercase">Active Sessions</span>
-                        <h4 className="text-2xl font-extrabold text-slate-900 mt-1">84 Live</h4>
-                        <span className="text-[10px] text-gray-500 font-medium">Browsing store right now</span>
-                      </div>
-                    </div>
-                  </div>
+                  <AdminAnalytics setActiveTab={handleTabChange} />
                 )}
 
                 {activeTab === 'settings' && <AdminSettings />}

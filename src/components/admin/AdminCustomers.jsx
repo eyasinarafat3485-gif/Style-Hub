@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../../config/api';
 import React, { useState, useEffect } from 'react';
 import {
   Search,
@@ -32,7 +33,7 @@ const AdminCustomers = ({ currentUser }) => {
     try {
       setIsLoading(true);
       const token = localStorage.getItem('stylehub_token');
-      const res = await fetch('http://localhost:5000/api/auth/users', {
+      const res = await fetch(`${API_BASE_URL}/auth/users`, {
         headers: {
           'Content-Type': 'application/json',
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -62,7 +63,7 @@ const AdminCustomers = ({ currentUser }) => {
     try {
       setUpdatingUserId(userId);
       const token = localStorage.getItem('stylehub_token');
-      const res = await fetch(`http://localhost:5000/api/auth/users/${userId}/role`, {
+      const res = await fetch(`${API_BASE_URL}/auth/users/${userId}/role`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -94,7 +95,7 @@ const AdminCustomers = ({ currentUser }) => {
     try {
       setIsDeleting(true);
       const token = localStorage.getItem('stylehub_token');
-      const res = await fetch(`http://localhost:5000/api/auth/users/${deleteModalUser._id}`, {
+      const res = await fetch(`${API_BASE_URL}/auth/users/${deleteModalUser._id}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',

@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../config/api';
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
@@ -37,7 +38,7 @@ const NotificationDropdown = ({ align = 'right' }) => {
 
     try {
       setIsLoading(true);
-      const res = await fetch('http://localhost:5000/api/notifications?page=1&limit=5', {
+      const res = await fetch(`${API_BASE_URL}/notifications?page=1&limit=5`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
@@ -97,7 +98,7 @@ const NotificationDropdown = ({ align = 'right' }) => {
     if (!token) return;
 
     try {
-      const res = await fetch('http://localhost:5000/api/notifications/mark-all-read', {
+      const res = await fetch(`${API_BASE_URL}/notifications/mark-all-read`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -125,7 +126,7 @@ const NotificationDropdown = ({ align = 'right' }) => {
         user?.token;
       if (token) {
         try {
-          await fetch(`http://localhost:5000/api/notifications/${notif._id}/read`, {
+          await fetch(`${API_BASE_URL}/notifications/${notif._id}/read`, {
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json',

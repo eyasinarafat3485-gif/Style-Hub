@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../../config/api';
 import React, { useState, useEffect } from 'react';
 import {
   LayoutDashboard,
@@ -58,7 +59,7 @@ const AdminSidebar = ({
       try {
         const token = localStorage.getItem('stylehub_token');
         if (!token) return;
-        const res = await fetch('http://localhost:5000/api/orders', {
+        const res = await fetch(`${API_BASE_URL}/orders`, {
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,

@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../config/api';
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
@@ -112,7 +113,7 @@ const CheckoutPage = () => {
   useEffect(() => {
     const fetchStoreSettings = async () => {
       try {
-        const res = await fetch('http://localhost:5000/api/settings');
+        const res = await fetch(`${API_BASE_URL}/settings`);
         const data = await res.json();
         if (data.success && data.settings) {
           setStoreSettings(data.settings);
@@ -307,7 +308,7 @@ const CheckoutPage = () => {
         ].filter(Boolean).join(' | '),
       };
 
-      const res = await fetch('http://localhost:5000/api/orders', {
+      const res = await fetch(`${API_BASE_URL}/orders`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

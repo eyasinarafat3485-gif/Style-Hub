@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../config/api';
 import React, { useState, useEffect } from 'react';
 import {
   X,
@@ -130,7 +131,7 @@ const ProductQuickViewModal = () => {
     setIsLoadingReviews(true);
     const nameQuery = productName ? `?name=${encodeURIComponent(productName)}` : '';
     try {
-      const res = await fetch(`http://localhost:5000/api/reviews/product/${productId}${nameQuery}`);
+      const res = await fetch(`${API_BASE_URL}/reviews/product/${productId}${nameQuery}`);
       if (res.ok) {
         const data = await res.json();
         if (data.success) {
@@ -200,7 +201,7 @@ const ProductQuickViewModal = () => {
     let newReviewObj = null;
 
     try {
-      const res = await fetch('http://localhost:5000/api/reviews', {
+      const res = await fetch(`${API_BASE_URL}/reviews`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(reviewPayload),

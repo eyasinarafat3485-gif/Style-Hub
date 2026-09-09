@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../../config/api';
 import React, { useState, useEffect } from 'react';
 import {
   Truck,
@@ -81,7 +82,7 @@ const AdminSettings = () => {
   const fetchSettings = async (showToast = false) => {
     try {
       if (!showToast) setIsLoading(true);
-      const res = await fetch('http://localhost:5000/api/settings');
+      const res = await fetch(`${API_BASE_URL}/settings`);
       const data = await res.json();
       if (data.success && data.settings) {
         setSettings(data.settings);
@@ -105,7 +106,7 @@ const AdminSettings = () => {
     try {
       setIsSaving(true);
       const token = localStorage.getItem('stylehub_token') || localStorage.getItem('stylehub_auth_token');
-      const res = await fetch('http://localhost:5000/api/settings', {
+      const res = await fetch(`${API_BASE_URL}/settings`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -171,8 +172,8 @@ const AdminSettings = () => {
       const token = localStorage.getItem('stylehub_token') || localStorage.getItem('stylehub_auth_token');
       const isEdit = !!editingMethod;
       const url = isEdit
-        ? `http://localhost:5000/api/settings/payment-methods/${editingMethod.id || editingMethod._id}`
-        : 'http://localhost:5000/api/settings/payment-methods';
+        ? `${API_BASE_URL}/settings/payment-methods/${editingMethod.id || editingMethod._id}`
+        : `${API_BASE_URL}/settings/payment-methods`;
       const method = isEdit ? 'PUT' : 'POST';
 
       const res = await fetch(url, {
@@ -211,7 +212,7 @@ const AdminSettings = () => {
       const targetId = method.id || method._id;
       const updatedEnabled = !method.enabled;
 
-      const res = await fetch(`http://localhost:5000/api/settings/payment-methods/${targetId}`, {
+      const res = await fetch(`${API_BASE_URL}/settings/payment-methods/${targetId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -241,7 +242,7 @@ const AdminSettings = () => {
       const token = localStorage.getItem('stylehub_token') || localStorage.getItem('stylehub_auth_token');
       const targetId = deleteModalMethod.id || deleteModalMethod._id;
 
-      const res = await fetch(`http://localhost:5000/api/settings/payment-methods/${targetId}`, {
+      const res = await fetch(`${API_BASE_URL}/settings/payment-methods/${targetId}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',

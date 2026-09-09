@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../config/api';
 import React, { useState, useEffect } from 'react';
 import { Star, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -68,7 +69,7 @@ const CustomerReviews = () => {
   useEffect(() => {
     const fetchAllReviews = async () => {
       try {
-        const res = await fetch('http://localhost:5000/api/reviews');
+        const res = await fetch(`${API_BASE_URL}/reviews`);
         if (res.ok) {
           const data = await res.json();
           if (data.success && Array.isArray(data.reviews)) {

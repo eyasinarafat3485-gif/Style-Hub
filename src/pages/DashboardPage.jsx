@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../config/api';
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -280,7 +281,7 @@ const DashboardPage = () => {
       setOrdersLoading(true);
       const token = localStorage.getItem('stylehub_token') || localStorage.getItem('stylehub_auth_token') || user?.token;
       if (!token) return;
-      const res = await fetch('http://localhost:5000/api/orders/myorders', {
+      const res = await fetch(`${API_BASE_URL}/orders/myorders`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
@@ -304,7 +305,7 @@ const DashboardPage = () => {
       if (!token) return;
 
       const queryParam = filterType && filterType !== 'all' ? `&type=${filterType}` : '';
-      const res = await fetch(`http://localhost:5000/api/notifications?page=${page}&limit=10${queryParam}`, {
+      const res = await fetch(`${API_BASE_URL}/notifications?page=${page}&limit=10${queryParam}`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
@@ -339,7 +340,7 @@ const DashboardPage = () => {
       const token = localStorage.getItem('stylehub_token') || localStorage.getItem('stylehub_auth_token') || user?.token;
       if (!token) return;
 
-      const res = await fetch('http://localhost:5000/api/notifications/mark-all-read', {
+      const res = await fetch(`${API_BASE_URL}/notifications/mark-all-read`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -364,7 +365,7 @@ const DashboardPage = () => {
       const token = localStorage.getItem('stylehub_token') || localStorage.getItem('stylehub_auth_token') || user?.token;
       if (!token) return;
 
-      await fetch(`http://localhost:5000/api/notifications/${id}/read`, {
+      await fetch(`${API_BASE_URL}/notifications/${id}/read`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

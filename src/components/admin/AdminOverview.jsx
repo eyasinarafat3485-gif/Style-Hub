@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../../config/api';
 import React, { useState, useEffect } from 'react';
 import {
   TrendingUp,
@@ -44,12 +45,12 @@ const AdminOverview = ({ setActiveTab, onAddNewProduct }) => {
       };
 
       // 1. Fetch Orders
-      const ordersPromise = fetch('http://localhost:5000/api/orders', { headers })
+      const ordersPromise = fetch(`${API_BASE_URL}/orders`, { headers })
         .then((res) => res.json())
         .catch(() => ({ success: false, orders: [] }));
 
       // 2. Fetch Customers
-      const customersPromise = fetch('http://localhost:5000/api/auth/users', { headers })
+      const customersPromise = fetch(`${API_BASE_URL}/auth/users`, { headers })
         .then((res) => res.json())
         .catch(() => ({ success: false, users: [] }));
 

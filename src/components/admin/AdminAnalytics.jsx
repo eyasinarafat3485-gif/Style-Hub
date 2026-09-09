@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../../config/api';
 import React, { useState, useEffect } from 'react';
 import {
   TrendingUp,
@@ -76,7 +77,7 @@ const AdminAnalytics = ({ setActiveTab }) => {
         localStorage.getItem('stylehub_auth_token');
 
       const res = await fetch(
-        `http://localhost:5000/api/analytics?range=${selectedRange}`,
+        `${API_BASE_URL}/analytics?range=${selectedRange}`,
         {
           headers: {
             'Content-Type': 'application/json',

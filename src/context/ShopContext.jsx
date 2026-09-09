@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../config/api';
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const ShopContext = createContext();
@@ -130,7 +131,7 @@ export const ShopProvider = ({ children }) => {
   // Fetch Categories from Backend
   const fetchCategories = async () => {
     try {
-      const res = await fetch('http://localhost:5000/api/categories');
+      const res = await fetch(`${API_BASE_URL}/categories`);
       const data = await res.json();
       if (data.success && Array.isArray(data.categories)) {
         setCategories(data.categories);
@@ -143,7 +144,7 @@ export const ShopProvider = ({ children }) => {
   // Fetch Brands from Backend
   const fetchBrands = async () => {
     try {
-      const res = await fetch('http://localhost:5000/api/brands');
+      const res = await fetch(`${API_BASE_URL}/brands`);
       const data = await res.json();
       if (data.success && Array.isArray(data.brands)) {
         setBrands(data.brands);
@@ -156,7 +157,7 @@ export const ShopProvider = ({ children }) => {
   // Fetch Tags from Backend
   const fetchTags = async () => {
     try {
-      const res = await fetch('http://localhost:5000/api/tags');
+      const res = await fetch(`${API_BASE_URL}/tags`);
       const data = await res.json();
       if (data.success && Array.isArray(data.tags)) {
         setTags(data.tags);
@@ -169,7 +170,7 @@ export const ShopProvider = ({ children }) => {
   // Fetch Attributes from Backend
   const fetchAttributes = async () => {
     try {
-      const res = await fetch('http://localhost:5000/api/attributes');
+      const res = await fetch(`${API_BASE_URL}/attributes`);
       const data = await res.json();
       if (data.success && Array.isArray(data.attributes)) {
         setAttributes(data.attributes);
@@ -184,7 +185,7 @@ export const ShopProvider = ({ children }) => {
     if (!token) return;
 
     try {
-      const res = await fetch('http://localhost:5000/api/my-collections', {
+      const res = await fetch(`${API_BASE_URL}/my-collections`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -225,7 +226,7 @@ export const ShopProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/products')
+    fetch(`${API_BASE_URL}/products`)
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data) && data.length > 0) {
@@ -246,7 +247,7 @@ export const ShopProvider = ({ children }) => {
   // Category Add / Delete API
   const addCategory = async (categoryData) => {
     try {
-      const res = await fetch('http://localhost:5000/api/categories', {
+      const res = await fetch(`${API_BASE_URL}/categories`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(categoryData),
@@ -265,7 +266,7 @@ export const ShopProvider = ({ children }) => {
 
   const deleteCategory = async (id) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/categories/${id}`, {
+      const res = await fetch(`${API_BASE_URL}/categories/${id}`, {
         method: 'DELETE',
       });
       const data = await res.json();
@@ -282,7 +283,7 @@ export const ShopProvider = ({ children }) => {
   // Brand Add / Delete API
   const addBrand = async (brandData) => {
     try {
-      const res = await fetch('http://localhost:5000/api/brands', {
+      const res = await fetch(`${API_BASE_URL}/brands`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(brandData),
@@ -301,7 +302,7 @@ export const ShopProvider = ({ children }) => {
 
   const deleteBrand = async (id) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/brands/${id}`, {
+      const res = await fetch(`${API_BASE_URL}/brands/${id}`, {
         method: 'DELETE',
       });
       const data = await res.json();
@@ -318,7 +319,7 @@ export const ShopProvider = ({ children }) => {
   // Tag Add / Delete API
   const addTag = async (tagData) => {
     try {
-      const res = await fetch('http://localhost:5000/api/tags', {
+      const res = await fetch(`${API_BASE_URL}/tags`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(tagData),
@@ -337,7 +338,7 @@ export const ShopProvider = ({ children }) => {
 
   const deleteTag = async (id) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/tags/${id}`, {
+      const res = await fetch(`${API_BASE_URL}/tags/${id}`, {
         method: 'DELETE',
       });
       const data = await res.json();
@@ -354,7 +355,7 @@ export const ShopProvider = ({ children }) => {
   // Attribute Add / Delete API
   const addAttribute = async (attrData) => {
     try {
-      const res = await fetch('http://localhost:5000/api/attributes', {
+      const res = await fetch(`${API_BASE_URL}/attributes`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(attrData),
@@ -373,7 +374,7 @@ export const ShopProvider = ({ children }) => {
 
   const deleteAttribute = async (id) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/attributes/${id}`, {
+      const res = await fetch(`${API_BASE_URL}/attributes/${id}`, {
         method: 'DELETE',
       });
       const data = await res.json();
@@ -390,7 +391,7 @@ export const ShopProvider = ({ children }) => {
   const addProduct = async (productData) => {
     try {
       const token = localStorage.getItem('stylehub_token') || localStorage.getItem('stylehub_auth_token');
-      const response = await fetch('http://localhost:5000/api/products', {
+      const response = await fetch(`${API_BASE_URL}/products`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -439,7 +440,7 @@ export const ShopProvider = ({ children }) => {
   const deleteProduct = async (id) => {
     try {
       const token = localStorage.getItem('stylehub_token') || localStorage.getItem('stylehub_auth_token');
-      await fetch(`http://localhost:5000/api/products/${id}`, {
+      await fetch(`${API_BASE_URL}/products/${id}`, {
         method: 'DELETE',
         headers: {
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -481,7 +482,7 @@ export const ShopProvider = ({ children }) => {
     const token = localStorage.getItem('stylehub_token') || localStorage.getItem('stylehub_auth_token');
     if (token) {
       try {
-        await fetch('http://localhost:5000/api/my-collections', {
+        await fetch(`${API_BASE_URL}/my-collections`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -538,7 +539,7 @@ export const ShopProvider = ({ children }) => {
     if (token) {
       try {
         if (targetMongoId && /^[0-9a-fA-F]{24}$/.test(targetMongoId)) {
-          await fetch(`http://localhost:5000/api/my-collections/${targetMongoId}`, {
+          await fetch(`${API_BASE_URL}/my-collections/${targetMongoId}`, {
             method: 'DELETE',
             headers: {
               Authorization: `Bearer ${token}`,
@@ -547,7 +548,7 @@ export const ShopProvider = ({ children }) => {
         } else {
           const sizeParam = targetSize ? `&selectedSize=${encodeURIComponent(targetSize)}` : '';
           await fetch(
-            `http://localhost:5000/api/my-collections/item?productId=${encodeURIComponent(targetProductId)}&itemType=cart${sizeParam}`,
+            `${API_BASE_URL}/my-collections/item?productId=${encodeURIComponent(targetProductId)}&itemType=cart${sizeParam}`,
             {
               method: 'DELETE',
               headers: {
@@ -581,7 +582,7 @@ export const ShopProvider = ({ children }) => {
           (i) => (String(i.id) === String(id) || String(i._id) === String(id)) && i.selectedSize === selectedSize
         );
         if (itemInCart && itemInCart._id) {
-          await fetch(`http://localhost:5000/api/my-collections/${itemInCart._id}`, {
+          await fetch(`${API_BASE_URL}/my-collections/${itemInCart._id}`, {
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json',
@@ -609,7 +610,7 @@ export const ShopProvider = ({ children }) => {
     const token = localStorage.getItem('stylehub_token') || localStorage.getItem('stylehub_auth_token');
     if (token) {
       try {
-        await fetch('http://localhost:5000/api/my-collections/wishlist/toggle', {
+        await fetch(`${API_BASE_URL}/my-collections/wishlist/toggle`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -657,7 +658,7 @@ export const ShopProvider = ({ children }) => {
     if (token) {
       try {
         if (targetMongoId && /^[0-9a-fA-F]{24}$/.test(targetMongoId)) {
-          await fetch(`http://localhost:5000/api/my-collections/${targetMongoId}`, {
+          await fetch(`${API_BASE_URL}/my-collections/${targetMongoId}`, {
             method: 'DELETE',
             headers: {
               Authorization: `Bearer ${token}`,
@@ -665,7 +666,7 @@ export const ShopProvider = ({ children }) => {
           });
         } else {
           await fetch(
-            `http://localhost:5000/api/my-collections/item?productId=${encodeURIComponent(targetProductId)}&itemType=wishlist`,
+            `${API_BASE_URL}/my-collections/item?productId=${encodeURIComponent(targetProductId)}&itemType=wishlist`,
             {
               method: 'DELETE',
               headers: {

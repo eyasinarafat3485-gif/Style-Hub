@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../../config/api';
 import React, { useState, useEffect } from 'react';
 import {
   Package,
@@ -39,7 +40,7 @@ const AdminOrders = () => {
     try {
       setIsLoading(true);
       const token = localStorage.getItem('stylehub_token');
-      const res = await fetch('http://localhost:5000/api/orders', {
+      const res = await fetch(`${API_BASE_URL}/orders`, {
         headers: {
           'Content-Type': 'application/json',
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -68,7 +69,7 @@ const AdminOrders = () => {
     try {
       setStatusUpdatingRowKey(rowKey || orderId);
       const token = localStorage.getItem('stylehub_token');
-      const res = await fetch(`http://localhost:5000/api/orders/${orderId}/status`, {
+      const res = await fetch(`${API_BASE_URL}/orders/${orderId}/status`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -114,7 +115,7 @@ const AdminOrders = () => {
       const { orderId, itemId, itemIndex } = deleteModalTarget;
       const token = localStorage.getItem('stylehub_token');
 
-      let url = `http://localhost:5000/api/orders/${orderId}`;
+      let url = `${API_BASE_URL}/orders/${orderId}`;
       if (itemId) {
         url += `?itemId=${itemId}`;
       } else if (itemIndex !== undefined) {

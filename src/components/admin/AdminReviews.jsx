@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../../config/api';
 import React, { useState, useEffect } from 'react';
 import { Star, Trash2, Search, RefreshCw, MessageSquare, CheckCircle2, ChevronLeft, ChevronRight, User, Eye, X } from 'lucide-react';
 import { toast } from 'react-toastify';
@@ -107,7 +108,7 @@ const AdminReviews = () => {
   const fetchAdminReviews = async () => {
     setIsLoading(true);
     try {
-      const res = await fetch('http://localhost:5000/api/reviews');
+      const res = await fetch(`${API_BASE_URL}/reviews`);
       if (res.ok) {
         const data = await res.json();
         if (data.success && Array.isArray(data.reviews)) {
@@ -151,7 +152,7 @@ const AdminReviews = () => {
     setDeleteReviewModal((prev) => ({ ...prev, isDeleting: true }));
 
     try {
-      const res = await fetch(`http://localhost:5000/api/reviews/${reviewId}`, {
+      const res = await fetch(`${API_BASE_URL}/reviews/${reviewId}`, {
         method: 'DELETE',
       });
       const data = await res.json();

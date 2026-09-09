@@ -2,10 +2,10 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import {
   Search,
-  Bell,
   Store,
   Menu,
 } from 'lucide-react';
+import NotificationDropdown from '../NotificationDropdown';
 
 const DashboardTopBar = ({
   user,
@@ -81,14 +81,8 @@ const DashboardTopBar = ({
           <span className="hidden sm:inline">Live Store</span>
         </Link>
 
-        {/* Notifications Bell */}
-        <button
-          className="relative p-2 text-gray-600 hover:text-[#ff2056] hover:bg-rose-50 rounded-xl transition-colors cursor-pointer"
-          title="Notifications"
-        >
-          <Bell className="w-4 h-4" />
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#ff2056] rounded-full ring-2 ring-white" />
-        </button>
+        {/* Live Interactive Notification Dropdown */}
+        <NotificationDropdown align="right" />
       </div>
     </header>
   );

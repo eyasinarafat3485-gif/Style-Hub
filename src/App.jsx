@@ -21,6 +21,7 @@ import NotFoundPage from './pages/NotFoundPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
+import CheckoutPage from './pages/CheckoutPage';
 
 const MainLayout = () => {
   const location = useLocation();
@@ -75,6 +76,9 @@ const MainLayout = () => {
           <Route path="/new-arrivals" element={<ShopPage initialFilter="new" />} />
           <Route path="/about-us" element={<AboutPage />} />
           <Route path="/about" element={<AboutPage />} />
+
+          {/* Checkout Route */}
+          <Route path="/checkout" element={<CheckoutPage />} />
 
           {/* Authentication Routes */}
           <Route path="/login" element={<LoginPage />} />

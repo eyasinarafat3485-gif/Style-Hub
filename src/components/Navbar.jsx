@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { Search, User, Heart, ShoppingCart, ChevronDown, X, Menu, LogIn, LogOut, LayoutDashboard, Package } from 'lucide-react';
+import NotificationDropdown from './NotificationDropdown';
 import { useShop } from '../context/ShopContext';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
@@ -230,6 +231,11 @@ const Navbar = () => {
                 </div>
               )}
             </div>
+          )}
+
+          {/* Notifications Dropdown if authenticated */}
+          {isAuthenticated && (
+            <NotificationDropdown align="right" />
           )}
 
           {/* Wishlist */}

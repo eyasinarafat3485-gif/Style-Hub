@@ -15,6 +15,7 @@ import AdminAddProduct from '../components/admin/AdminAddProduct';
 import AdminOrders from '../components/admin/AdminOrders';
 import AdminCustomers from '../components/admin/AdminCustomers';
 import AdminReviews from '../components/admin/AdminReviews';
+import AdminSettings from '../components/admin/AdminSettings';
 
 // User Components
 import UserSidebar from '../components/user/UserSidebar';
@@ -227,10 +228,10 @@ const DashboardPage = () => {
       const targetId = targetItem._id || targetItem.id;
 
       if (type === 'cart') {
-        removeFromCart(targetId, targetItem.selectedSize);
+        removeFromCart(targetItem, targetItem.selectedSize);
         toast.success('Item removed from cart');
       } else if (type === 'wishlist') {
-        removeFromWishlist(targetId);
+        removeFromWishlist(targetItem);
         toast.success('Item removed from wishlist');
       } else if (type === 'Category') {
         await deleteCategory(targetId);
@@ -264,12 +265,19 @@ const DashboardPage = () => {
   const [totalNotificationPages, setTotalNotificationPages] = useState(1);
   const [totalNotificationsCount, setTotalNotificationsCount] = useState(0);
   const [notificationFilter, setNotificationFilter] = useState('all');
+  const [notificationCounts, setNotificationCounts] = useState({
+    all: 0,
+    unread: 0,
+    cart: 0,
+    wishlist: 0,
+    orders: 0,
+  });
   const [selectedNotificationModal, setSelectedNotificationModal] = useState(null);
 
   const fetchMyOrders = async () => {
     try {
       setOrdersLoading(true);
-      const token = localStorage.getItem('stylehub_token') || user?.token;
+      const token = localStorage.getItem('stylehub_token') || localStorage.getItem('stylehub_auth_token') || user?.token;
       if (!token) return;
       const res = await fetch('http://localhost:5000/api/orders/myorders', {
         headers: {
@@ -288,13 +296,14 @@ const DashboardPage = () => {
     }
   };
 
-  const fetchNotifications = async (page = 1) => {
+  const fetchNotifications = async (page = 1, filterType = notificationFilter) => {
     try {
       setNotificationsLoading(true);
-      const token = localStorage.getItem('stylehub_token') || user?.token;
+      const token = localStorage.getItem('stylehub_token') || localStorage.getItem('stylehub_auth_token') || user?.token;
       if (!token) return;
 
-      const res = await fetch(`http://localhost:5000/api/notifications?page=${page}&limit=10`, {
+      const queryParam = filterType && filterType !== 'all' ? `&type=${filterType}` : '';
+      const res = await fetch(`http://localhost:5000/api/notifications?page=${page}&limit=10${queryParam}`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
@@ -307,6 +316,9 @@ const DashboardPage = () => {
         setNotificationPage(data.page || 1);
         setTotalNotificationPages(data.totalPages || 1);
         setTotalNotificationsCount(data.totalCount || 0);
+        if (data.counts) {
+          setNotificationCounts(data.counts);
+        }
       }
     } catch (err) {
       console.error('Failed to fetch notifications:', err);
@@ -315,9 +327,15 @@ const DashboardPage = () => {
     }
   };
 
+  const handleFilterChange = (filterId) => {
+    setNotificationFilter(filterId);
+    setNotificationPage(1);
+    fetchNotifications(1, filterId);
+  };
+
   const handleMarkAllNotificationsRead = async () => {
     try {
-      const token = localStorage.getItem('stylehub_token') || user?.token;
+      const token = localStorage.getItem('stylehub_token') || localStorage.getItem('stylehub_auth_token') || user?.token;
       if (!token) return;
 
       const res = await fetch('http://localhost:5000/api/notifications/mark-all-read', {
@@ -331,6 +349,8 @@ const DashboardPage = () => {
       if (data.success) {
         setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
         setUnreadNotificationsCount(0);
+        setNotificationCounts((prev) => ({ ...prev, unread: 0 }));
+        window.dispatchEvent(new CustomEvent('stylehub_notifications_updated'));
         toast.success('All notifications marked as read!');
       }
     } catch (err) {
@@ -340,7 +360,7 @@ const DashboardPage = () => {
 
   const handleMarkSingleNotificationRead = async (id) => {
     try {
-      const token = localStorage.getItem('stylehub_token') || user?.token;
+      const token = localStorage.getItem('stylehub_token') || localStorage.getItem('stylehub_auth_token') || user?.token;
       if (!token) return;
 
       await fetch(`http://localhost:5000/api/notifications/${id}/read`, {
@@ -355,6 +375,11 @@ const DashboardPage = () => {
         prev.map((n) => (n._id === id ? { ...n, isRead: true } : n))
       );
       setUnreadNotificationsCount((prev) => Math.max(0, prev - 1));
+      setNotificationCounts((prev) => ({
+        ...prev,
+        unread: Math.max(0, (prev.unread || 1) - 1),
+      }));
+      window.dispatchEvent(new CustomEvent('stylehub_notifications_updated'));
     } catch (err) {
       console.error('Error marking notification read:', err);
     }
@@ -368,11 +393,23 @@ const DashboardPage = () => {
   };
 
   useEffect(() => {
-    if (user && user.role !== 'admin') {
-      fetchMyOrders();
+    if (user) {
+      if (user.role !== 'admin') {
+        fetchMyOrders();
+      }
       fetchNotifications(1);
     }
   }, [user, activeTab]);
+
+  useEffect(() => {
+    const handleSync = () => {
+      fetchNotifications(notificationPage, notificationFilter);
+    };
+    window.addEventListener('stylehub_notifications_updated', handleSync);
+    return () => {
+      window.removeEventListener('stylehub_notifications_updated', handleSync);
+    };
+  }, [notificationPage, notificationFilter]);
 
   const getStatusBadge = (status) => {
     switch (status?.toLowerCase()) {
@@ -450,6 +487,7 @@ const DashboardPage = () => {
               setActiveTab={handleTabChange}
               onLogout={handleLogout}
               user={user}
+              unreadNotifications={unreadNotificationsCount}
               isOpen={sidebarOpen}
               onClose={() => setSidebarOpen(false)}
               onAddNewProduct={() => {
@@ -652,6 +690,196 @@ const DashboardPage = () => {
 
                 {activeTab === 'customers' && <AdminCustomers currentUser={user} />}
 
+                {activeTab === 'notifications' && (
+                  <div className="bg-white rounded-2xl border border-gray-200/80 p-6 sm:p-8 shadow-xs space-y-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-gray-100">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h3 className="text-base sm:text-lg font-bold text-slate-900 font-serif">
+                            Store Activity & Order Notifications
+                          </h3>
+                          {unreadNotificationsCount > 0 && (
+                            <span className="px-2.5 py-0.5 rounded-full bg-rose-50 text-[#ff2056] border border-rose-200 text-[11px] font-extrabold">
+                              {unreadNotificationsCount} Unread
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs text-gray-500 mt-0.5">
+                          Real-time alerts for newly placed customer orders, item requests, and store events
+                        </p>
+                      </div>
+
+                      {unreadNotificationsCount > 0 && (
+                        <button
+                          onClick={handleMarkAllNotificationsRead}
+                          className="px-3.5 py-1.5 bg-[#ff2056] text-white rounded-xl text-xs font-bold hover:bg-[#d6103e] transition-all cursor-pointer self-start sm:self-auto"
+                        >
+                          Mark all as read
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Notification Filter Pills */}
+                    <div className="flex flex-wrap items-center gap-2 pt-1">
+                      {[
+                        { id: 'all', label: 'All Alerts', count: notificationCounts.all || 0 },
+                        { id: 'unread', label: '🔔 Unread SMS', count: notificationCounts.unread || 0 },
+                      ].map((pill) => (
+                        <button
+                          key={pill.id}
+                          onClick={() => handleFilterChange(pill.id)}
+                          className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${
+                            notificationFilter === pill.id
+                              ? 'bg-[#ff2056] text-white shadow-sm shadow-rose-600/20'
+                              : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                          }`}
+                        >
+                          <span>{pill.label}</span>
+                          <span
+                            className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                              notificationFilter === pill.id ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'
+                            }`}
+                          >
+                            {pill.count}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+
+                    {notificationsLoading ? (
+                      <div className="py-16 flex flex-col items-center justify-center gap-3">
+                        <div className="w-8 h-8 border-3 border-rose-200 border-t-[#ff2056] rounded-full animate-spin" />
+                        <p className="text-xs font-semibold text-gray-500">Loading notifications...</p>
+                      </div>
+                    ) : notifications.length === 0 ? (
+                      <div className="text-center py-12 space-y-3 bg-stone-50/50 rounded-2xl border border-dashed border-gray-200">
+                        <div className="w-12 h-12 bg-rose-50 text-[#ff2056] rounded-full flex items-center justify-center mx-auto">
+                          <Bell className="w-6 h-6" />
+                        </div>
+                        <h4 className="text-sm font-bold text-slate-800">No Notifications Found</h4>
+                        <p className="text-xs text-gray-500 max-w-xs mx-auto">
+                          No alerts matching this filter. New activity notifications will appear here.
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {notifications.map((item) => {
+                          const isUnread = !item.isRead;
+                          const createdDate = item.createdAt
+                            ? new Date(item.createdAt).toLocaleDateString('en-US', {
+                                month: 'short',
+                                day: '2-digit',
+                                year: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit',
+                              })
+                            : 'Just now';
+
+                          return (
+                            <div
+                              key={item._id}
+                              onClick={() => handleOpenNotificationModal(item)}
+                              className={`p-4 rounded-2xl border transition-all flex items-start gap-4 cursor-pointer relative ${
+                                isUnread
+                                  ? 'bg-rose-50/40 border-rose-200/90 shadow-2xs hover:bg-rose-50/70'
+                                  : 'bg-slate-50/50 border-gray-200/60 hover:bg-white hover:border-gray-300'
+                              }`}
+                            >
+                              {item.productImage ? (
+                                <img
+                                  src={item.productImage}
+                                  alt={item.productName || item.title}
+                                  className="w-12 h-14 rounded-xl object-cover border border-gray-200 shrink-0 shadow-2xs"
+                                />
+                              ) : (
+                                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-slate-900 to-slate-800 text-white flex items-center justify-center shrink-0 shadow-xs font-bold text-sm">
+                                  <Package className="w-5 h-5 text-rose-400" />
+                                </div>
+                              )}
+
+                              <div className="flex-1 space-y-1 min-w-0">
+                                <div className="flex items-start justify-between gap-2">
+                                  <h4
+                                    className={`text-xs sm:text-sm leading-snug ${
+                                      isUnread ? 'font-bold text-slate-900' : 'font-semibold text-slate-500'
+                                    }`}
+                                  >
+                                    {item.title}
+                                  </h4>
+                                  <span className="text-[10px] text-gray-400 shrink-0 font-medium">
+                                    {createdDate}
+                                  </span>
+                                </div>
+
+                                <p
+                                  className={`text-xs line-clamp-2 leading-relaxed ${
+                                    isUnread ? 'text-slate-700' : 'text-slate-400'
+                                  }`}
+                                >
+                                  {item.message}
+                                </p>
+
+                                <div className="flex items-center gap-3 pt-1 text-[11px]">
+                                  {item.price > 0 && (
+                                    <span
+                                      className={`font-extrabold px-2 py-0.5 rounded-md border ${
+                                        isUnread
+                                          ? 'text-[#ff2056] bg-rose-50 border-rose-100'
+                                          : 'text-slate-500 bg-slate-100 border-gray-200'
+                                      }`}
+                                    >
+                                      {formatPrice(item.price)}
+                                    </span>
+                                  )}
+                                  {item.orderId && (
+                                    <span className="font-mono text-slate-700 bg-slate-100 px-2 py-0.5 rounded-md text-[10px]">
+                                      Order: #{item.orderId}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+
+                              {isUnread && (
+                                <span
+                                  className="w-2.5 h-2.5 rounded-full bg-[#ff2056] shrink-0 mt-1 shadow-xs animate-pulse"
+                                  title="Unread notification"
+                                />
+                              )}
+                            </div>
+                          );
+                        })}
+
+                        {/* Admin Pagination Bar */}
+                        {totalNotificationPages > 1 && (
+                          <div className="pt-4 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-gray-100">
+                            <span className="text-xs text-gray-500">
+                              Showing page <strong className="text-slate-900">{notificationPage}</strong> of{' '}
+                              <strong className="text-slate-900">{totalNotificationPages}</strong> ({totalNotificationsCount} total alerts)
+                            </span>
+
+                            <div className="flex items-center gap-2">
+                              <button
+                                disabled={notificationPage <= 1}
+                                onClick={() => fetchNotifications(notificationPage - 1, notificationFilter)}
+                                className="px-3.5 py-1.5 rounded-xl border border-gray-300 text-xs font-bold text-slate-700 bg-white hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-all"
+                              >
+                                Previous
+                              </button>
+                              <button
+                                disabled={notificationPage >= totalNotificationPages}
+                                onClick={() => fetchNotifications(notificationPage + 1, notificationFilter)}
+                                className="px-3.5 py-1.5 rounded-xl border border-gray-300 text-xs font-bold text-slate-700 bg-white hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-all"
+                              >
+                                Next Page
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 {activeTab === 'analytics' && (
                   <div className="bg-white rounded-2xl border border-gray-200/80 p-8 shadow-xs text-center space-y-4">
                     <h3 className="text-xl font-bold font-serif text-slate-900">Reports & Live Analytics</h3>
@@ -678,32 +906,7 @@ const DashboardPage = () => {
                   </div>
                 )}
 
-                {activeTab === 'settings' && (
-                  <div className="bg-white rounded-2xl border border-gray-200/80 p-8 shadow-xs space-y-6">
-                    <div>
-                      <h3 className="text-xl font-bold font-serif text-slate-900">Store Settings & Preferences</h3>
-                      <p className="text-xs text-gray-500">Configure store options, checkout rules, and currency parameters</p>
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                      <div className="p-4 bg-gray-50 rounded-xl border border-gray-200 space-y-2">
-                        <span className="font-bold text-slate-800">Primary Currency:</span>
-                        <p className="text-gray-600">BDT (৳ - Bangladeshi Taka)</p>
-                      </div>
-                      <div className="p-4 bg-gray-50 rounded-xl border border-gray-200 space-y-2">
-                        <span className="font-bold text-slate-800">Inside Dhaka Delivery Fee:</span>
-                        <p className="text-gray-600">৳ 60 (Free on orders over ৳ 3,000)</p>
-                      </div>
-                      <div className="p-4 bg-gray-50 rounded-xl border border-gray-200 space-y-2">
-                        <span className="font-bold text-slate-800">Outside Dhaka Delivery Fee:</span>
-                        <p className="text-gray-600">৳ 120 (Courier delivery across Bangladesh)</p>
-                      </div>
-                      <div className="p-4 bg-gray-50 rounded-xl border border-gray-200 space-y-2">
-                        <span className="font-bold text-slate-800">Payment Gateways:</span>
-                        <p className="text-gray-600">Cash on Delivery, bKash, Nagad, Visa/Mastercard</p>
-                      </div>
-                    </div>
-                  </div>
-                )}
+                {activeTab === 'settings' && <AdminSettings />}
               </div>
             </main>
           </>
@@ -717,6 +920,7 @@ const DashboardPage = () => {
               setActiveTab={handleTabChange}
               onLogout={handleLogout}
               orderCount={myOrders.length}
+              unreadNotifications={unreadNotificationsCount}
               isOpen={sidebarOpen}
               onClose={() => setSidebarOpen(false)}
             />
@@ -750,125 +954,368 @@ const DashboardPage = () => {
                 {activeTab === 'overview' && (
                   <div className="space-y-6">
                     {/* 4 Quick KPI Summary Cards */}
-                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                      <button
-                        onClick={() => handleTabChange('orders')}
-                        className="p-4 bg-white rounded-2xl border border-gray-200/80 shadow-xs hover:border-rose-300 transition-all text-left group cursor-pointer"
-                      >
-                        <div className="flex items-center justify-between">
-                          <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Total Orders</span>
-                          <div className="w-8 h-8 rounded-xl bg-rose-50 text-[#ff2056] flex items-center justify-center group-hover:scale-110 transition-transform">
-                            <Package className="w-4 h-4" />
-                          </div>
-                        </div>
-                        <h4 className="text-2xl font-black text-slate-900 mt-2">{myOrders.length}</h4>
-                        <span className="text-[10px] text-emerald-600 font-bold flex items-center gap-1 mt-1">
-                          <CheckCircle2 className="w-3 h-3" /> 1 Delivered recently
-                        </span>
-                      </button>
+                    {(() => {
+                      const deliveredOrdersCount = myOrders.filter(
+                        (o) => o.status?.toLowerCase() === 'delivered'
+                      ).length;
+                      const primaryUserAddress =
+                        [user?.address?.street, user?.address?.thana, user?.address?.district || user?.address?.city]
+                          .filter(Boolean)
+                          .join(', ') ||
+                        (user?.address?.city ? `${user.address.city}, Bangladesh` : '') ||
+                        (myOrders[0]?.shippingAddress
+                          ? [
+                              myOrders[0].shippingAddress.address,
+                              myOrders[0].shippingAddress.city || myOrders[0].shippingAddress.district,
+                            ]
+                              .filter(Boolean)
+                              .join(', ')
+                          : '') ||
+                        'No address saved';
 
-                      <button
-                        onClick={() => handleTabChange('wishlist')}
-                        className="p-4 bg-white rounded-2xl border border-gray-200/80 shadow-xs hover:border-rose-300 transition-all text-left group cursor-pointer"
-                      >
-                        <div className="flex items-center justify-between">
-                          <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Saved Items</span>
-                          <div className="w-8 h-8 rounded-xl bg-rose-50 text-[#ff2056] flex items-center justify-center group-hover:scale-110 transition-transform">
-                            <Heart className="w-4 h-4" />
-                          </div>
-                        </div>
-                        <h4 className="text-2xl font-black text-slate-900 mt-2">{wishlist.length}</h4>
-                        <span className="text-[10px] text-gray-500 font-medium mt-1 block">In your fashion wishlist</span>
-                      </button>
+                      return (
+                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                          <button
+                            onClick={() => handleTabChange('orders')}
+                            className="p-4 bg-white rounded-2xl border border-gray-200/80 shadow-xs hover:border-rose-300 transition-all text-left group cursor-pointer"
+                          >
+                            <div className="flex items-center justify-between">
+                              <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Total Orders</span>
+                              <div className="w-8 h-8 rounded-xl bg-rose-50 text-[#ff2056] flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <Package className="w-4 h-4" />
+                              </div>
+                            </div>
+                            <h4 className="text-2xl font-black text-slate-900 mt-2">{myOrders.length}</h4>
+                            {deliveredOrdersCount > 0 ? (
+                              <span className="text-[10px] text-emerald-600 font-bold flex items-center gap-1 mt-1 truncate">
+                                <CheckCircle2 className="w-3 h-3 shrink-0" /> {deliveredOrdersCount} Delivered recently
+                              </span>
+                            ) : myOrders.length > 0 ? (
+                              <span className="text-[10px] text-blue-600 font-bold flex items-center gap-1 mt-1 truncate">
+                                <Clock className="w-3 h-3 shrink-0" /> {myOrders[0]?.status || 'Processing'} order
+                              </span>
+                            ) : (
+                              <span className="text-[10px] text-gray-400 font-medium mt-1 block truncate">
+                                No orders placed yet
+                              </span>
+                            )}
+                          </button>
 
-                      <button
-                        onClick={() => handleTabChange('notifications')}
-                        className="p-4 bg-white rounded-2xl border border-gray-200/80 shadow-xs hover:border-rose-300 transition-all text-left group cursor-pointer"
-                      >
-                        <div className="flex items-center justify-between">
-                          <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Notifications</span>
-                          <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center group-hover:scale-110 transition-transform">
-                            <Bell className="w-4 h-4" />
-                          </div>
-                        </div>
-                        <h4 className="text-2xl font-black text-slate-900 mt-2">3 Unread</h4>
-                        <span className="text-[10px] text-amber-600 font-bold mt-1 block">Order & delivery updates</span>
-                      </button>
+                          <button
+                            onClick={() => handleTabChange('wishlist')}
+                            className="p-4 bg-white rounded-2xl border border-gray-200/80 shadow-xs hover:border-rose-300 transition-all text-left group cursor-pointer"
+                          >
+                            <div className="flex items-center justify-between">
+                              <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Saved Items</span>
+                              <div className="w-8 h-8 rounded-xl bg-rose-50 text-[#ff2056] flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <Heart className="w-4 h-4" />
+                              </div>
+                            </div>
+                            <h4 className="text-2xl font-black text-slate-900 mt-2">{wishlist.length}</h4>
+                            <span className="text-[10px] text-gray-500 font-medium mt-1 block truncate">
+                              {wishlist.length > 0 ? `${wishlist.length} item${wishlist.length > 1 ? 's' : ''} in wishlist` : 'In your fashion wishlist'}
+                            </span>
+                          </button>
 
-                      <button
-                        onClick={() => handleTabChange('account')}
-                        className="p-4 bg-white rounded-2xl border border-gray-200/80 shadow-xs hover:border-rose-300 transition-all text-left group cursor-pointer"
-                      >
-                        <div className="flex items-center justify-between">
-                          <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Primary Address</span>
-                          <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center group-hover:scale-110 transition-transform">
-                            <MapPin className="w-4 h-4" />
-                          </div>
+                          <button
+                            onClick={() => handleTabChange('notifications')}
+                            className="p-4 bg-white rounded-2xl border border-gray-200/80 shadow-xs hover:border-rose-300 transition-all text-left group cursor-pointer"
+                          >
+                            <div className="flex items-center justify-between">
+                              <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Notifications</span>
+                              <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <Bell className="w-4 h-4" />
+                              </div>
+                            </div>
+                            <h4 className="text-2xl font-black text-slate-900 mt-2">{unreadNotificationsCount} Unread</h4>
+                            <span className="text-[10px] text-amber-600 font-bold mt-1 block truncate">
+                              {unreadNotificationsCount > 0 ? 'Order & delivery updates' : 'All caught up'}
+                            </span>
+                          </button>
+
+                          <button
+                            onClick={() => handleTabChange('account')}
+                            className="p-4 bg-white rounded-2xl border border-gray-200/80 shadow-xs hover:border-rose-300 transition-all text-left group cursor-pointer"
+                          >
+                            <div className="flex items-center justify-between">
+                              <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Primary Address</span>
+                              <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <MapPin className="w-4 h-4" />
+                              </div>
+                            </div>
+                            <h4 className="text-sm font-bold text-slate-900 mt-2 truncate" title={primaryUserAddress}>
+                              {primaryUserAddress}
+                            </h4>
+                            <span className="text-[10px] text-blue-600 font-bold mt-1 block truncate">
+                              {user?.address?.city || user?.address?.district || myOrders.length > 0 ? '1 Saved location' : 'Add in settings'}
+                            </span>
+                          </button>
                         </div>
-                        <h4 className="text-sm font-bold text-slate-900 mt-2 truncate">Dhanmondi, Dhaka</h4>
-                        <span className="text-[10px] text-blue-600 font-bold mt-1 block">1 Saved location</span>
-                      </button>
-                    </div>
+                      );
+                    })()}
 
                     {/* Active Order Live Shipment Progress Widget */}
-                    <div className="bg-white rounded-2xl border border-gray-200/80 p-6 shadow-xs space-y-4">
-                      <div className="flex items-center justify-between pb-3 border-b border-gray-100">
-                        <div className="flex items-center gap-2">
-                          <Truck className="w-5 h-5 text-[#ff2056]" />
-                          <div>
-                            <h3 className="text-sm font-bold text-slate-900">Recent Shipment Tracking</h3>
-                            <p className="text-[11px] text-gray-500">
-                              {myOrders.length > 0
-                                ? `Order #${myOrders[0]._id ? 'SH-' + myOrders[0]._id.slice(-6).toUpperCase() : myOrders[0].id} • Placed on ${myOrders[0].createdAt ? new Date(myOrders[0].createdAt).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }) : 'Recently'}`
-                                : 'No active shipments'}
+                    {(() => {
+                      const activeOrder = myOrders[0];
+                      if (!activeOrder) {
+                        return (
+                          <div className="bg-white rounded-2xl border border-gray-200/80 p-8 shadow-xs text-center space-y-3">
+                            <div className="w-12 h-12 rounded-2xl bg-rose-50 text-[#ff2056] flex items-center justify-center mx-auto border border-rose-100 shadow-inner">
+                              <Truck className="w-6 h-6" />
+                            </div>
+                            <h4 className="text-sm font-bold text-slate-800">No Active Shipments</h4>
+                            <p className="text-xs text-gray-500 max-w-sm mx-auto">
+                              Once you place an order, live tracking stages, fulfillment steps, and courier details will appear here automatically.
                             </p>
+                            <button
+                              onClick={() => navigate('/shop')}
+                              className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#ff2056] text-white text-xs font-bold rounded-xl shadow-xs hover:bg-[#d6103e] transition-all cursor-pointer"
+                            >
+                              <span>Explore Shop</span>
+                              <ArrowRight className="w-3.5 h-3.5" />
+                            </button>
                           </div>
-                        </div>
-                        {myOrders.length > 0 && (
-                          <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold border ${getStatusBadge(myOrders[0].status)}`}>
-                            {myOrders[0].status || 'Pending'}
-                          </span>
-                        )}
-                      </div>
+                        );
+                      }
 
-                      {myOrders.length > 0 ? (
-                        /* Shipment Step Tracker */
-                        <div className="grid grid-cols-4 gap-2 pt-2 text-center text-xs">
-                          <div className="space-y-1">
-                            <div className="w-8 h-8 rounded-full bg-emerald-500 text-white mx-auto flex items-center justify-center font-bold text-xs">✓</div>
-                            <p className="font-bold text-slate-800 text-[11px]">Order Placed</p>
-                            <span className="text-[10px] text-gray-400">
-                              {myOrders[0].createdAt ? new Date(myOrders[0].createdAt).toLocaleDateString('en-US', { month: 'short', day: '2-digit' }) : 'Confirmed'}
+                      const shortId = activeOrder._id ? `SH-${activeOrder._id.slice(-6).toUpperCase()}` : activeOrder.id || 'SH-ORDER';
+                      const orderDate = activeOrder.createdAt ? new Date(activeOrder.createdAt).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }) : 'Recently';
+                      const orderStatus = (activeOrder.status || 'Pending').toLowerCase();
+
+                      // Calculate current step index (0: Placed, 1: Packed/QC, 2: Shipped/Transit, 3: Delivered)
+                      let currentStepIndex = 0;
+                      if (orderStatus === 'processing') currentStepIndex = 1;
+                      else if (orderStatus === 'shipped') currentStepIndex = 2;
+                      else if (orderStatus === 'delivered') currentStepIndex = 3;
+                      else if (orderStatus === 'cancelled') currentStepIndex = -1;
+
+                      // Progress percentage for background bar (0%, 33.33%, 66.66%, 100%)
+                      const progressPercentage = currentStepIndex < 0 ? 0 : Math.min(100, Math.round((currentStepIndex / 3) * 100));
+
+                      const firstItem = activeOrder.orderItems && activeOrder.orderItems.length > 0 ? activeOrder.orderItems[0] : null;
+                      const firstItemImage = firstItem?.image || activeOrder.image || null;
+                      const additionalItemsCount = activeOrder.orderItems && activeOrder.orderItems.length > 1 ? activeOrder.orderItems.length - 1 : 0;
+                      const orderTotalFormatted = typeof activeOrder.totalPrice === 'number' ? formatPrice(activeOrder.totalPrice) : (activeOrder.total || '৳ 0');
+                      const shippingDestination = [activeOrder.shippingAddress?.address, activeOrder.shippingAddress?.city || activeOrder.shippingAddress?.district].filter(Boolean).join(', ') || 'Home Address';
+
+                      const steps = [
+                        {
+                          title: 'Order Placed',
+                          subtitle: activeOrder.createdAt ? new Date(activeOrder.createdAt).toLocaleDateString('en-US', { month: 'short', day: '2-digit' }) : 'Confirmed',
+                          desc: 'Payment confirmed & order received',
+                          icon: ShoppingBag,
+                        },
+                        {
+                          title: 'Quality Check & Packed',
+                          subtitle: currentStepIndex >= 1 ? 'Quality Verified' : 'In Fulfillment',
+                          desc: 'Hand-inspected & securely packed',
+                          icon: Sparkles,
+                        },
+                        {
+                          title: 'Out for Delivery',
+                          subtitle: currentStepIndex >= 2 ? 'In Transit' : 'Courier Hub',
+                          desc: 'Handed to express logistics rider',
+                          icon: Truck,
+                        },
+                        {
+                          title: 'Delivered',
+                          subtitle: currentStepIndex >= 3 ? 'Completed' : 'Destination',
+                          desc: 'Safely handed over to you',
+                          icon: CheckCircle2,
+                        },
+                      ];
+
+                      return (
+                        <div className="bg-white rounded-2xl border border-gray-200/90 p-5 sm:p-7 shadow-xs space-y-5 overflow-hidden relative">
+                          {/* Top Header Row */}
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-gray-100">
+                            <div className="flex items-start sm:items-center gap-3.5">
+                              <div className="w-11 h-11 rounded-2xl bg-rose-50 text-[#ff2056] border border-rose-100 flex items-center justify-center shrink-0 shadow-xs">
+                                <Truck className="w-5 h-5" />
+                              </div>
+                              <div>
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <h3 className="text-base font-bold text-slate-900 font-serif">Recent Shipment Tracking</h3>
+                                  <span className="font-mono text-xs font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200">
+                                    {shortId}
+                                  </span>
+                                </div>
+                                <p className="text-xs text-gray-400 mt-0.5 flex items-center gap-2">
+                                  <span>Placed on <strong className="text-slate-700">{orderDate}</strong></span>
+                                  <span>•</span>
+                                  <span>Payment: <strong className="text-slate-700">{activeOrder.paymentMethod || 'Cash on Delivery'}</strong></span>
+                                </p>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-2 self-end sm:self-auto">
+                              <span className={`px-3 py-1 rounded-full text-xs font-extrabold border shadow-xs ${getStatusBadge(activeOrder.status)}`}>
+                                {activeOrder.status || 'Pending'}
+                              </span>
+                              <button
+                                onClick={() => handleTabChange('orders')}
+                                className="px-3 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-full transition-colors flex items-center gap-1 cursor-pointer"
+                              >
+                                <span>All Orders</span>
+                                <ArrowRight className="w-3 h-3" />
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Product Preview & Destination Banner */}
+                          <div className="bg-slate-50/80 border border-slate-200/80 rounded-xl p-3.5 flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+                            <div className="flex items-center gap-3 min-w-0">
+                              {firstItemImage ? (
+                                <div className="relative shrink-0">
+                                  <img
+                                    src={firstItemImage}
+                                    alt={firstItem?.name || 'Product'}
+                                    className="w-13 h-13 rounded-xl object-cover border border-gray-200 bg-white shadow-2xs"
+                                    onError={(e) => {
+                                      e.target.onerror = null;
+                                      e.target.src = 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=100&q=80';
+                                    }}
+                                  />
+                                  {additionalItemsCount > 0 && (
+                                    <span className="absolute -bottom-1 -right-1 bg-slate-900 text-white text-[9px] font-extrabold px-1.5 py-0.5 rounded-full border border-white leading-none shadow-xs">
+                                      +{additionalItemsCount}
+                                    </span>
+                                  )}
+                                </div>
+                              ) : (
+                                <div className="w-13 h-13 rounded-xl bg-slate-100 border border-gray-200 flex items-center justify-center shrink-0 text-slate-400">
+                                  <Package className="w-5 h-5" />
+                                </div>
+                              )}
+                              <div className="min-w-0 space-y-0.5">
+                                <h4 className="text-xs font-bold text-slate-900 truncate">
+                                  {firstItem ? `${firstItem.name || firstItem.title} (${firstItem.selectedSize || 'M'}) x ${firstItem.quantity || 1}` : 'StyleHub Fashion Order'}
+                                </h4>
+                                <p className="text-[11px] text-gray-500 flex items-center gap-1 truncate">
+                                  <MapPin className="w-3 h-3 text-rose-500 shrink-0" />
+                                  <span className="truncate">Shipping to: <strong className="text-slate-700">{shippingDestination}</strong></span>
+                                </p>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-3 shrink-0 self-end md:self-auto border-t md:border-t-0 border-gray-200 pt-2 md:pt-0 w-full md:w-auto justify-between md:justify-end">
+                              <div className="text-right">
+                                <span className="text-[10px] text-gray-400 block font-medium">Order Value</span>
+                                <span className="text-xs font-black text-slate-900">{orderTotalFormatted}</span>
+                              </div>
+                              <button
+                                onClick={() => handleTabChange('orders')}
+                                className="px-3 py-1.5 bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs font-bold rounded-lg shadow-2xs transition-colors cursor-pointer"
+                              >
+                                View Order
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Progress Stepper Timeline with Connecting Gradient Bar */}
+                          <div className="pt-3 pb-2 px-1">
+                            <div className="relative">
+                              {/* Background Rail Line */}
+                              <div className="absolute top-5 left-10 right-10 h-1 bg-slate-200 rounded-full -translate-y-1/2 z-0 hidden sm:block" />
+
+                              {/* Active Progress Fill Line */}
+                              {currentStepIndex >= 0 && (
+                                <div
+                                  className="absolute top-5 left-10 h-1 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full -translate-y-1/2 z-0 transition-all duration-700 hidden sm:block shadow-xs shadow-emerald-500/30"
+                                  style={{
+                                    width: `calc(${progressPercentage}% - 20px)`,
+                                    maxWidth: 'calc(100% - 80px)',
+                                  }}
+                                />
+                              )}
+
+                              {/* 4 Step Nodes */}
+                              <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 sm:gap-2 relative z-10">
+                                {steps.map((step, idx) => {
+                                  const StepIcon = step.icon;
+                                  const isCompleted = currentStepIndex > idx || (currentStepIndex === 3 && idx === 3);
+                                  const isCurrent = currentStepIndex === idx && currentStepIndex !== 3;
+
+                                  return (
+                                    <div
+                                      key={idx}
+                                      className="flex sm:flex-col items-center sm:items-center text-left sm:text-center gap-3 sm:gap-2"
+                                    >
+                                      {/* Node Icon Circle */}
+                                      <div
+                                        className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 transition-all duration-300 ${
+                                          isCompleted
+                                            ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/20 ring-4 ring-emerald-50'
+                                            : isCurrent
+                                            ? 'bg-[#ff2056] text-white shadow-md shadow-rose-500/20 ring-4 ring-rose-100 animate-pulse'
+                                            : 'bg-white border-2 border-slate-200 text-slate-400'
+                                        }`}
+                                      >
+                                        {isCompleted ? (
+                                          <CheckCircle2 className="w-5 h-5" />
+                                        ) : (
+                                          <StepIcon className="w-4 h-4" />
+                                        )}
+                                      </div>
+
+                                      {/* Step Info */}
+                                      <div className="space-y-0.5 min-w-0">
+                                        <p
+                                          className={`text-xs font-bold leading-tight ${
+                                            isCompleted
+                                              ? 'text-emerald-700'
+                                              : isCurrent
+                                              ? 'text-slate-900 font-extrabold'
+                                              : 'text-slate-400'
+                                          }`}
+                                        >
+                                          {step.title}
+                                        </p>
+                                        <p className="text-[11px] font-semibold text-slate-600">
+                                          {step.subtitle}
+                                        </p>
+                                        <p className="text-[10px] text-gray-400 leading-tight hidden sm:block">
+                                          {step.desc}
+                                        </p>
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Dynamic ETA & Delivery Status Notice */}
+                          <div className="p-3 bg-gradient-to-r from-amber-50/70 via-rose-50/40 to-slate-50 rounded-xl border border-amber-200/60 flex items-center justify-between gap-3 text-xs">
+                            <div className="flex items-center gap-2 text-slate-700">
+                              <Clock className="w-4 h-4 text-[#ff2056] shrink-0" />
+                              <span className="font-medium text-[11px] sm:text-xs">
+                                {orderStatus === 'delivered' ? (
+                                  <>
+                                    <strong className="text-emerald-700 font-bold">Delivered!</strong> Your package has been handed over successfully.
+                                  </>
+                                ) : orderStatus === 'shipped' ? (
+                                  <>
+                                    <strong className="text-blue-700 font-bold">On the Way:</strong> Expected delivery within 24 to 48 hours via express courier.
+                                  </>
+                                ) : orderStatus === 'processing' ? (
+                                  <>
+                                    <strong className="text-amber-700 font-bold">Processing:</strong> Package is undergoing quality check and dispatch preparation.
+                                  </>
+                                ) : (
+                                  <>
+                                    <strong className="text-slate-800 font-bold">Order Confirmed:</strong> Our fulfillment team is preparing your package.
+                                  </>
+                                )}
+                              </span>
+                            </div>
+                            <span className="text-[10px] font-bold text-slate-500 bg-white/80 px-2.5 py-1 rounded-lg border border-slate-200 shrink-0 hidden sm:inline-block shadow-2xs">
+                              Live Courier Sync
                             </span>
                           </div>
-                          <div className="space-y-1">
-                            <div className={`w-8 h-8 rounded-full ${['processing', 'shipped', 'delivered'].includes(myOrders[0].status?.toLowerCase()) ? 'bg-emerald-500 text-white' : 'bg-gray-200 text-gray-400'} mx-auto flex items-center justify-center font-bold text-xs`}>
-                              {['processing', 'shipped', 'delivered'].includes(myOrders[0].status?.toLowerCase()) ? '✓' : '2'}
-                            </div>
-                            <p className="font-bold text-slate-800 text-[11px]">Packed & QC</p>
-                            <span className="text-[10px] text-gray-400">Processing</span>
-                          </div>
-                          <div className="space-y-1">
-                            <div className={`w-8 h-8 rounded-full ${['shipped', 'delivered'].includes(myOrders[0].status?.toLowerCase()) ? 'bg-emerald-500 text-white' : 'bg-gray-200 text-gray-400'} mx-auto flex items-center justify-center font-bold text-xs`}>
-                              {['shipped', 'delivered'].includes(myOrders[0].status?.toLowerCase()) ? '✓' : '3'}
-                            </div>
-                            <p className="font-bold text-slate-800 text-[11px]">Out for Delivery</p>
-                            <span className="text-[10px] text-gray-400">Courier</span>
-                          </div>
-                          <div className="space-y-1">
-                            <div className={`w-8 h-8 rounded-full ${myOrders[0].status?.toLowerCase() === 'delivered' ? 'bg-emerald-500 text-white' : 'bg-gray-200 text-gray-400'} mx-auto flex items-center justify-center font-bold text-xs`}>
-                              {myOrders[0].status?.toLowerCase() === 'delivered' ? '✓' : '4'}
-                            </div>
-                            <p className="font-bold text-emerald-600 text-[11px]">Delivered</p>
-                            <span className="text-[10px] text-gray-400">Destination</span>
-                          </div>
                         </div>
-                      ) : (
-                        <div className="text-center py-4 text-xs text-gray-500">
-                          Place an order to track live shipment status here.
-                        </div>
-                      )}
-                    </div>
+                      );
+                    })()}
                   </div>
                 )}
 
@@ -978,7 +1425,7 @@ const DashboardPage = () => {
                               Total Items: <strong className="text-slate-900">{cart.length}</strong> | Total Price: <strong className="text-[#ff2056]">{formatPrice(cartTotal)}</strong>
                             </span>
                             <button
-                              onClick={() => setIsCartOpen(true)}
+                              onClick={() => navigate('/checkout')}
                               className="px-5 py-2.5 bg-[#ff2056] hover:bg-[#d6103e] text-white text-xs font-bold rounded-xl shadow-md shadow-rose-500/20 transition-all flex items-center gap-2 cursor-pointer"
                             >
                               <span>Checkout Now</span>
@@ -1031,29 +1478,60 @@ const DashboardPage = () => {
                             const itemsSummary = ord.orderItems && ord.orderItems.length > 0
                               ? ord.orderItems.map(item => `${item.name || item.title || 'Product'} (${item.selectedSize || 'Standard'}) x ${item.quantity || 1}`).join(', ')
                               : (ord.items || 'Order Items');
+                            const firstItemImage = ord.orderItems && ord.orderItems.length > 0
+                              ? ord.orderItems[0].image
+                              : (ord.image || null);
+                            const additionalCount = ord.orderItems && ord.orderItems.length > 1
+                              ? ord.orderItems.length - 1
+                              : 0;
 
                             return (
                               <div
                                 key={ord._id || ord.id}
                                 className="p-4 rounded-xl border border-gray-200/80 bg-slate-50/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:border-gray-300 transition-all"
                               >
-                                <div className="space-y-1">
-                                  <div className="flex items-center gap-2">
-                                    <span className="font-bold text-slate-900 text-sm">{shortId}</span>
-                                    <span className="text-xs text-gray-400">• {orderDate}</span>
+                                <div className="flex items-center gap-3.5 min-w-0">
+                                  {firstItemImage ? (
+                                    <div className="relative shrink-0">
+                                      <img
+                                        src={firstItemImage}
+                                        alt={ord.orderItems?.[0]?.name || 'Product'}
+                                        className="w-12 h-12 rounded-xl object-cover border border-gray-200 bg-white shadow-2xs"
+                                        onError={(e) => {
+                                          e.target.onerror = null;
+                                          e.target.src = 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=100&q=80';
+                                        }}
+                                      />
+                                      {additionalCount > 0 && (
+                                        <span className="absolute -bottom-1 -right-1 bg-slate-900 text-white text-[9px] font-extrabold px-1.5 py-0.5 rounded-full border border-white leading-none shadow-xs">
+                                          +{additionalCount}
+                                        </span>
+                                      )}
+                                    </div>
+                                  ) : (
+                                    <div className="w-12 h-12 rounded-xl bg-slate-100 border border-gray-200 flex items-center justify-center shrink-0 text-slate-400">
+                                      <Package className="w-5 h-5" />
+                                    </div>
+                                  )}
+
+                                  <div className="space-y-1 min-w-0">
+                                    <div className="flex items-center gap-2">
+                                      <span className="font-bold text-slate-900 text-sm">{shortId}</span>
+                                      <span className="text-xs text-gray-400">• {orderDate}</span>
+                                    </div>
+                                    <p className="text-xs text-slate-700 font-medium truncate">{itemsSummary}</p>
+                                    <p className="text-[11px] text-gray-500 flex items-center gap-1">
+                                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+                                      <span>
+                                        {ord.status === 'Delivered'
+                                          ? `Delivered on ${orderDate}`
+                                          : `Status: ${ord.status || 'Pending'}`}
+                                      </span>
+                                    </p>
                                   </div>
-                                  <p className="text-xs text-slate-700 font-medium">{itemsSummary}</p>
-                                  <p className="text-[11px] text-gray-500 flex items-center gap-1">
-                                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-                                    <span>
-                                      {ord.status === 'Delivered'
-                                        ? `Delivered on ${orderDate}`
-                                        : `Status: ${ord.status || 'Pending'}`}
-                                    </span>
-                                  </p>
                                 </div>
 
-                                <div className="flex items-center gap-4">
+                                <div className="flex items-center gap-4 shrink-0 self-end sm:self-auto">
                                   <span className="font-extrabold text-slate-900 text-sm">
                                     {typeof ord.totalPrice === 'number' ? formatPrice(ord.totalPrice) : (ord.total || '৳ 0')}
                                   </span>
@@ -1160,26 +1638,27 @@ const DashboardPage = () => {
                       </div>
                     </div>
 
-                    {/* Category Filter Pills */}
+                    {/* Notification Filter Pills */}
                     <div className="flex flex-wrap items-center gap-2 pt-1">
                       {[
-                        { id: 'all', label: 'All Alerts', count: notifications.length },
-                        { id: 'cart', label: '🛒 Cart Additions', count: notifications.filter(n => n.type === 'cart_add' || n.type === 'wishlist_to_cart').length },
-                        { id: 'wishlist', label: '💖 Wishlist', count: notifications.filter(n => n.type === 'wishlist_add').length },
-                        { id: 'orders', label: '📦 Orders & Delivery', count: notifications.filter(n => n.type === 'order_status').length },
-                        { id: 'system', label: '🎁 Promos & Security', count: notifications.filter(n => n.type === 'promo' || n.type === 'system').length },
+                        { id: 'all', label: 'All Alerts', count: notificationCounts.all || 0 },
+                        { id: 'unread', label: '🔔 Unread SMS', count: notificationCounts.unread || 0 },
                       ].map((pill) => (
                         <button
                           key={pill.id}
-                          onClick={() => setNotificationFilter(pill.id)}
-                          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${notificationFilter === pill.id
+                          onClick={() => handleFilterChange(pill.id)}
+                          className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${
+                            notificationFilter === pill.id
                               ? 'bg-[#ff2056] text-white shadow-sm shadow-rose-600/20'
                               : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                            }`}
+                          }`}
                         >
                           <span>{pill.label}</span>
-                          <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${notificationFilter === pill.id ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-600'
-                            }`}>
+                          <span
+                            className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                              notificationFilter === pill.id ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'
+                            }`}
+                          >
                             {pill.count}
                           </span>
                         </button>
@@ -1196,9 +1675,9 @@ const DashboardPage = () => {
                         <div className="w-12 h-12 bg-rose-50 text-[#ff2056] rounded-full flex items-center justify-center mx-auto">
                           <Bell className="w-6 h-6" />
                         </div>
-                        <h4 className="text-sm font-bold text-slate-800">No Notifications Yet</h4>
+                        <h4 className="text-sm font-bold text-slate-800">No Notifications Found</h4>
                         <p className="text-xs text-gray-500 max-w-xs mx-auto">
-                          When you add items to cart, save wishlist products, or track orders, notifications will appear here.
+                          No alerts matching this filter. When you add items to cart, save wishlist products, or track orders, notifications will appear here.
                         </p>
                         <Link
                           to="/shop"
@@ -1209,98 +1688,105 @@ const DashboardPage = () => {
                       </div>
                     ) : (
                       <div className="space-y-3">
-                        {notifications
-                          .filter((item) => {
-                            if (notificationFilter === 'cart') return item.type === 'cart_add' || item.type === 'wishlist_to_cart';
-                            if (notificationFilter === 'wishlist') return item.type === 'wishlist_add';
-                            if (notificationFilter === 'orders') return item.type === 'order_status';
-                            if (notificationFilter === 'system') return item.type === 'promo' || item.type === 'system';
-                            return true;
-                          })
-                          .map((item) => {
-                            const isUnread = !item.isRead;
-                            const createdDate = item.createdAt
-                              ? new Date(item.createdAt).toLocaleDateString('en-US', {
+                        {notifications.map((item) => {
+                          const isUnread = !item.isRead;
+                          const createdDate = item.createdAt
+                            ? new Date(item.createdAt).toLocaleDateString('en-US', {
                                 month: 'short',
                                 day: '2-digit',
                                 year: 'numeric',
                                 hour: '2-digit',
                                 minute: '2-digit',
                               })
-                              : 'Just now';
+                            : 'Just now';
 
-                            return (
-                              <div
-                                key={item._id}
-                                onClick={() => handleOpenNotificationModal(item)}
-                                className={`p-4 rounded-2xl border transition-all flex items-start gap-4 cursor-pointer relative ${isUnread
-                                    ? 'bg-rose-50/40 border-rose-200/90 shadow-2xs hover:bg-rose-50/70'
-                                    : 'bg-slate-50/50 border-gray-200/60 hover:bg-white hover:border-gray-300'
-                                  }`}
-                              >
-                                {/* Left Avatar / Product Image */}
-                                {item.productImage ? (
-                                  <img
-                                    src={item.productImage}
-                                    alt={item.productName || item.title}
-                                    className="w-12 h-14 rounded-xl object-cover border border-gray-200 shrink-0 shadow-2xs"
-                                  />
-                                ) : (
-                                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-slate-900 to-slate-800 text-white flex items-center justify-center shrink-0 shadow-xs font-bold text-sm">
-                                    {item.type === 'order_status' ? (
-                                      <Package className="w-5 h-5 text-rose-400" />
-                                    ) : item.type === 'wishlist_add' ? (
-                                      <Heart className="w-5 h-5 text-rose-400" />
-                                    ) : (
-                                      <ShoppingCart className="w-5 h-5 text-rose-400" />
-                                    )}
-                                  </div>
-                                )}
+                          return (
+                            <div
+                              key={item._id}
+                              onClick={() => handleOpenNotificationModal(item)}
+                              className={`p-4 rounded-2xl border transition-all flex items-start gap-4 cursor-pointer relative ${
+                                isUnread
+                                  ? 'bg-rose-50/40 border-rose-200/90 shadow-2xs hover:bg-rose-50/70'
+                                  : 'bg-slate-50/50 border-gray-200/60 hover:bg-white hover:border-gray-300'
+                              }`}
+                            >
+                              {/* Left Avatar / Product Image */}
+                              {item.productImage ? (
+                                <img
+                                  src={item.productImage}
+                                  alt={item.productName || item.title}
+                                  className="w-12 h-14 rounded-xl object-cover border border-gray-200 shrink-0 shadow-2xs"
+                                />
+                              ) : (
+                                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-slate-900 to-slate-800 text-white flex items-center justify-center shrink-0 shadow-xs font-bold text-sm">
+                                  {item.type === 'order_status' ? (
+                                    <Package className="w-5 h-5 text-rose-400" />
+                                  ) : item.type === 'wishlist_add' ? (
+                                    <Heart className="w-5 h-5 text-rose-400" />
+                                  ) : (
+                                    <ShoppingCart className="w-5 h-5 text-rose-400" />
+                                  )}
+                                </div>
+                              )}
 
-                                {/* Notification Content Body */}
-                                <div className="flex-1 space-y-1 min-w-0">
-                                  <div className="flex items-start justify-between gap-2">
-                                    <h4 className={`text-xs sm:text-sm leading-snug ${isUnread ? 'font-bold text-slate-900' : 'font-semibold text-slate-500'
-                                      }`}>
-                                      {item.title}
-                                    </h4>
-                                    <span className="text-[10px] text-gray-400 shrink-0 font-medium">
-                                      {createdDate}
-                                    </span>
-                                  </div>
-
-                                  <p className={`text-xs line-clamp-2 leading-relaxed ${isUnread ? 'text-slate-700' : 'text-slate-400'
-                                    }`}>
-                                    {item.message}
-                                  </p>
-
-                                  <div className="flex items-center gap-3 pt-1 text-[11px]">
-                                    {item.price > 0 && (
-                                      <span className={`font-extrabold px-2 py-0.5 rounded-md border ${isUnread ? 'text-[#ff2056] bg-rose-50 border-rose-100' : 'text-slate-500 bg-slate-100 border-gray-200'
-                                        }`}>
-                                        {formatPrice(item.price)}
-                                      </span>
-                                    )}
-
-                                    {item.orderId && (
-                                      <span className="font-mono text-slate-700 bg-slate-100 px-2 py-0.5 rounded-md text-[10px]">
-                                        Order: #{item.orderId}
-                                      </span>
-                                    )}
-
-                                    <span className="text-gray-400 capitalize">
-                                      • {item.type.replace(/_/g, ' ')}
-                                    </span>
-                                  </div>
+                              {/* Notification Content Body */}
+                              <div className="flex-1 space-y-1 min-w-0">
+                                <div className="flex items-start justify-between gap-2">
+                                  <h4
+                                    className={`text-xs sm:text-sm leading-snug ${
+                                      isUnread ? 'font-bold text-slate-900' : 'font-semibold text-slate-500'
+                                    }`}
+                                  >
+                                    {item.title}
+                                  </h4>
+                                  <span className="text-[10px] text-gray-400 shrink-0 font-medium">
+                                    {createdDate}
+                                  </span>
                                 </div>
 
-                                {/* Right Unread Indicator Dot */}
-                                {isUnread && (
-                                  <span className="w-2.5 h-2.5 rounded-full bg-[#ff2056] shrink-0 mt-1 shadow-xs animate-pulse" title="Unread notification" />
-                                )}
+                                <p
+                                  className={`text-xs line-clamp-2 leading-relaxed ${
+                                    isUnread ? 'text-slate-700' : 'text-slate-400'
+                                  }`}
+                                >
+                                  {item.message}
+                                </p>
+
+                                <div className="flex items-center gap-3 pt-1 text-[11px]">
+                                  {item.price > 0 && (
+                                    <span
+                                      className={`font-extrabold px-2 py-0.5 rounded-md border ${
+                                        isUnread
+                                          ? 'text-[#ff2056] bg-rose-50 border-rose-100'
+                                          : 'text-slate-500 bg-slate-100 border-gray-200'
+                                      }`}
+                                    >
+                                      {formatPrice(item.price)}
+                                    </span>
+                                  )}
+
+                                  {item.orderId && (
+                                    <span className="font-mono text-slate-700 bg-slate-100 px-2 py-0.5 rounded-md text-[10px]">
+                                      Order: #{item.orderId}
+                                    </span>
+                                  )}
+
+                                  <span className="text-gray-400 capitalize">
+                                    • {item.type.replace(/_/g, ' ')}
+                                  </span>
+                                </div>
                               </div>
-                            );
-                          })}
+
+                              {/* Right Unread Indicator Dot */}
+                              {isUnread && (
+                                <span
+                                  className="w-2.5 h-2.5 rounded-full bg-[#ff2056] shrink-0 mt-1 shadow-xs animate-pulse"
+                                  title="Unread notification"
+                                />
+                              )}
+                            </div>
+                          );
+                        })}
 
                         {/* Pagination Bar (10 notifications per page) */}
                         {totalNotificationPages > 1 && (
@@ -1313,14 +1799,14 @@ const DashboardPage = () => {
                             <div className="flex items-center gap-2">
                               <button
                                 disabled={notificationPage <= 1}
-                                onClick={() => fetchNotifications(notificationPage - 1)}
+                                onClick={() => fetchNotifications(notificationPage - 1, notificationFilter)}
                                 className="px-3.5 py-1.5 rounded-xl border border-gray-300 text-xs font-bold text-slate-700 bg-white hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-all"
                               >
                                 Previous
                               </button>
                               <button
                                 disabled={notificationPage >= totalNotificationPages}
-                                onClick={() => fetchNotifications(notificationPage + 1)}
+                                onClick={() => fetchNotifications(notificationPage + 1, notificationFilter)}
                                 className="px-3.5 py-1.5 rounded-xl border border-gray-300 text-xs font-bold text-slate-700 bg-white hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-all"
                               >
                                 Next Page

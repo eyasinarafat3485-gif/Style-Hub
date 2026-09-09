@@ -19,10 +19,10 @@ const UserSidebar = ({
   activeTab,
   setActiveTab,
   onLogout,
-  orderCount = 2,
+  orderCount = 0,
   isOpen,
   onClose,
-  unreadNotifications = 3,
+  unreadNotifications = 0,
 }) => {
   const { wishlist, cart } = useShop();
   const initialLetter = (user?.name || user?.email || 'U').charAt(0).toUpperCase();
@@ -31,9 +31,9 @@ const UserSidebar = ({
 
   const menuItems = [
     { id: 'overview', label: 'Overview', icon: LayoutDashboard },
-    { id: 'orders', label: 'My Orders & Tracking', icon: Package, badge: totalOrdersAndCartCount ? `${totalOrdersAndCartCount}` : null },
-    { id: 'wishlist', label: 'Saved Wishlist', icon: Heart, badge: wishlist.length ? `${wishlist.length}` : null },
-    // { id: 'notifications', label: 'Notifications', icon: Bell, badge: unreadNotifications ? `${unreadNotifications}` : null },
+    { id: 'orders', label: 'My Orders & Tracking', icon: Package, badge: totalOrdersAndCartCount > 0 ? `${totalOrdersAndCartCount}` : null },
+    { id: 'wishlist', label: 'Saved Wishlist', icon: Heart, badge: wishlist.length > 0 ? `${wishlist.length}` : null },
+    { id: 'notifications', label: 'Notifications', icon: Bell, badge: unreadNotifications > 0 ? `${unreadNotifications}` : null },
     { id: 'account', label: 'Settings', icon: Settings },
   ];
 

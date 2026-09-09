@@ -19,6 +19,7 @@ import {
   Tag,
   Sliders,
   Star,
+  Bell,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -29,6 +30,7 @@ const AdminSidebar = ({
   user,
   isOpen,
   onClose,
+  unreadNotifications = 0,
 }) => {
   const productSubItems = [
     'products',
@@ -274,6 +276,37 @@ const AdminSidebar = ({
                 />
                 <span>Customers</span>
               </div>
+            </button>
+
+            {/* Notifications */}
+            <button
+              onClick={() => {
+                setActiveTab('notifications');
+                if (onClose) onClose();
+              }}
+              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all cursor-pointer text-left ${
+                activeTab === 'notifications'
+                  ? 'bg-[#ff2056] text-white shadow-lg shadow-rose-600/20 font-bold'
+                  : 'text-slate-300 hover:bg-slate-900 hover:text-white'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <Bell
+                  className={`w-4 h-4 ${activeTab === 'notifications' ? 'text-white' : 'text-slate-400'}`}
+                />
+                <span>Alerts & Notifications</span>
+              </div>
+              {unreadNotifications > 0 && (
+                <span
+                  className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${
+                    activeTab === 'notifications'
+                      ? 'bg-white/20 text-white'
+                      : 'bg-[#ff2056] text-white'
+                  }`}
+                >
+                  {unreadNotifications} New
+                </span>
+              )}
             </button>
 
             {/* Reports & Analytics */}

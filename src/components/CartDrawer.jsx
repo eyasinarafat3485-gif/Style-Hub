@@ -1,9 +1,16 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { X, Trash2, Plus, Minus, ShoppingCart, ArrowRight } from 'lucide-react';
 import { useShop } from '../context/ShopContext';
 
 const CartDrawer = () => {
   const { cart, isCartOpen, setIsCartOpen, removeFromCart, updateQuantity, cartTotal, formatPrice } = useShop();
+  const navigate = useNavigate();
+
+  const handleProceedToCheckout = () => {
+    setIsCartOpen(false);
+    navigate('/checkout');
+  };
 
   if (!isCartOpen) return null;
 
@@ -118,8 +125,8 @@ const CartDrawer = () => {
               </div>
 
               <button
-                onClick={() => alert("Redirecting to Cash on Delivery / bKash Secure Checkout...")}
-                className="w-full bg-[#ff2056] hover:bg-[#e01648] text-white py-3 rounded-md text-xs font-bold transition-all shadow flex items-center justify-center gap-2 group"
+                onClick={handleProceedToCheckout}
+                className="w-full bg-[#ff2056] hover:bg-[#e01648] text-white py-3 rounded-md text-xs font-bold transition-all shadow flex items-center justify-center gap-2 group cursor-pointer"
               >
                 <span>Proceed to Checkout</span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />

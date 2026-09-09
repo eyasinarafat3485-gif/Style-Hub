@@ -42,11 +42,11 @@ const AdminAddProduct = ({ setActiveTab }) => {
   // Other Custom Attributes (Material, Fit, Other)
   const otherAttributes = attributes
     ? attributes.filter(
-        (a) =>
-          a.type !== 'Size' &&
-          a.type !== 'Color' &&
-          !(a.name && (a.name.toLowerCase().includes('size') || a.name.toLowerCase().includes('color')))
-      )
+      (a) =>
+        a.type !== 'Size' &&
+        a.type !== 'Color' &&
+        !(a.name && (a.name.toLowerCase().includes('size') || a.name.toLowerCase().includes('color')))
+    )
     : [];
 
   // Form States
@@ -57,7 +57,7 @@ const AdminAddProduct = ({ setActiveTab }) => {
   const [countInStock, setCountInStock] = useState('50');
   const [description, setDescription] = useState('');
   const [image, setImage] = useState('');
-  
+
   // Badges & Variants
   const [isNew, setIsNew] = useState(true);
   const [isTrending, setIsTrending] = useState(false);
@@ -170,9 +170,9 @@ const AdminAddProduct = ({ setActiveTab }) => {
           <div>
             <h2 className="text-xl font-bold text-slate-900 font-serif flex items-center gap-2">
               <span>Create New Product</span>
-              <span className="px-2 py-0.5 rounded-full bg-rose-50 text-[#ff2056] text-[10px] font-bold uppercase border border-rose-200">
+              {/* <span className="px-2 py-0.5 rounded-full bg-rose-50 text-[#ff2056] text-[10px] font-bold uppercase border border-rose-200">
                 Live Store Sync
-              </span>
+              </span> */}
             </h2>
             <p className="text-xs text-gray-500">Publish new apparel items directly to StyleHub customer catalog</p>
           </div>
@@ -298,11 +298,10 @@ const AdminAddProduct = ({ setActiveTab }) => {
                       type="button"
                       key={sz}
                       onClick={() => toggleSize(sz)}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                        isSelected
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${isSelected
                           ? 'bg-[#ff2056] text-white shadow-xs'
                           : 'bg-gray-100 text-slate-700 hover:bg-gray-200'
-                      }`}
+                        }`}
                     >
                       {sz} {isSelected && '✓'}
                     </button>
@@ -322,11 +321,10 @@ const AdminAddProduct = ({ setActiveTab }) => {
                       type="button"
                       key={col}
                       onClick={() => toggleColor(col)}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all cursor-pointer ${
-                        isSelected
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all cursor-pointer ${isSelected
                           ? 'bg-slate-900 text-white border-slate-900 shadow-xs'
                           : 'bg-white text-slate-700 border-gray-200 hover:bg-gray-50'
-                      }`}
+                        }`}
                     >
                       {col} {isSelected && '✓'}
                     </button>

@@ -226,35 +226,37 @@ const AdminOverview = ({ setActiveTab, onAddNewProduct }) => {
         </div>
       </div>
 
-      {/* KPI Summary Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* KPI Summary Cards Grid: 2 per line on mobile (grid-cols-2), 4 on desktop (lg:grid-cols-4) */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {stats.map((item, idx) => {
           const Icon = item.icon;
           return (
             <div
               key={idx}
               onClick={item.action}
-              className="bg-white rounded-2xl border border-gray-200/80 p-5 shadow-xs hover:shadow-md hover:border-rose-200 transition-all space-y-3 cursor-pointer group"
+              className="bg-white rounded-xl sm:rounded-2xl border border-gray-200/80 p-3 sm:p-5 shadow-xs hover:shadow-md hover:border-rose-200 transition-all space-y-1.5 sm:space-y-3 cursor-pointer group"
             >
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+              <div className="flex items-center justify-between gap-1">
+                <span className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-wider truncate">
                   {item.title}
                 </span>
-                <div className={`p-2.5 rounded-xl border group-hover:scale-110 transition-transform ${item.color}`}>
-                  <Icon className="w-5 h-5" />
+                <div className={`p-1.5 sm:p-2.5 rounded-lg sm:rounded-xl border group-hover:scale-105 transition-transform ${item.color} shrink-0`}>
+                  <Icon className="w-3.5 h-3.5 sm:w-5 sm:h-5" />
                 </div>
               </div>
               <div>
-                <h3 className="text-2xl font-black text-slate-900 tracking-tight font-serif">
+                <h3 className="text-base sm:text-2xl font-black text-slate-900 tracking-tight font-serif truncate">
                   {isLoading ? (
-                    <div className="h-7 w-28 bg-slate-100 animate-pulse rounded-md" />
+                    <div className="h-5 sm:h-7 w-16 sm:w-28 bg-slate-100 animate-pulse rounded-md" />
                   ) : (
                     item.value
                   )}
                 </h3>
-                <div className="flex items-center justify-between gap-1 mt-1.5 text-xs">
-                  <span className="font-semibold text-slate-600 truncate">{item.subtext}</span>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 shrink-0">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-0.5 sm:gap-1 mt-1 text-[10px] sm:text-xs">
+                  <span className="font-semibold text-slate-600 truncate text-[10px] sm:text-xs">
+                    {item.subtext}
+                  </span>
+                  <span className="text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 w-fit shrink-0">
                     {item.badge}
                   </span>
                 </div>
@@ -335,76 +337,148 @@ const AdminOverview = ({ setActiveTab, onAddNewProduct }) => {
               <p className="text-[11px] text-gray-400">Customer purchases will be shown here in real-time.</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
-                <thead>
-                  <tr className="text-gray-400 uppercase tracking-wider font-bold border-b border-gray-100 pb-2">
-                    <th className="py-2.5 px-3">Order ID</th>
-                    <th className="py-2.5 px-3">Customer</th>
-                    <th className="py-2.5 px-3">Items</th>
-                    <th className="py-2.5 px-3">Amount</th>
-                    <th className="py-2.5 px-3">Status</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100 text-slate-800">
-                  {orders.slice(0, 6).map((ord) => {
-                    const shortId = ord._id ? `SH-${ord._id.slice(-6).toUpperCase()}` : ord.id || 'SH-ORDER';
-                    const customerName =
-                      ord.shippingAddress?.fullName ||
-                      ord.guestInfo?.fullName ||
-                      (ord.user && ord.user.name) ||
-                      ord.userEmail ||
-                      'Customer';
-                    const firstItem = ord.orderItems && ord.orderItems.length > 0 ? ord.orderItems[0] : null;
-                    const itemsSummary = ord.orderItems && ord.orderItems.length > 0
-                      ? ord.orderItems.map((item) => `${item.name || 'Item'} (${item.selectedSize || 'M'}) x ${item.quantity || 1}`).join(', ')
-                      : 'Order Items';
-                    const amountFormatted = typeof ord.totalPrice === 'number' ? formatPrice(ord.totalPrice) : (ord.total || '৳ 0');
+            <>
+              {/* 1. DESKTOP VIEW (md+) */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full text-left text-xs min-w-[580px]">
+                  <thead>
+                    <tr className="text-gray-400 uppercase tracking-wider font-bold border-b border-gray-100 pb-2">
+                      <th className="py-2.5 px-3">Order ID</th>
+                      <th className="py-2.5 px-3">Customer</th>
+                      <th className="py-2.5 px-3">Items</th>
+                      <th className="py-2.5 px-3">Amount</th>
+                      <th className="py-2.5 px-3">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100 text-slate-800">
+                    {orders.slice(0, 6).map((ord) => {
+                      const shortId = ord._id ? `SH-${ord._id.slice(-6).toUpperCase()}` : ord.id || 'SH-ORDER';
+                      const customerName =
+                        ord.shippingAddress?.fullName ||
+                        ord.guestInfo?.fullName ||
+                        (ord.user && ord.user.name) ||
+                        ord.userEmail ||
+                        'Customer';
+                      const firstItem = ord.orderItems && ord.orderItems.length > 0 ? ord.orderItems[0] : null;
+                      const itemsSummary = ord.orderItems && ord.orderItems.length > 0
+                        ? ord.orderItems.map((item) => `${item.name || 'Item'} (${item.selectedSize || 'M'}) x ${item.quantity || 1}`).join(', ')
+                        : 'Order Items';
+                      const amountFormatted = typeof ord.totalPrice === 'number' ? formatPrice(ord.totalPrice) : (ord.total || '৳ 0');
 
-                    return (
-                      <tr
-                        key={ord._id || ord.id}
-                        onClick={() => setActiveTab('orders')}
-                        className="hover:bg-slate-50/80 transition-colors cursor-pointer"
-                      >
-                        <td className="py-3 px-3">
-                          <span className="font-mono font-bold text-slate-900 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
-                            {shortId}
-                          </span>
-                        </td>
-                        <td className="py-3 px-3">
-                          <span className="font-bold text-slate-900 block">{customerName}</span>
-                          <span className="text-[10px] text-gray-400 block truncate max-w-[130px]">
-                            {ord.shippingAddress?.city || ord.shippingAddress?.district || ord.paymentMethod || 'Online'}
-                          </span>
-                        </td>
-                        <td className="py-3 px-3">
-                          <div className="flex items-center gap-2 max-w-[200px]">
-                            {firstItem?.image && (
-                              <img
-                                src={firstItem.image}
-                                alt={firstItem.name}
-                                className="w-7 h-7 rounded-md object-cover border border-gray-200 shrink-0"
-                                onError={(e) => {
-                                  e.target.style.display = 'none';
-                                }}
-                              />
-                            )}
-                            <span className="text-gray-600 truncate">{itemsSummary}</span>
+                      return (
+                        <tr
+                          key={ord._id || ord.id}
+                          onClick={() => setActiveTab('orders')}
+                          className="hover:bg-slate-50/80 transition-colors cursor-pointer"
+                        >
+                          <td className="py-3 px-3">
+                            <span className="font-mono font-bold text-slate-900 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
+                              {shortId}
+                            </span>
+                          </td>
+                          <td className="py-3 px-3">
+                            <span className="font-bold text-slate-900 block">{customerName}</span>
+                            <span className="text-[10px] text-gray-400 block truncate max-w-[130px]">
+                              {ord.shippingAddress?.city || ord.shippingAddress?.district || ord.paymentMethod || 'Online'}
+                            </span>
+                          </td>
+                          <td className="py-3 px-3">
+                            <div className="flex items-center gap-2 max-w-[200px]">
+                              {firstItem?.image && (
+                                <img
+                                  src={firstItem.image}
+                                  alt={firstItem.name}
+                                  className="w-7 h-7 rounded-md object-cover border border-gray-200 shrink-0"
+                                  onError={(e) => {
+                                    e.target.style.display = 'none';
+                                  }}
+                                />
+                              )}
+                              <span className="text-gray-600 truncate">{itemsSummary}</span>
+                            </div>
+                          </td>
+                          <td className="py-3 px-3 font-black text-slate-900">{amountFormatted}</td>
+                          <td className="py-3 px-3">
+                            <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${getStatusBadge(ord.status)}`}>
+                              {ord.status || 'Pending'}
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* 2. MOBILE CARD VIEW (< md, No Horizontal Scroll / No Wrap) */}
+              <div className="block md:hidden divide-y divide-gray-100">
+                {orders.slice(0, 6).map((ord) => {
+                  const shortId = ord._id ? `SH-${ord._id.slice(-6).toUpperCase()}` : ord.id || 'SH-ORDER';
+                  const customerName =
+                    ord.shippingAddress?.fullName ||
+                    ord.guestInfo?.fullName ||
+                    (ord.user && ord.user.name) ||
+                    ord.userEmail ||
+                    'Customer';
+                  const firstItem = ord.orderItems && ord.orderItems.length > 0 ? ord.orderItems[0] : null;
+                  const itemsSummary = ord.orderItems && ord.orderItems.length > 0
+                    ? ord.orderItems.map((item) => `${item.name || 'Item'} (${item.selectedSize || 'M'}) x ${item.quantity || 1}`).join(', ')
+                    : 'Order Items';
+                  const amountFormatted = typeof ord.totalPrice === 'number' ? formatPrice(ord.totalPrice) : (ord.total || '৳ 0');
+
+                  return (
+                    <div
+                      key={ord._id || ord.id}
+                      onClick={() => setActiveTab('orders')}
+                      className="py-3 space-y-2 hover:bg-slate-50/70 transition-colors cursor-pointer"
+                    >
+                      {/* Top Row: Order ID + Status */}
+                      <div className="flex items-center justify-between">
+                        <span className="font-mono font-bold text-slate-900 bg-slate-100 px-2 py-0.5 rounded text-xs border border-slate-200">
+                          {shortId}
+                        </span>
+                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${getStatusBadge(ord.status)}`}>
+                          {ord.status || 'Pending'}
+                        </span>
+                      </div>
+
+                      {/* Middle Row: Item preview & customer info */}
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          {firstItem?.image && (
+                            <img
+                              src={firstItem.image}
+                              alt={firstItem.name}
+                              className="w-10 h-10 rounded-lg object-cover border border-gray-200 shrink-0"
+                              onError={(e) => {
+                                e.target.style.display = 'none';
+                              }}
+                            />
+                          )}
+                          <div className="min-w-0">
+                            <p className="font-bold text-slate-900 text-xs truncate">
+                              {customerName}
+                            </p>
+                            <p className="text-[11px] text-gray-500 truncate">
+                              {itemsSummary}
+                            </p>
                           </div>
-                        </td>
-                        <td className="py-3 px-3 font-black text-slate-900">{amountFormatted}</td>
-                        <td className="py-3 px-3">
-                          <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${getStatusBadge(ord.status)}`}>
-                            {ord.status || 'Pending'}
+                        </div>
+
+                        <div className="text-right shrink-0">
+                          <p className="font-extrabold text-slate-900 text-xs">
+                            {amountFormatted}
+                          </p>
+                          <span className="text-[10px] text-gray-400">
+                            {ord.shippingAddress?.city || 'Dhaka'}
                           </span>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </>
           )}
         </div>
 

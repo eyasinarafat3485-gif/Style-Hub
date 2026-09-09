@@ -298,9 +298,9 @@ const AdminSettings = () => {
               <h2 className="text-xl font-bold font-serif text-slate-900">
                 Store Settings & Operations
               </h2>
-              <span className="text-[10px] bg-emerald-50 text-emerald-700 font-bold px-2 py-0.5 rounded-full border border-emerald-200">
+              {/* <span className="text-[10px] bg-emerald-50 text-emerald-700 font-bold px-2 py-0.5 rounded-full border border-emerald-200">
                 Live Synced
-              </span>
+              </span> */}
             </div>
             <p className="text-xs text-gray-500 mt-0.5">
               Configure dynamic shipping delivery fees, checkout payment gateways, and store rules.
@@ -308,7 +308,7 @@ const AdminSettings = () => {
           </div>
         </div>
 
-        <div className="flex items-center gap-2.5 self-end sm:self-auto">
+        <div className="flex items-center justify-center gap-2.5 self-center sm:self-auto w-full sm:w-auto pt-1 sm:pt-0">
           <button
             type="button"
             onClick={() => fetchSettings(true)}
@@ -322,7 +322,7 @@ const AdminSettings = () => {
             type="button"
             onClick={handleSaveSettings}
             disabled={isSaving}
-            className="px-5 py-2.5 bg-[#ff2056] hover:bg-[#d6103e] text-white text-xs font-bold rounded-xl shadow-md shadow-rose-600/20 transition-all flex items-center gap-2 cursor-pointer"
+            className="px-5 py-2.5 bg-[#ff2056] hover:bg-[#d6103e] text-white text-xs font-bold rounded-xl shadow-md shadow-rose-600/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
           >
             {isSaving ? (
               <>
@@ -350,11 +350,10 @@ const AdminSettings = () => {
             key={tab.id}
             type="button"
             onClick={() => setActiveSubTab(tab.id)}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${
-              activeSubTab === tab.id
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${activeSubTab === tab.id
                 ? 'bg-white text-slate-900 shadow-sm'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
-            }`}
+              }`}
           >
             <span>{tab.label}</span>
           </button>
@@ -558,11 +557,10 @@ const AdminSettings = () => {
                   return (
                     <div
                       key={method.id || method._id}
-                      className={`p-5 rounded-2xl border transition-all space-y-3 flex flex-col justify-between ${
-                        isEnabled
+                      className={`p-5 rounded-2xl border transition-all space-y-3 flex flex-col justify-between ${isEnabled
                           ? 'bg-white border-slate-200 shadow-xs hover:border-rose-200'
                           : 'bg-slate-50/80 border-slate-200 opacity-60'
-                      }`}
+                        }`}
                     >
                       <div className="space-y-2.5">
                         {/* Top Row: Icon + Name + Badge + Toggle */}

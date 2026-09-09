@@ -272,9 +272,9 @@ const AdminOrders = () => {
         <div>
           <div className="flex items-center gap-2">
             <h2 className="text-xl font-bold text-slate-900 font-serif">Customer Orders & Sales</h2>
-            <span className="bg-rose-50 text-[#ff2056] text-[11px] font-extrabold px-2.5 py-0.5 rounded-full border border-rose-100">
+            {/* <span className="bg-rose-50 text-[#ff2056] text-[11px] font-extrabold px-2.5 py-0.5 rounded-full border border-rose-100">
               Live Database
-            </span>
+            </span> */}
           </div>
           <p className="text-xs text-gray-500 mt-0.5">
             Individual customer product orders and shipment fulfillment pipeline

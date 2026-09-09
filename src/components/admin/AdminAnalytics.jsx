@@ -184,10 +184,10 @@ const AdminAnalytics = ({ setActiveTab }) => {
             <div>
               <h2 className="text-xl sm:text-2xl font-bold font-serif text-slate-900 flex items-center gap-2">
                 <span>Reports & Live Analytics</span>
-                <span className="flex items-center gap-1 text-[10px] font-sans font-bold bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full border border-emerald-200">
+                {/* <span className="flex items-center gap-1 text-[10px] font-sans font-bold bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full border border-emerald-200">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                   Live Sync
-                </span>
+                </span> */}
               </h2>
               <p className="text-xs text-gray-500">
                 Real-time revenue metrics, shopping cart conversion rates, and product inventory velocity.
@@ -210,11 +210,10 @@ const AdminAnalytics = ({ setActiveTab }) => {
               <button
                 key={item.value}
                 onClick={() => setRange(item.value)}
-                className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
-                  range === item.value
+                className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${range === item.value
                     ? 'bg-white text-[#ff2056] font-bold shadow-xs'
                     : 'hover:text-slate-900'
-                }`}
+                  }`}
               >
                 {item.label}
               </button>
@@ -376,21 +375,19 @@ const AdminAnalytics = ({ setActiveTab }) => {
             <div className="bg-slate-100 p-1 rounded-xl flex items-center text-xs font-bold text-slate-600">
               <button
                 onClick={() => setChartMetric('revenue')}
-                className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
-                  chartMetric === 'revenue'
+                className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${chartMetric === 'revenue'
                     ? 'bg-white text-[#ff2056] shadow-xs'
                     : 'hover:text-slate-900'
-                }`}
+                  }`}
               >
                 Revenue (৳)
               </button>
               <button
                 onClick={() => setChartMetric('orders')}
-                className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
-                  chartMetric === 'orders'
+                className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${chartMetric === 'orders'
                     ? 'bg-white text-blue-600 shadow-xs'
                     : 'hover:text-slate-900'
-                }`}
+                  }`}
               >
                 Order Volume
               </button>
@@ -444,13 +441,12 @@ const AdminAnalytics = ({ setActiveTab }) => {
                     {/* Bar Element */}
                     <div
                       style={{ height: `${heightPercent}%` }}
-                      className={`w-full max-w-[28px] rounded-t-lg transition-all duration-300 ${
-                        isHovered
+                      className={`w-full max-w-[28px] rounded-t-lg transition-all duration-300 ${isHovered
                           ? 'bg-[#ff2056] shadow-lg shadow-rose-500/30 scale-105'
                           : isRevenue
-                          ? 'bg-gradient-to-t from-rose-500/80 to-[#ff2056] opacity-85 group-hover:opacity-100'
-                          : 'bg-gradient-to-t from-blue-500/80 to-blue-600 opacity-85 group-hover:opacity-100'
-                      }`}
+                            ? 'bg-gradient-to-t from-rose-500/80 to-[#ff2056] opacity-85 group-hover:opacity-100'
+                            : 'bg-gradient-to-t from-blue-500/80 to-blue-600 opacity-85 group-hover:opacity-100'
+                        }`}
                     />
                   </div>
                 );
@@ -574,15 +570,14 @@ const AdminAnalytics = ({ setActiveTab }) => {
                 >
                   <div className="flex items-center gap-3">
                     <span
-                      className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black ${
-                        idx === 0
+                      className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black ${idx === 0
                           ? 'bg-amber-100 text-amber-800'
                           : idx === 1
-                          ? 'bg-slate-200 text-slate-800'
-                          : idx === 2
-                          ? 'bg-amber-50 text-amber-700'
-                          : 'bg-slate-100 text-slate-500'
-                      }`}
+                            ? 'bg-slate-200 text-slate-800'
+                            : idx === 2
+                              ? 'bg-amber-50 text-amber-700'
+                              : 'bg-slate-100 text-slate-500'
+                        }`}
                     >
                       #{idx + 1}
                     </span>
@@ -707,15 +702,14 @@ const AdminAnalytics = ({ setActiveTab }) => {
                     </td>
                     <td className="py-3">
                       <span
-                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                          tx.status === 'Delivered'
+                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${tx.status === 'Delivered'
                             ? 'bg-emerald-100 text-emerald-700'
                             : tx.status === 'Processing'
-                            ? 'bg-blue-100 text-blue-700'
-                            : tx.status === 'Cancelled'
-                            ? 'bg-rose-100 text-rose-700'
-                            : 'bg-amber-100 text-amber-700'
-                        }`}
+                              ? 'bg-blue-100 text-blue-700'
+                              : tx.status === 'Cancelled'
+                                ? 'bg-rose-100 text-rose-700'
+                                : 'bg-amber-100 text-amber-700'
+                          }`}
                       >
                         {tx.status}
                       </span>

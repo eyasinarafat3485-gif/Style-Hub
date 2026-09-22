@@ -5,75 +5,56 @@ const ShopContext = createContext();
 
 const initialProducts = [
   {
-    id: "1",
-    name: "Premium Polo T-Shirt",
-    slug: "premium-polo-t-shirt",
+    id: "6aa03b52c21fb844abfd2319",
+    _id: "6aa03b52c21fb844abfd2319",
+    name: "Premium Cotton T-Shirt",
+    title: "Premium Cotton T-Shirt",
+    slug: "premium-cotton-t-shirt",
     category: "T-Shirts",
-    image: "https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=600&auto=format&fit=crop&q=80",
-    price: 1199,
-    oldPrice: 1499,
-    discountBadge: "-20%",
-    rating: 5.0,
-    reviewCount: 125,
-    isTrending: true,
-    description: "Tailored fit navy blue polo crafted from 100% pique cotton. Breathable and comfortable for all-day wear.",
-    colors: ["Navy Blue", "Black", "White"],
-    sizes: ["S", "M", "L", "XL"]
-  },
-  {
-    id: "2",
-    name: "Linen Casual Shirt",
-    slug: "linen-casual-shirt",
-    category: "Shirts",
-    image: "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=600&auto=format&fit=crop&q=80",
-    price: 1799,
-    oldPrice: null,
-    discountBadge: "New",
-    rating: 5.0,
-    reviewCount: 96,
-    isTrending: true,
-    description: "Lightweight organic linen shirt designed for Bangladesh's warm climate.",
-    colors: ["Beige", "Olive Green"],
-    sizes: ["M", "L", "XL"]
-  },
-  {
-    id: "3",
-    name: "Oversized T-Shirt",
-    slug: "oversized-t-shirt",
-    category: "T-Shirts",
-    image: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=600&auto=format&fit=crop&q=80",
+    image: "https://i.ibb.co.com/1Jd3TyGz/web-designer-t-shirt-navy-blue.jpg",
+    images: ["https://i.ibb.co.com/1Jd3TyGz/web-designer-t-shirt-navy-blue.jpg"],
     price: 899,
-    oldPrice: 1059,
-    discountBadge: "-15%",
+    oldPrice: 1199,
+    discountBadge: "",
     rating: 5.0,
-    reviewCount: 75,
+    reviewCount: 0,
     isTrending: true,
-    description: "Streetwear aesthetic heavy cotton oversized drop-shoulder t-shirt.",
-    colors: ["Crisp White", "Charcoal Gray"],
-    sizes: ["S", "M", "L", "XL"]
+    isNewArrival: true,
+    description: "Premium soft cotton crew-neck t-shirt with a comfortable fit, breathable fabric, and clean modern design.",
+    colors: ["Royal Navy", "Gold Silk"],
+    sizes: ["M", "L", "XL"],
+    countInStock: 50,
   },
   {
-    id: "4",
-    name: "Check Shirt",
-    slug: "check-shirt",
-    category: "Shirts",
-    image: "https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=600&auto=format&fit=crop&q=80",
-    price: 1499,
+    id: "6a9d97e06b03674022701f42",
+    _id: "6a9d97e06b03674022701f42",
+    name: "Royal Silk Panjabi",
+    title: "Royal Silk Panjabi",
+    slug: "royal-silk-panjabi",
+    category: "Panjabi",
+    image: "https://i.postimg.cc/D0dhN0TH/images-(97).jpg",
+    images: ["https://images.unsplash.com/photo-1596755094514"],
+    price: 3850,
     oldPrice: null,
-    discountBadge: "New",
+    discountBadge: "",
     rating: 5.0,
-    reviewCount: 64,
-    isTrending: true,
-    description: "Classic plaid check pattern shirt with soft brushed cotton finish.",
-    colors: ["Navy/Brown Check"],
-    sizes: ["M", "L", "XL"]
+    reviewCount: 0,
+    isTrending: false,
+    isNewArrival: true,
+    description: "Exquisite Royal Silk Panjabi handcrafted with refined embroidery for celebrations and festivals.",
+    colors: ["Default"],
+    sizes: ["S", "M", "L", "XL"],
+    countInStock: 50,
   },
   {
-    id: "5",
+    id: "6a9c574d028095e0955d2015",
+    _id: "6a9c574d028095e0955d2015",
     name: "Denim Jeans",
+    title: "Denim Jeans",
     slug: "denim-jeans",
     category: "Men",
     image: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=600&auto=format&fit=crop&q=80",
+    images: ["https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=600&auto=format&fit=crop&q=80"],
     price: 2099,
     oldPrice: 2399,
     discountBadge: "-13%",
@@ -82,14 +63,18 @@ const initialProducts = [
     isTrending: true,
     description: "Slim tapered dark wash stretch denim jeans with custom fit.",
     colors: ["Indigo Blue"],
-    sizes: ["30", "32", "34"]
+    sizes: ["30", "32", "34"],
+    countInStock: 60,
   },
   {
-    id: "6",
+    id: "6a9c574d028095e0955d2016",
+    _id: "6a9c574d028095e0955d2016",
     name: "Basic Hoodie",
+    title: "Basic Hoodie",
     slug: "basic-hoodie",
     category: "Men",
     image: "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=600&auto=format&fit=crop&q=80",
+    images: ["https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=600&auto=format&fit=crop&q=80"],
     price: 1399,
     oldPrice: null,
     discountBadge: "Hot",
@@ -98,13 +83,95 @@ const initialProducts = [
     isTrending: true,
     description: "Cozy fleece-lined pullover hoodie with adjustable matching drawstrings.",
     colors: ["Heather Gray", "Black"],
-    sizes: ["M", "L", "XL"]
+    sizes: ["M", "L", "XL"],
+    countInStock: 45,
+  },
+  {
+    id: "6a9c574d028095e0955d2014",
+    _id: "6a9c574d028095e0955d2014",
+    name: "Check Shirt",
+    title: "Check Shirt",
+    slug: "check-shirt",
+    category: "Shirt",
+    image: "https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=600&auto=format&fit=crop&q=80",
+    images: ["https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=600&auto=format&fit=crop&q=80"],
+    price: 1499,
+    oldPrice: null,
+    discountBadge: "New",
+    rating: 5.0,
+    reviewCount: 64,
+    isTrending: true,
+    description: "Classic plaid check pattern shirt with soft brushed cotton finish.",
+    colors: ["Navy/Brown Check"],
+    sizes: ["M", "L", "XL"],
+    countInStock: 40,
+  },
+  {
+    id: "6a9c574d028095e0955d2012",
+    _id: "6a9c574d028095e0955d2012",
+    name: "Linen Casual Shirt",
+    title: "Linen Casual Shirt",
+    slug: "linen-casual-shirt",
+    category: "Shirt",
+    image: "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=600&auto=format&fit=crop&q=80",
+    images: ["https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=600&auto=format&fit=crop&q=80"],
+    price: 1799,
+    oldPrice: null,
+    discountBadge: "New",
+    rating: 4.5,
+    reviewCount: 2,
+    isTrending: true,
+    description: "Lightweight organic linen shirt designed for Bangladesh's warm climate.",
+    colors: ["Beige", "Olive Green"],
+    sizes: ["M", "L", "XL"],
+    countInStock: 35,
+  },
+  {
+    id: "6a9c574d028095e0955d2011",
+    _id: "6a9c574d028095e0955d2011",
+    name: "Premium Polo T-Shirt",
+    title: "Premium Polo T-Shirt",
+    slug: "premium-polo-t-shirt",
+    category: "T-Shirts",
+    image: "https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=600&auto=format&fit=crop&q=80",
+    images: ["https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=600&auto=format&fit=crop&q=80"],
+    price: 1199,
+    oldPrice: 1499,
+    discountBadge: "-20%",
+    rating: 5.0,
+    reviewCount: 125,
+    isTrending: true,
+    description: "Tailored fit navy blue polo crafted from 100% pique cotton. Breathable and comfortable for all-day wear.",
+    colors: ["Navy Blue", "Black", "White"],
+    sizes: ["S", "M", "L", "XL"],
+    countInStock: 50,
+  },
+  {
+    id: "6a9c574d028095e0955d2013",
+    _id: "6a9c574d028095e0955d2013",
+    name: "Oversized T-Shirt",
+    title: "Oversized T-Shirt",
+    slug: "oversized-t-shirt",
+    category: "T-Shirts",
+    image: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=600&auto=format&fit=crop&q=80",
+    images: ["https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=600&auto=format&fit=crop&q=80"],
+    price: 899,
+    oldPrice: 1059,
+    discountBadge: "-15%",
+    rating: 3.0,
+    reviewCount: 1,
+    isTrending: true,
+    description: "Streetwear aesthetic heavy cotton oversized drop-shoulder t-shirt.",
+    colors: ["Crisp White", "Charcoal Gray"],
+    sizes: ["S", "M", "L", "XL"],
+    countInStock: 80,
   }
 ];
 
 const normalizeProduct = (p) => ({
   ...p,
   id: String(p.id || p._id || Date.now()),
+  _id: String(p._id || p.id || Date.now()),
   name: p.name || p.title || 'Untitled Product',
   title: p.title || p.name || 'Untitled Product',
   price: Number(p.price) || 0,
@@ -114,7 +181,20 @@ const normalizeProduct = (p) => ({
 });
 
 export const ShopProvider = ({ children }) => {
-  const [products, setProducts] = useState(initialProducts.map(normalizeProduct));
+  const [products, setProducts] = useState(() => {
+    try {
+      const cached = localStorage.getItem('stylehub_cached_products');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed.map(normalizeProduct);
+        }
+      }
+    } catch (e) {
+      console.warn('Error loading cached products:', e);
+    }
+    return initialProducts.map(normalizeProduct);
+  });
   
   // Persistent Cart state for guest & logged-in users across reloads
   const [cart, setCart] = useState(() => {
@@ -269,11 +349,17 @@ export const ShopProvider = ({ children }) => {
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data) && data.length > 0) {
-          setProducts(data.map(normalizeProduct));
+          const normalized = data.map(normalizeProduct);
+          setProducts(normalized);
+          try {
+            localStorage.setItem('stylehub_cached_products', JSON.stringify(normalized));
+          } catch (e) {
+            console.warn('Failed to cache products to localStorage:', e);
+          }
         }
       })
       .catch((err) => {
-        console.log("Connected to frontend fallback data mode", err);
+        console.log("Connected to frontend cached data mode", err);
       });
 
     fetchUserCollections();

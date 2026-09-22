@@ -6,7 +6,7 @@ const Footer = () => {
   return (
     <footer className="bg-stone-50 border-t border-gray-200 text-slate-800 text-xs">
       <div className="max-w-7xl mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           
           {/* Col 1: Brand */}
           <div className="space-y-4">
@@ -57,19 +57,7 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Col 3: Customer Service */}
-          <div className="space-y-3">
-            <h4 className="font-bold text-slate-900 text-sm tracking-wide">Customer Service</h4>
-            <ul className="space-y-2 text-gray-600 font-medium">
-              <li><Link to="/contact" className="hover:text-[#ff2056] transition-colors">Contact Us</Link></li>
-              <li><Link to="/faq" className="hover:text-[#ff2056] transition-colors">FAQs</Link></li>
-              <li><Link to="/shipping" className="hover:text-[#ff2056] transition-colors">Shipping & Delivery</Link></li>
-              <li><Link to="/returns" className="hover:text-[#ff2056] transition-colors">Returns & Exchanges</Link></li>
-              <li><Link to="/size-guide" className="hover:text-[#ff2056] transition-colors">Size Guide</Link></li>
-            </ul>
-          </div>
-
-          {/* Col 4: Company */}
+          {/* Col 3: Company */}
           <div className="space-y-3">
             <h4 className="font-bold text-slate-900 text-sm tracking-wide">Company</h4>
             <ul className="space-y-2 text-gray-600 font-medium">

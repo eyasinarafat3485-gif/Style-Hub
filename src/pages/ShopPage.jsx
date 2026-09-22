@@ -49,7 +49,7 @@ const ShopPage = ({ initialCategory = '', initialFilter = '' }) => {
 
   // Dynamic Categories list from default + DB + loaded products
   const categoriesList = useMemo(() => {
-    const set = new Set(['All', 'Men', 'Women', 'Kids', 'T-Shirts', 'Shirt', 'Panjabi']);
+    const set = new Set(['All', 'Men', 'Women', 'T-Shirts', 'Shirt', 'Panjabi']);
     if (Array.isArray(dbCategories)) {
       dbCategories.forEach((c) => {
         if (c.name) {

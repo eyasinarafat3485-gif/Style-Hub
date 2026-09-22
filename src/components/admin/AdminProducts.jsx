@@ -35,7 +35,7 @@ const AdminProducts = ({ isModalOpen, setIsModalOpen }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Categories list
-  const categories = ['All', 'Panjabi', 'Kurtis', 'Sarees', 'Men', 'Women', 'Kids', 'T-Shirts'];
+  const categories = ['All', 'Panjabi', 'Kurtis', 'Sarees', 'Men', 'Women', 'T-Shirts'];
 
   // Filter products safely without crash on missing title/name
   const filteredProducts = (products || []).filter((item) => {

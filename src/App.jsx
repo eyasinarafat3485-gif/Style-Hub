@@ -73,7 +73,6 @@ const MainLayout = () => {
           <Route path="/product/:id" element={<ProductDetailsPage />} />
           <Route path="/men" element={<ShopPage initialCategory="Men" />} />
           <Route path="/women" element={<ShopPage initialCategory="Women" />} />
-          <Route path="/kids" element={<ShopPage initialCategory="Kids" />} />
           <Route path="/trending" element={<ShopPage initialFilter="trending" />} />
           <Route path="/new-arrivals" element={<ShopPage initialFilter="new" />} />
           <Route path="/about-us" element={<AboutPage />} />

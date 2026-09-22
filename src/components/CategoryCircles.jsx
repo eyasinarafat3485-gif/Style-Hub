@@ -45,13 +45,6 @@ const categories = [
     // Elegant female model in traditional South Asian attire
     image: 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=400&auto=format&fit=crop&q=80',
   },
-  {
-    name: 'Kids',
-    slug: 'Kids',
-    tag: 'Kids Festive',
-    // Cute stylish kids in modern wear
-    image: 'https://images.unsplash.com/photo-1622290291468-a28f7a7dc6a8?w=400&auto=format&fit=crop&q=80',
-  },
 ];
 
 const CategoryCircles = () => {

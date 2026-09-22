@@ -46,13 +46,6 @@ const categoryList = [
     image: 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=600&auto=format&fit=crop&q=80',
     tags: ['Ethnic', 'Embroidery', 'Festive']
   },
-  {
-    name: 'Kids',
-    slug: 'Kids',
-    description: 'Cute, soft & comfy outfits for kids',
-    image: 'https://images.unsplash.com/photo-1622290291468-a28f7a7dc6a8?w=600&auto=format&fit=crop&q=80',
-    tags: ['T-Shirts', 'Frocks', 'Sets', 'Festive']
-  },
 ];
 
 const CategoriesPage = () => {

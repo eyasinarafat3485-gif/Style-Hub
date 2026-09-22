@@ -15,7 +15,7 @@ const Navbar = () => {
       const list = categories.map((c) => (c.name?.trim().toLowerCase() === 'shirts' ? 'Shirt' : c.name));
       return Array.from(new Set(list));
     }
-    return ['Panjabi', 'Shirt', 'T-Shirts', 'Kurtis', 'Sarees', 'Men', 'Women', 'Kids'];
+    return ['Panjabi', 'Shirt', 'T-Shirts', 'Kurtis', 'Sarees', 'Men', 'Women'];
   }, [categories]);
   const [showSearch, setShowSearch] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -122,7 +122,6 @@ const Navbar = () => {
 
           <NavLink to="/men" className={navLinkClass}>Men</NavLink>
           <NavLink to="/women" className={navLinkClass}>Women</NavLink>
-          <NavLink to="/kids" className={navLinkClass}>Kids</NavLink>
           <NavLink to="/new-arrivals" className={navLinkClass}>New Arrivals</NavLink>
           <NavLink to="/about-us" className={navLinkClass}>About Us</NavLink>
         </nav>
@@ -311,7 +310,6 @@ const Navbar = () => {
           <Link to="/categories" onClick={() => setMobileMenuOpen(false)} className="block py-1 text-gray-700">Categories</Link>
           <Link to="/men" onClick={() => setMobileMenuOpen(false)} className="block py-1 text-gray-700">Men</Link>
           <Link to="/women" onClick={() => setMobileMenuOpen(false)} className="block py-1 text-gray-700">Women</Link>
-          <Link to="/kids" onClick={() => setMobileMenuOpen(false)} className="block py-1 text-gray-700">Kids</Link>
           <Link to="/new-arrivals" onClick={() => setMobileMenuOpen(false)} className="block py-1 text-gray-700">New Arrivals</Link>
           <Link to="/about-us" onClick={() => setMobileMenuOpen(false)} className="block py-1 text-gray-700">About Us</Link>
 

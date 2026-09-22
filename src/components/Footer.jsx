@@ -52,7 +52,6 @@ const Footer = () => {
             <ul className="space-y-2 text-gray-600 font-medium">
               <li><Link to="/men" className="hover:text-[#ff2056] transition-colors">Men</Link></li>
               <li><Link to="/women" className="hover:text-[#ff2056] transition-colors">Women</Link></li>
-              <li><Link to="/kids" className="hover:text-[#ff2056] transition-colors">Kids</Link></li>
               <li><Link to="/shop?category=Panjabi" className="hover:text-[#ff2056] transition-colors">Panjabi Collection</Link></li>
               <li><Link to="/new-arrivals" className="hover:text-[#ff2056] transition-colors">New Arrivals</Link></li>
             </ul>

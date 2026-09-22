@@ -115,12 +115,51 @@ const normalizeProduct = (p) => ({
 
 export const ShopProvider = ({ children }) => {
   const [products, setProducts] = useState(initialProducts.map(normalizeProduct));
-  const [cart, setCart] = useState([]);
-  const [wishlist, setWishlist] = useState([]);
+  
+  // Persistent Cart state for guest & logged-in users across reloads
+  const [cart, setCart] = useState(() => {
+    try {
+      const stored = localStorage.getItem('stylehub_cart');
+      return stored ? JSON.parse(stored) : [];
+    } catch (err) {
+      console.warn('Failed to parse cart from localStorage:', err);
+      return [];
+    }
+  });
+
+  // Persistent Wishlist state across reloads
+  const [wishlist, setWishlist] = useState(() => {
+    try {
+      const stored = localStorage.getItem('stylehub_wishlist');
+      return stored ? JSON.parse(stored) : [];
+    } catch (err) {
+      console.warn('Failed to parse wishlist from localStorage:', err);
+      return [];
+    }
+  });
+
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
   const [quickViewProduct, setQuickViewProduct] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Persist cart to localStorage on state changes
+  useEffect(() => {
+    try {
+      localStorage.setItem('stylehub_cart', JSON.stringify(cart));
+    } catch (err) {
+      console.warn('Failed to save cart to localStorage:', err);
+    }
+  }, [cart]);
+
+  // Persist wishlist to localStorage on state changes
+  useEffect(() => {
+    try {
+      localStorage.setItem('stylehub_wishlist', JSON.stringify(wishlist));
+    } catch (err) {
+      console.warn('Failed to save wishlist to localStorage:', err);
+    }
+  }, [wishlist]);
 
   // Admin Metadata States
   const [categories, setCategories] = useState([]);

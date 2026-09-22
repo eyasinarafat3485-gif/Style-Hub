@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Search,
   Plus,
@@ -17,7 +18,8 @@ import { useShop } from '../../context/ShopContext';
 import { toast } from 'react-toastify';
 
 const AdminProducts = ({ isModalOpen, setIsModalOpen }) => {
-  const { products, formatPrice, setQuickViewProduct, addProduct, deleteProduct } = useShop();
+  const navigate = useNavigate();
+  const { products, formatPrice, addProduct, deleteProduct } = useShop();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
 
@@ -258,9 +260,9 @@ const AdminProducts = ({ isModalOpen, setIsModalOpen }) => {
                         <td className="py-3.5 px-4 text-right">
                           <div className="flex items-center justify-end gap-2">
                             <button
-                              onClick={() => setQuickViewProduct(product)}
+                              onClick={() => navigate(`/product/${product.id || product._id}`)}
                               className="p-1.5 rounded-lg bg-gray-100 hover:bg-slate-900 hover:text-white text-gray-600 transition-colors cursor-pointer"
-                              title="Preview Product"
+                              title="Preview Product Details"
                             >
                               <Eye className="w-3.5 h-3.5" />
                             </button>
@@ -337,7 +339,7 @@ const AdminProducts = ({ isModalOpen, setIsModalOpen }) => {
 
                       <div className="flex items-center gap-2">
                         <button
-                          onClick={() => setQuickViewProduct(product)}
+                          onClick={() => navigate(`/product/${product.id || product._id}`)}
                           className="px-2.5 py-1.5 rounded-lg bg-gray-100 hover:bg-slate-900 hover:text-white text-gray-700 transition-colors text-xs font-bold flex items-center gap-1 cursor-pointer"
                         >
                           <Eye className="w-3.5 h-3.5" />

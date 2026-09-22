@@ -1,15 +1,16 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Filter, SlidersHorizontal, Search, Star, ShoppingCart, Eye, Heart, ShoppingBag, ChevronDown, ChevronUp, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useShop } from '../context/ShopContext';
 
 const ITEMS_PER_PAGE = 6;
 
 const ShopPage = ({ initialCategory = '', initialFilter = '' }) => {
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const queryCategory = searchParams.get('category') || initialCategory;
 
-  const { products, formatPrice, addToCart, toggleWishlist, isWishlisted, setQuickViewProduct, searchQuery, setSearchQuery, categories: dbCategories } = useShop();
+  const { products, formatPrice, addToCart, toggleWishlist, isWishlisted, searchQuery, setSearchQuery, categories: dbCategories } = useShop();
 
   const maxProductPrice = useMemo(() => {
     if (!products || products.length === 0) return 10000;
@@ -462,7 +463,8 @@ const ShopPage = ({ initialCategory = '', initialFilter = '' }) => {
                       return (
                         <div
                           key={`mob-${product.id}`}
-                          className="w-[220px] sm:w-[250px] shrink-0 snap-start group relative bg-white rounded-xl border border-gray-200/80 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between overflow-hidden"
+                          onClick={() => navigate(`/product/${product.id}`)}
+                          className="w-[220px] sm:w-[250px] shrink-0 snap-start group relative bg-white rounded-xl border border-gray-200/80 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between overflow-hidden cursor-pointer"
                         >
                           <div className="relative aspect-[3/4] w-full overflow-hidden bg-gray-50">
                             {product.discountBadge && (
@@ -478,7 +480,10 @@ const ShopPage = ({ initialCategory = '', initialFilter = '' }) => {
                             )}
 
                             <button
-                              onClick={() => toggleWishlist(product)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleWishlist(product);
+                              }}
                               className="absolute top-2.5 right-2.5 z-20 p-2 bg-white/95 hover:bg-white rounded-full text-gray-600 hover:text-[#ff2056] shadow-sm backdrop-blur-sm transition-all duration-300 cursor-pointer"
                               title={wish ? 'Remove from wishlist' : 'Add to wishlist'}
                             >
@@ -496,7 +501,10 @@ const ShopPage = ({ initialCategory = '', initialFilter = '' }) => {
                             />
 
                             <button
-                              onClick={() => addToCart(product)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                addToCart(product);
+                              }}
                               className="absolute inset-x-0 bottom-0 z-20 bg-[#ff2056] hover:bg-[#d6103e] text-white text-[10px] font-bold uppercase tracking-wider py-2.5 flex items-center justify-center gap-1.5 shadow-md cursor-pointer"
                             >
                               <ShoppingCart className="w-3.5 h-3.5" />
@@ -546,7 +554,8 @@ const ShopPage = ({ initialCategory = '', initialFilter = '' }) => {
                     return (
                       <div
                         key={product.id}
-                        className="group bg-white rounded-xl border border-gray-200/80 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between overflow-hidden"
+                        onClick={() => navigate(`/product/${product.id}`)}
+                        className="group bg-white rounded-xl border border-gray-200/80 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between overflow-hidden cursor-pointer"
                       >
                         <div className="relative aspect-[3/4] w-full overflow-hidden bg-gray-50">
                           {product.discountBadge && (
@@ -557,7 +566,10 @@ const ShopPage = ({ initialCategory = '', initialFilter = '' }) => {
 
                           {/* Wishlist Button */}
                           <button
-                            onClick={() => toggleWishlist(product)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleWishlist(product);
+                            }}
                             className="absolute top-2.5 right-2.5 z-20 p-2 bg-white/95 hover:bg-white rounded-full text-gray-600 hover:text-[#ff2056] shadow-sm backdrop-blur-sm transition-all duration-300 opacity-0 group-hover:opacity-100 -translate-y-1.5 group-hover:translate-y-0 cursor-pointer"
                             title={wish ? "Remove from wishlist" : "Add to wishlist"}
                           >
@@ -571,26 +583,32 @@ const ShopPage = ({ initialCategory = '', initialFilter = '' }) => {
                             className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700"
                           />
 
-                          {/* Quick View Overlay */}
+                          {/* Center View Details Overlay */}
                           <div
-                            onClick={() => setQuickViewProduct(product)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigate(`/product/${product.id}`);
+                            }}
                             className="absolute inset-0 bg-black/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 z-10 cursor-pointer pointer-events-none group-hover:pointer-events-auto"
                           >
                             <button
                               type="button"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                setQuickViewProduct(product);
+                                navigate(`/product/${product.id}`);
                               }}
                               className="bg-white/95 hover:bg-white text-slate-900 hover:text-[#ff2056] text-[10px] font-bold tracking-[0.16em] uppercase px-4 py-2 rounded-xs shadow-md backdrop-blur-md transform translate-y-2 group-hover:translate-y-0 transition-all duration-300 cursor-pointer"
                             >
-                              Quick View
+                              View Details
                             </button>
                           </div>
 
                           {/* Quick Add Button */}
                           <button
-                            onClick={() => addToCart(product)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              addToCart(product);
+                            }}
                             className="absolute inset-x-0 bottom-0 z-20 bg-[#ff2056] hover:bg-[#d6103e] active:bg-[#b80830] text-white text-[10.5px] font-bold uppercase tracking-[0.15em] py-2.5 transition-all duration-300 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 flex items-center justify-center gap-1.5 shadow-md cursor-pointer"
                           >
                             <ShoppingCart className="w-3.5 h-3.5" />

@@ -1,10 +1,11 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { Heart, Star, ShoppingCart, ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Heart, Star, ShoppingCart, ArrowRight, ChevronLeft, ChevronRight, Eye } from 'lucide-react';
 import { useShop } from '../context/ShopContext';
 
 const TrendingProducts = () => {
-  const { products, formatPrice, addToCart, toggleWishlist, isWishlisted, setQuickViewProduct, searchQuery } = useShop();
+  const navigate = useNavigate();
+  const { products, formatPrice, addToCart, toggleWishlist, isWishlisted, searchQuery } = useShop();
   const scrollRef = useRef(null);
   const [isPaused, setIsPaused] = useState(false);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -142,7 +143,8 @@ const TrendingProducts = () => {
               return (
                 <div
                   key={product.id}
-                  className="w-[210px] sm:w-[240px] md:w-[250px] lg:w-[260px] shrink-0 snap-start group relative bg-white rounded-xl border border-gray-100/90 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between overflow-hidden"
+                  onClick={() => navigate(`/product/${product.id}`)}
+                  className="w-[210px] sm:w-[240px] md:w-[250px] lg:w-[260px] shrink-0 snap-start group relative bg-white rounded-xl border border-gray-100/90 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between overflow-hidden cursor-pointer"
                 >
                   {/* Image & Badges Container */}
                   <div className="relative aspect-[3/4] w-full overflow-hidden bg-gray-50">
@@ -161,8 +163,11 @@ const TrendingProducts = () => {
 
                     {/* Wishlist Button */}
                     <button
-                      onClick={() => toggleWishlist(product)}
-                      className="absolute top-2.5 right-2.5 z-20 p-2 bg-white/95 hover:bg-white rounded-full text-gray-600 hover:text-[#ff2056] shadow-sm backdrop-blur-sm transition-all duration-300 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 -translate-y-1 sm:-translate-y-1.5 sm:group-hover:translate-y-0 cursor-pointer"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleWishlist(product);
+                      }}
+                      className="absolute top-2.5 right-2.5 z-20 p-2 bg-white/95 hover:bg-white rounded-full text-gray-600 hover:text-[#ff2056] shadow-sm backdrop-blur-sm transition-all duration-300 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 translate-y-0 lg:-translate-y-1.5 lg:group-hover:translate-y-0 cursor-pointer"
                       title={wish ? 'Remove from wishlist' : 'Add to wishlist'}
                     >
                       <Heart
@@ -179,27 +184,33 @@ const TrendingProducts = () => {
                       className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700"
                     />
 
-                    {/* GlamNGrace Style: Center Quick View Overlay */}
+                    {/* Center View Details Button (Desktop Hover) */}
                     <div
-                      onClick={() => setQuickViewProduct(product)}
-                      className="absolute inset-0 bg-black/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 z-10 cursor-pointer pointer-events-none group-hover:pointer-events-auto"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/product/${product.id}`);
+                      }}
+                      className="hidden lg:flex absolute inset-0 bg-black/10 items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 z-10 cursor-pointer pointer-events-none group-hover:pointer-events-auto"
                     >
                       <button
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
-                          setQuickViewProduct(product);
+                          navigate(`/product/${product.id}`);
                         }}
-                        className="bg-white/95 hover:bg-white text-slate-900 hover:text-[#ff2056] text-[9px] sm:text-[10px] font-bold tracking-[0.16em] uppercase px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xs shadow-md backdrop-blur-md transform translate-y-2 group-hover:translate-y-0 transition-all duration-300 cursor-pointer"
+                        className="bg-white/95 hover:bg-white text-slate-900 hover:text-[#ff2056] text-[10px] font-bold tracking-[0.16em] uppercase px-4 py-2 rounded-xs shadow-md backdrop-blur-md transform translate-y-2 group-hover:translate-y-0 transition-all duration-300 cursor-pointer"
                       >
-                        Quick View
+                        View Details
                       </button>
                     </div>
 
-                    {/* GlamNGrace Style: Bottom Quick Add Button */}
+                    {/* Bottom Quick Add Button */}
                     <button
-                      onClick={() => addToCart(product)}
-                      className="absolute inset-x-0 bottom-0 z-20 bg-[#ff2056] hover:bg-[#d6103e] active:bg-[#b80830] text-white text-[9.5px] sm:text-[10.5px] font-bold uppercase tracking-[0.15em] py-2 sm:py-2.5 transition-all duration-300 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 translate-y-0 sm:translate-y-2 sm:group-hover:translate-y-0 flex items-center justify-center gap-1.5 shadow-md cursor-pointer"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        addToCart(product);
+                      }}
+                      className="absolute inset-x-0 bottom-0 z-20 bg-[#ff2056] hover:bg-[#d6103e] active:bg-[#b80830] text-white text-[9.5px] sm:text-[10.5px] font-bold uppercase tracking-[0.15em] py-2 sm:py-2.5 transition-all duration-300 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 translate-y-0 lg:translate-y-2 lg:group-hover:translate-y-0 flex items-center justify-center gap-1.5 shadow-md cursor-pointer"
                     >
                       <ShoppingCart className="w-3.5 h-3.5" />
                       <span>Add to Cart</span>

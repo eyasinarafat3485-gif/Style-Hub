@@ -22,6 +22,7 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
 import CheckoutPage from './pages/CheckoutPage';
+import ProductDetailsPage from './pages/ProductDetailsPage';
 
 const MainLayout = () => {
   const location = useLocation();
@@ -69,6 +70,7 @@ const MainLayout = () => {
           <Route path="/" element={<HomePage />} />
           <Route path="/categories" element={<CategoriesPage />} />
           <Route path="/shop" element={<ShopPage />} />
+          <Route path="/product/:id" element={<ProductDetailsPage />} />
           <Route path="/men" element={<ShopPage initialCategory="Men" />} />
           <Route path="/women" element={<ShopPage initialCategory="Women" />} />
           <Route path="/kids" element={<ShopPage initialCategory="Kids" />} />

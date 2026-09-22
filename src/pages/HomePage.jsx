@@ -7,6 +7,7 @@ import TrendingProducts from '../components/TrendingProducts';
 import BrandLogos from '../components/BrandLogos';
 import WhyChooseUs from '../components/WhyChooseUs';
 import CustomerReviews from '../components/CustomerReviews';
+import FAQSection from '../components/FAQSection';
 import Newsletter from '../components/Newsletter';
 
 const HomePage = () => {
@@ -36,7 +37,10 @@ const HomePage = () => {
       {/* 8. Member Reviews & Rating Carousel */}
       <CustomerReviews />
 
-      {/* 9. Newsletter Subscription Banner */}
+      {/* 9. Interactive FAQ Section */}
+      <FAQSection />
+
+      {/* 10. Newsletter Subscription Banner */}
       <Newsletter />
     </>
   );

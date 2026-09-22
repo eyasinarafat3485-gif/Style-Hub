@@ -3,7 +3,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Filter, SlidersHorizontal, Search, Star, ShoppingCart, Eye, Heart, ShoppingBag, ChevronDown, ChevronUp, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useShop } from '../context/ShopContext';
 
-const ITEMS_PER_PAGE = 12;
+const ITEMS_PER_PAGE = 6;
 
 const ShopPage = ({ initialCategory = '', initialFilter = '' }) => {
   const navigate = useNavigate();

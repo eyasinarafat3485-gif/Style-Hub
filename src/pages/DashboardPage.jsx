@@ -510,10 +510,7 @@ const DashboardPage = () => {
                 )}
 
                 {activeTab === 'products' && (
-                  <AdminProducts
-                    isModalOpen={isAddProductModalOpen}
-                    setIsModalOpen={setIsAddProductModalOpen}
-                  />
+                  <AdminProducts setActiveTab={handleTabChange} />
                 )}
 
                 {activeTab === 'add-product' && (
@@ -1123,7 +1120,7 @@ const DashboardPage = () => {
                                 <p className="text-xs text-gray-400 mt-0.5 flex items-center gap-2">
                                   <span>Placed on <strong className="text-slate-700">{orderDate}</strong></span>
                                   <span>•</span>
-                                  <span>Payment: <strong className="text-slate-700">{activeOrder.paymentMethod || 'Cash on Delivery'}</strong></span>
+                                  <span>Payment: <strong className="text-slate-700">{(activeOrder.paymentMethod || 'Cash on Delivery').replace(/\s*\([\u0980-\u09FF\s/]+\)/g, '').trim()}</strong></span>
                                 </p>
                               </div>
                             </div>

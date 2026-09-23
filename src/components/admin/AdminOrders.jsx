@@ -1,5 +1,6 @@
 import { API_BASE_URL } from '../../config/api';
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import {
   Package,
   Search,
@@ -25,15 +26,32 @@ import {
 } from 'lucide-react';
 import { toast } from 'react-toastify';
 
+const cleanPaymentMethod = (method) => {
+  if (!method) return 'Cash on Delivery';
+  return method.replace(/\s*\([\u0980-\u09FF\s/]+\)/g, '').replace(/[\u0980-\u09FF]+/g, '').trim() || method;
+};
+
 const AdminOrders = () => {
+  const [searchParams] = useSearchParams();
   const [orders, setOrders] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('All');
+  const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
+  const [statusFilter, setStatusFilter] = useState(searchParams.get('status') || 'All');
   const [selectedItemRow, setSelectedItemRow] = useState(null); // Specific single item order for modal
   const [deleteModalTarget, setDeleteModalTarget] = useState(null); // { orderId, itemId, itemIndex, itemName }
   const [isDeleting, setIsDeleting] = useState(false);
   const [statusUpdatingRowKey, setStatusUpdatingRowKey] = useState(null);
+
+  useEffect(() => {
+    const queryStatus = searchParams.get('status');
+    const querySearch = searchParams.get('search');
+    if (queryStatus) {
+      setStatusFilter(queryStatus);
+    }
+    if (querySearch !== null) {
+      setSearchTerm(querySearch);
+    }
+  }, [searchParams]);
 
   // Fetch real live orders from MongoDB
   const fetchOrders = async () => {
@@ -225,13 +243,19 @@ const AdminOrders = () => {
     return matchesSearch && matchesStatus;
   });
 
-  // Calculate Metrics
+  // Calculate Metrics (Real Order & Item Statistics synchronized with Overview & Analytics)
+  const totalOrdersCount = orders.length;
+  const nonCancelledOrders = orders.filter((o) => (o.status || '').toLowerCase() !== 'cancelled');
+  const totalRevenue = nonCancelledOrders.reduce(
+    (sum, o) => sum + (Number(o.totalPrice) || 0),
+    0
+  );
+  const pendingOrdersCount = orders.filter((o) => (o.status || 'Pending').toLowerCase() === 'pending').length;
+  const processingOrdersCount = orders.filter((o) => (o.status || '').toLowerCase() === 'processing').length;
+  const shippedOrdersCount = orders.filter((o) => (o.status || '').toLowerCase() === 'shipped').length;
+  const deliveredOrdersCount = orders.filter((o) => (o.status || '').toLowerCase() === 'delivered').length;
+  const cancelledOrdersCount = orders.filter((o) => (o.status || '').toLowerCase() === 'cancelled').length;
   const totalItemsCount = orderRows.length;
-  const pendingOrdersCount = orderRows.filter((r) => r.status === 'Pending').length;
-  const deliveredOrdersCount = orderRows.filter((r) => r.status === 'Delivered').length;
-  const totalRevenue = orderRows
-    .filter((r) => r.status !== 'Cancelled')
-    .reduce((sum, r) => sum + Number(r.item?.price || 0) * (r.item?.quantity || 1), 0);
 
   const getStatusBadge = (status) => {
     switch (status) {
@@ -273,9 +297,6 @@ const AdminOrders = () => {
         <div>
           <div className="flex items-center gap-2">
             <h2 className="text-xl font-bold text-slate-900 font-serif">Customer Orders & Sales</h2>
-            {/* <span className="bg-rose-50 text-[#ff2056] text-[11px] font-extrabold px-2.5 py-0.5 rounded-full border border-rose-100">
-              Live Database
-            </span> */}
           </div>
           <p className="text-xs text-gray-500 mt-0.5">
             Individual customer product orders and shipment fulfillment pipeline
@@ -292,59 +313,77 @@ const AdminOrders = () => {
         </button>
       </div>
 
-      {/* KPI Stats Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-gray-200/80 shadow-xs flex items-center justify-between">
-          <div>
-            <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">
-              Total Order Items
+      {/* KPI Stats Cards (2 per line on mobile, 4 on desktop) */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        {/* Card 1: Total Orders */}
+        <div className="bg-white p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border border-gray-200/80 shadow-xs flex items-center justify-between gap-2">
+          <div className="min-w-0">
+            <span className="text-[10px] sm:text-[11px] font-bold text-gray-500 uppercase tracking-wider truncate block">
+              Total Orders
             </span>
-            <h3 className="text-2xl font-black text-slate-900 mt-1">{totalItemsCount}</h3>
-            <span className="text-[10px] text-gray-500 font-medium">Individual sales items</span>
+            <h3 className="text-lg sm:text-2xl font-black text-slate-900 mt-0.5 sm:mt-1 truncate font-serif">
+              {totalOrdersCount} Orders
+            </h3>
+            <span className="text-[9px] sm:text-[10px] text-gray-400 font-medium truncate block">
+              {totalItemsCount} Total Items
+            </span>
           </div>
-          <div className="w-11 h-11 rounded-xl bg-slate-100 flex items-center justify-center text-slate-700">
-            <Package className="w-5 h-5" />
+          <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-lg sm:rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 shrink-0">
+            <Package className="w-4 h-4 sm:w-5 sm:h-5" />
           </div>
         </div>
 
-        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-gray-200/80 shadow-xs flex items-center justify-between">
-          <div>
-            <span className="text-[11px] font-bold text-amber-600 uppercase tracking-wider">
-              Pending Items
+        {/* Card 2: Pending Orders */}
+        <div className="bg-white p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border border-gray-200/80 shadow-xs flex items-center justify-between gap-2">
+          <div className="min-w-0">
+            <span className="text-[10px] sm:text-[11px] font-bold text-amber-600 uppercase tracking-wider truncate block">
+              Pending Orders
             </span>
-            <h3 className="text-2xl font-black text-slate-900 mt-1">{pendingOrdersCount}</h3>
-            <span className="text-[10px] text-amber-600 font-medium">Needs fulfillment</span>
+            <h3 className="text-lg sm:text-2xl font-black text-slate-900 mt-0.5 sm:mt-1 truncate font-serif">
+              {pendingOrdersCount}
+            </h3>
+            <span className="text-[9px] sm:text-[10px] text-amber-600 font-medium truncate block">
+              {pendingOrdersCount + processingOrdersCount} Needs Action
+            </span>
           </div>
-          <div className="w-11 h-11 rounded-xl bg-amber-50 flex items-center justify-center text-amber-600">
-            <Clock className="w-5 h-5" />
+          <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-lg sm:rounded-xl bg-amber-50 flex items-center justify-center text-amber-600 shrink-0">
+            <Clock className="w-4 h-4 sm:w-5 sm:h-5" />
           </div>
         </div>
 
-        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-gray-200/80 shadow-xs flex items-center justify-between">
-          <div>
-            <span className="text-[11px] font-bold text-emerald-600 uppercase tracking-wider">
+        {/* Card 3: Delivered Orders */}
+        <div className="bg-white p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border border-gray-200/80 shadow-xs flex items-center justify-between gap-2">
+          <div className="min-w-0">
+            <span className="text-[10px] sm:text-[11px] font-bold text-emerald-600 uppercase tracking-wider truncate block">
               Delivered
             </span>
-            <h3 className="text-2xl font-black text-slate-900 mt-1">{deliveredOrdersCount}</h3>
-            <span className="text-[10px] text-emerald-600 font-medium">Delivered to client</span>
+            <h3 className="text-lg sm:text-2xl font-black text-slate-900 mt-0.5 sm:mt-1 truncate font-serif">
+              {deliveredOrdersCount}
+            </h3>
+            <span className="text-[9px] sm:text-[10px] text-emerald-600 font-medium truncate block">
+              {deliveredOrdersCount} Completed
+            </span>
           </div>
-          <div className="w-11 h-11 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600">
-            <CheckCircle2 className="w-5 h-5" />
+          <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-lg sm:rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600 shrink-0">
+            <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5" />
           </div>
         </div>
 
-        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-gray-200/80 shadow-xs flex items-center justify-between">
-          <div>
-            <span className="text-[11px] font-bold text-rose-500 uppercase tracking-wider">
-              Sales Revenue
+        {/* Card 4: Total Revenue */}
+        <div className="bg-white p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border border-gray-200/80 shadow-xs flex items-center justify-between gap-2">
+          <div className="min-w-0">
+            <span className="text-[10px] sm:text-[11px] font-bold text-rose-500 uppercase tracking-wider truncate block">
+              Total Revenue
             </span>
-            <h3 className="text-2xl font-black text-slate-900 mt-1">
+            <h3 className="text-lg sm:text-2xl font-black text-slate-900 mt-0.5 sm:mt-1 truncate font-serif">
               ৳ {totalRevenue.toLocaleString('en-BD')}
             </h3>
-            <span className="text-[10px] text-gray-500 font-medium">Delivered & active volume</span>
+            <span className="text-[9px] sm:text-[10px] text-gray-400 font-medium truncate block">
+              {nonCancelledOrders.length} Active Orders
+            </span>
           </div>
-          <div className="w-11 h-11 rounded-xl bg-rose-50 flex items-center justify-center text-[#ff2056]">
-            <DollarSign className="w-5 h-5" />
+          <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-lg sm:rounded-xl bg-rose-50 flex items-center justify-center text-[#ff2056] shrink-0">
+            <DollarSign className="w-4 h-4 sm:w-5 sm:h-5" />
           </div>
         </div>
       </div>
@@ -371,12 +410,12 @@ const AdminOrders = () => {
               onChange={(e) => setStatusFilter(e.target.value)}
               className="bg-transparent text-xs font-bold text-slate-900 focus:outline-none cursor-pointer pr-2"
             >
-              <option value="All">All Statuses ({totalItemsCount})</option>
-              <option value="Pending">Pending ({orderRows.filter((r) => r.status === 'Pending').length})</option>
-              <option value="Processing">Processing ({orderRows.filter((r) => r.status === 'Processing').length})</option>
-              <option value="Shipped">Shipped ({orderRows.filter((r) => r.status === 'Shipped').length})</option>
-              <option value="Delivered">Delivered ({orderRows.filter((r) => r.status === 'Delivered').length})</option>
-              <option value="Cancelled">Cancelled ({orderRows.filter((r) => r.status === 'Cancelled').length})</option>
+              <option value="All">All Statuses ({totalOrdersCount} orders • {totalItemsCount} items)</option>
+              <option value="Pending">Pending ({pendingOrdersCount})</option>
+              <option value="Processing">Processing ({processingOrdersCount})</option>
+              <option value="Shipped">Shipped ({shippedOrdersCount})</option>
+              <option value="Delivered">Delivered ({deliveredOrdersCount})</option>
+              <option value="Cancelled">Cancelled ({cancelledOrdersCount})</option>
             </select>
           </div>
         </div>
@@ -490,7 +529,7 @@ const AdminOrders = () => {
                             ৳ {itemTotalPrice.toLocaleString('en-BD')}
                           </p>
                           <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 font-bold inline-block mt-0.5">
-                            {row.paymentMethod}
+                            {cleanPaymentMethod(row.paymentMethod)}
                           </span>
                         </td>
 
@@ -624,7 +663,7 @@ const AdminOrders = () => {
                             ৳ {itemTotalPrice.toLocaleString('en-BD')}
                           </span>
                           <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 font-bold">
-                            {row.paymentMethod}
+                            {cleanPaymentMethod(row.paymentMethod)}
                           </span>
                         </div>
                       </div>
@@ -846,7 +885,7 @@ const AdminOrders = () => {
                   <p className="text-slate-800 font-medium">{selectedItemRow.address}</p>
                   <p className="text-gray-500">Bangladesh</p>
                   <p className="text-gray-500 pt-0.5">
-                    Method: <span className="font-bold text-emerald-600">{selectedItemRow.paymentMethod}</span>
+                    Method: <span className="font-bold text-emerald-600">{cleanPaymentMethod(selectedItemRow.paymentMethod)}</span>
                   </p>
                 </div>
               </div>

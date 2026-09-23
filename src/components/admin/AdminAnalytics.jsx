@@ -245,24 +245,24 @@ const AdminAnalytics = ({ setActiveTab }) => {
         </div>
       </div>
 
-      {/* 2. Top KPI Scorecards (6 Cards) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+      {/* 2. Top KPI Scorecards (2 per line on mobile, 6 on desktop) */}
+      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4">
         {/* Total Revenue */}
-        <div className="p-4 bg-gradient-to-br from-white to-rose-50/30 border border-gray-200/80 rounded-2xl shadow-xs space-y-2 relative overflow-hidden group hover:border-rose-300 transition-all">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">
+        <div className="p-3.5 sm:p-4 bg-gradient-to-br from-white to-rose-50/30 border border-gray-200/80 rounded-xl sm:rounded-2xl shadow-xs space-y-1.5 sm:space-y-2 relative overflow-hidden group hover:border-rose-300 transition-all">
+          <div className="flex items-center justify-between gap-1">
+            <span className="text-[10px] sm:text-[11px] font-bold text-gray-500 uppercase tracking-wider truncate">
               Total Revenue
             </span>
-            <div className="w-7 h-7 rounded-lg bg-rose-50 text-[#ff2056] flex items-center justify-center">
-              <DollarSign className="w-4 h-4" />
+            <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-rose-50 text-[#ff2056] flex items-center justify-center shrink-0">
+              <DollarSign className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </div>
           </div>
-          <h4 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight font-serif">
+          <h4 className="text-base sm:text-2xl font-black text-slate-900 tracking-tight font-serif truncate">
             {formatPrice(summary.totalRevenue || 0)}
           </h4>
-          <div className="flex items-center gap-1 text-[10px] text-emerald-600 font-bold">
-            <ArrowUpRight className="w-3 h-3" />
-            <span>+14.2% vs last period</span>
+          <div className="flex items-center gap-1 text-[9px] sm:text-[10px] text-emerald-600 font-bold truncate">
+            <ArrowUpRight className="w-3 h-3 shrink-0" />
+            <span className="truncate">+14.2% vs last</span>
           </div>
         </div>
 
@@ -667,62 +667,131 @@ const AdminAnalytics = ({ setActiveTab }) => {
             No live transactions recorded yet.
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead>
-                <tr className="border-b border-gray-200 text-[11px] font-bold text-gray-400 uppercase tracking-wider">
-                  <th className="pb-3 font-semibold">Order ID</th>
-                  <th className="pb-3 font-semibold">Customer</th>
-                  <th className="pb-3 font-semibold">Location</th>
-                  <th className="pb-3 font-semibold">Payment</th>
-                  <th className="pb-3 font-semibold">Amount</th>
-                  <th className="pb-3 font-semibold">Status</th>
-                  <th className="pb-3 font-semibold text-right">Date & Time</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {recentTransactions.map((tx) => (
-                  <tr key={tx.id} className="hover:bg-slate-50/70 transition-colors">
-                    <td className="py-3 font-mono font-bold text-[#ff2056]">
-                      {tx.shortId}
-                    </td>
-                    <td className="py-3">
-                      <p className="font-bold text-slate-900">{tx.customerName}</p>
-                      <span className="text-[10px] text-gray-400">{tx.phone}</span>
-                    </td>
-                    <td className="py-3 text-slate-700 font-medium">
-                      {tx.city}
-                    </td>
-                    <td className="py-3 text-slate-700">
-                      <span className="text-[11px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-medium">
-                        {tx.paymentMethod}
+          <>
+            {/* 1. MOBILE VIEW (< md): Clean 2-Line Responsive Card Layout */}
+            <div className="block md:hidden divide-y divide-gray-100">
+              {recentTransactions.map((tx) => (
+                <div
+                  key={tx.id}
+                  onClick={() => setActiveTab && setActiveTab('orders')}
+                  className="py-3 first:pt-0 space-y-1.5 hover:bg-slate-50/70 transition-colors cursor-pointer"
+                >
+                  {/* Line 1: Order ID + Customer Name + Amount */}
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="font-mono font-bold text-[#ff2056] text-xs shrink-0">
+                        {tx.shortId}
                       </span>
-                    </td>
-                    <td className="py-3 font-bold text-slate-900">
+                      <span className="text-gray-300">•</span>
+                      <span className="font-bold text-slate-900 text-xs truncate">
+                        {tx.customerName}
+                      </span>
+                    </div>
+                    <span className="font-black text-slate-900 text-xs shrink-0 font-serif">
                       {formatPrice(tx.totalPrice)}
-                    </td>
-                    <td className="py-3">
+                    </span>
+                  </div>
+
+                  {/* Line 2: Location / Phone + Payment Badge + Status Badge */}
+                  <div className="flex items-center justify-between text-[11px] text-gray-500 gap-2">
+                    <div className="flex items-center gap-1.5 min-w-0 truncate">
+                      <span className="truncate">{tx.city || 'Dhaka'}</span>
+                      {tx.phone && (
+                        <>
+                          <span className="text-gray-300">•</span>
+                          <span className="text-gray-400 truncate text-[10px]">{tx.phone}</span>
+                        </>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <span className="text-[10px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-medium">
+                        {(tx.paymentMethod || 'Cash on Delivery').replace(/\s*\([\u0980-\u09FF\s/]+\)/g, '').trim()}
+                      </span>
                       <span
-                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${tx.status === 'Delivered'
+                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                          tx.status === 'Delivered'
                             ? 'bg-emerald-100 text-emerald-700'
                             : tx.status === 'Processing'
-                              ? 'bg-blue-100 text-blue-700'
-                              : tx.status === 'Cancelled'
-                                ? 'bg-rose-100 text-rose-700'
-                                : 'bg-amber-100 text-amber-700'
-                          }`}
+                            ? 'bg-blue-100 text-blue-700'
+                            : tx.status === 'Cancelled'
+                            ? 'bg-rose-100 text-rose-700'
+                            : 'bg-amber-100 text-amber-700'
+                        }`}
                       >
                         {tx.status}
                       </span>
-                    </td>
-                    <td className="py-3 text-right text-gray-500 text-[11px]">
-                      {tx.createdAt ? new Date(tx.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'Just now'}
-                    </td>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* 2. DESKTOP VIEW (md+): Full Table */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead>
+                  <tr className="border-b border-gray-200 text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+                    <th className="pb-3 font-semibold">Order ID</th>
+                    <th className="pb-3 font-semibold">Customer</th>
+                    <th className="pb-3 font-semibold">Location</th>
+                    <th className="pb-3 font-semibold">Payment</th>
+                    <th className="pb-3 font-semibold">Amount</th>
+                    <th className="pb-3 font-semibold">Status</th>
+                    <th className="pb-3 font-semibold text-right">Date & Time</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {recentTransactions.map((tx) => (
+                    <tr key={tx.id} className="hover:bg-slate-50/70 transition-colors">
+                      <td className="py-3 font-mono font-bold text-[#ff2056]">
+                        {tx.shortId}
+                      </td>
+                      <td className="py-3">
+                        <p className="font-bold text-slate-900">{tx.customerName}</p>
+                        <span className="text-[10px] text-gray-400">{tx.phone}</span>
+                      </td>
+                      <td className="py-3 text-slate-700 font-medium">
+                        {tx.city}
+                      </td>
+                      <td className="py-3 text-slate-700">
+                        <span className="text-[11px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-medium">
+                          {(tx.paymentMethod || 'Cash on Delivery').replace(/\s*\([\u0980-\u09FF\s/]+\)/g, '').trim()}
+                        </span>
+                      </td>
+                      <td className="py-3 font-bold text-slate-900">
+                        {formatPrice(tx.totalPrice)}
+                      </td>
+                      <td className="py-3">
+                        <span
+                          className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                            tx.status === 'Delivered'
+                              ? 'bg-emerald-100 text-emerald-700'
+                              : tx.status === 'Processing'
+                              ? 'bg-blue-100 text-blue-700'
+                              : tx.status === 'Cancelled'
+                              ? 'bg-rose-100 text-rose-700'
+                              : 'bg-amber-100 text-amber-700'
+                          }`}
+                        >
+                          {tx.status}
+                        </span>
+                      </td>
+                      <td className="py-3 text-right text-gray-500 text-[11px]">
+                        {tx.createdAt
+                          ? new Date(tx.createdAt).toLocaleDateString('en-GB', {
+                              day: 'numeric',
+                              month: 'short',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })
+                          : 'Just now'}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </div>
 

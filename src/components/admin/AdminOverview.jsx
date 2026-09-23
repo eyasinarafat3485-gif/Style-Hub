@@ -185,14 +185,14 @@ const AdminOverview = ({ setActiveTab, onAddNewProduct }) => {
   return (
     <div className="space-y-6">
       {/* Top Executive Header Banner */}
-      <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white rounded-2xl p-6 sm:p-8 border border-slate-700 shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 relative overflow-hidden">
+      <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white rounded-2xl p-5 sm:p-7 lg:p-8 border border-slate-700 shadow-xl flex flex-col lg:flex-row items-start lg:items-center justify-between gap-5 lg:gap-6 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-[#ff2056]/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="relative z-10 space-y-2">
+        <div className="relative z-10 space-y-1.5 sm:space-y-2 flex-1 min-w-0">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#ff2056]/20 border border-rose-500/30 text-[#ff2056] text-xs font-bold uppercase tracking-wider">
-            <Sparkles className="w-3.5 h-3.5" />
+            <Sparkles className="w-3.5 h-3.5 shrink-0" />
             <span>Store Performance Center</span>
           </div>
-          <h2 className="text-2xl sm:text-3xl font-serif font-extrabold tracking-tight">
+          <h2 className="text-xl sm:text-2xl lg:text-3xl font-serif font-extrabold tracking-tight truncate">
             StyleHub Executive Overview
           </h2>
           <p className="text-xs sm:text-sm text-slate-300 max-w-xl">
@@ -200,28 +200,28 @@ const AdminOverview = ({ setActiveTab, onAddNewProduct }) => {
           </p>
         </div>
 
-        <div className="relative z-10 flex flex-wrap items-center gap-3">
+        <div className="relative z-10 flex flex-wrap md:flex-nowrap items-center gap-2 sm:gap-2.5 lg:gap-3 shrink-0">
           <button
             onClick={() => fetchDashboardData(true)}
             disabled={isRefreshing || isLoading}
-            className="py-2.5 px-3.5 bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white text-xs font-bold rounded-xl border border-slate-600 transition-all cursor-pointer flex items-center gap-2 shadow-xs"
+            className="py-2 sm:py-2.5 px-3 sm:px-3.5 bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white text-xs font-bold rounded-xl border border-slate-600 transition-all cursor-pointer flex items-center gap-1.5 sm:gap-2 shadow-xs whitespace-nowrap"
             title="Refresh dashboard metrics"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-[#ff2056]' : ''}`} />
-            <span className="hidden sm:inline">Refresh Data</span>
+            <RefreshCw className={`w-3.5 h-3.5 shrink-0 ${isRefreshing ? 'animate-spin text-[#ff2056]' : ''}`} />
+            <span>Refresh Data</span>
           </button>
           <button
             onClick={onAddNewProduct}
-            className="py-2.5 px-4 bg-[#ff2056] hover:bg-[#d6103e] text-white text-xs font-bold rounded-xl shadow-lg shadow-rose-600/30 transition-all cursor-pointer flex items-center gap-2"
+            className="py-2 sm:py-2.5 px-3.5 sm:px-4 bg-[#ff2056] hover:bg-[#d6103e] text-white text-xs font-bold rounded-xl shadow-lg shadow-rose-600/30 transition-all cursor-pointer flex items-center gap-1.5 sm:gap-2 whitespace-nowrap"
           >
-            <PlusCircle className="w-4 h-4" />
+            <PlusCircle className="w-4 h-4 shrink-0" />
             <span>+ Add Product</span>
           </button>
           <button
             onClick={() => setActiveTab('orders')}
-            className="py-2.5 px-4 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold rounded-xl border border-slate-600 transition-all cursor-pointer flex items-center gap-2"
+            className="py-2 sm:py-2.5 px-3.5 sm:px-4 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold rounded-xl border border-slate-600 transition-all cursor-pointer flex items-center gap-1.5 sm:gap-2 whitespace-nowrap"
           >
-            <Package className="w-4 h-4" />
+            <Package className="w-4 h-4 shrink-0" />
             <span>Manage Orders</span>
           </button>
         </div>
@@ -286,7 +286,7 @@ const AdminOverview = ({ setActiveTab, onAddNewProduct }) => {
           </button>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 pt-1">
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5 sm:gap-3 pt-1">
           {[
             { label: 'Pending', count: pendingOrdersCount, color: 'bg-amber-50 text-amber-700 border-amber-200' },
             { label: 'Processing', count: processingOrdersCount, color: 'bg-blue-50 text-blue-700 border-blue-200' },
@@ -296,8 +296,10 @@ const AdminOverview = ({ setActiveTab, onAddNewProduct }) => {
           ].map((pill, idx) => (
             <div
               key={idx}
-              onClick={() => setActiveTab('orders')}
-              className={`p-3 rounded-xl border ${pill.color} text-center transition-all hover:scale-102 cursor-pointer shadow-2xs`}
+              onClick={() => setActiveTab(`orders?status=${pill.label}`)}
+              className={`p-2.5 sm:p-3 rounded-xl border ${pill.color} text-center transition-all hover:scale-102 cursor-pointer shadow-2xs ${
+                idx === 4 ? 'col-span-2 sm:col-span-1' : ''
+              }`}
             >
               <span className="text-[10px] font-extrabold uppercase tracking-wider block opacity-80">
                 {pill.label}
@@ -380,7 +382,7 @@ const AdminOverview = ({ setActiveTab, onAddNewProduct }) => {
                           <td className="py-3 px-3">
                             <span className="font-bold text-slate-900 block">{customerName}</span>
                             <span className="text-[10px] text-gray-400 block truncate max-w-[130px]">
-                              {ord.shippingAddress?.city || ord.shippingAddress?.district || ord.paymentMethod || 'Online'}
+                              {(ord.shippingAddress?.city || ord.shippingAddress?.district || ord.paymentMethod || 'Online').replace(/\s*\([\u0980-\u09FF\s/]+\)/g, '').trim()}
                             </span>
                           </td>
                           <td className="py-3 px-3">

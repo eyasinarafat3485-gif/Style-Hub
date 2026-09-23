@@ -24,13 +24,14 @@ import {
   ChevronRight,
   Copy,
   Check,
+  Trash2,
 } from 'lucide-react';
 import { useShop } from '../context/ShopContext';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 
 const CheckoutPage = () => {
-  const { cart, cartTotal, formatPrice, clearCart } = useShop();
+  const { cart, cartTotal, formatPrice, clearCart, removeFromCart } = useShop();
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -1004,7 +1005,7 @@ const CheckoutPage = () => {
               {/* Items List */}
               <div className="space-y-3 max-h-72 overflow-y-auto pr-1 divide-y divide-gray-100">
                 {cart.map((item, idx) => (
-                  <div key={idx} className="pt-3 first:pt-0 flex items-center gap-3">
+                  <div key={idx} className="pt-3 first:pt-0 flex items-center gap-3 group">
                     <img
                       src={item.image}
                       alt={item.name || item.title}
@@ -1022,9 +1023,22 @@ const CheckoutPage = () => {
                         {formatPrice(item.price)} × {item.quantity}
                       </p>
                     </div>
-                    <span className="text-xs font-extrabold text-slate-900 shrink-0">
-                      {formatPrice(item.price * item.quantity)}
-                    </span>
+                    <div className="flex flex-col items-end gap-1.5 shrink-0">
+                      <span className="text-xs font-extrabold text-slate-900">
+                        {formatPrice(item.price * item.quantity)}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          removeFromCart(item, item.selectedSize);
+                          toast.info(`"${item.name || item.title}" removed from cart`);
+                        }}
+                        className="text-gray-400 hover:text-rose-600 hover:bg-rose-50 p-1 rounded-md transition-colors cursor-pointer"
+                        title="Remove product"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>

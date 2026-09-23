@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Search,
   Plus,
@@ -17,25 +17,22 @@ import {
 import { useShop } from '../../context/ShopContext';
 import { toast } from 'react-toastify';
 
-const AdminProducts = ({ isModalOpen, setIsModalOpen }) => {
+const AdminProducts = ({ setActiveTab }) => {
   const navigate = useNavigate();
-  const { products, formatPrice, addProduct, deleteProduct } = useShop();
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [searchParams] = useSearchParams();
+  const { products, formatPrice, deleteProduct } = useShop();
+  const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
+  const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || 'All');
 
-  // Form State for Adding Product Modal
-  const [newTitle, setNewTitle] = useState('');
-  const [newPrice, setNewPrice] = useState('');
-  const [newOldPrice, setNewOldPrice] = useState('');
-  const [newCategory, setNewCategory] = useState('Panjabi');
-  const [newImage, setNewImage] = useState('');
-  const [newRating, setNewRating] = useState('4.8');
-  const [newIsNew, setNewIsNew] = useState(true);
-  const [newIsTrending, setNewIsTrending] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  useEffect(() => {
+    const querySearch = searchParams.get('search');
+    const queryCategory = searchParams.get('category');
+    if (querySearch !== null) setSearchTerm(querySearch);
+    if (queryCategory !== null) setSelectedCategory(queryCategory);
+  }, [searchParams]);
 
   // Categories list
-  const categories = ['All', 'Panjabi', 'Kurtis', 'Sarees', 'Men', 'Women', 'T-Shirts'];
+  const categories = ['All', 'Panjabi', 'Men', 'Women', 'T-Shirts'];
 
   // Filter products safely without crash on missing title/name
   const filteredProducts = (products || []).filter((item) => {
@@ -45,45 +42,6 @@ const AdminProducts = ({ isModalOpen, setIsModalOpen }) => {
     const matchesCategory = selectedCategory === 'All' || item?.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
-
-  const handleAddProduct = async (e) => {
-    e.preventDefault();
-    if (!newTitle || !newPrice) {
-      toast.warning('Please enter product title and price.');
-      return;
-    }
-
-    setIsSubmitting(true);
-    try {
-      await addProduct({
-        title: newTitle,
-        name: newTitle,
-        price: parseFloat(newPrice),
-        oldPrice: newOldPrice ? parseFloat(newOldPrice) : null,
-        category: newCategory,
-        image:
-          newImage ||
-          'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=600&auto=format&fit=crop&q=80',
-        rating: parseFloat(newRating) || 4.8,
-        isNew: newIsNew,
-        isTrending: newIsTrending,
-        description: 'Exclusive premium craftsmanship fashion wear from StyleHub Collection.',
-      });
-
-      toast.success(`Product "${newTitle}" added to store catalog & database! 🎉`);
-
-      // Reset Form
-      setNewTitle('');
-      setNewPrice('');
-      setNewOldPrice('');
-      setNewImage('');
-      setIsModalOpen(false);
-    } catch (err) {
-      toast.error('Failed to add product');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
 
   const [deleteProductModal, setDeleteProductModal] = useState({
     isOpen: false,
@@ -126,7 +84,7 @@ const AdminProducts = ({ isModalOpen, setIsModalOpen }) => {
         </div>
 
         <button
-          onClick={() => setIsModalOpen(true)}
+          onClick={() => (setActiveTab ? setActiveTab('add-product') : navigate('/dashboard/add-product'))}
           className="py-2.5 px-4 bg-[#ff2056] hover:bg-[#d6103e] text-white text-xs font-bold rounded-xl shadow-lg shadow-rose-600/25 transition-all flex items-center gap-2 cursor-pointer shrink-0"
         >
           <Plus className="w-4 h-4" />
@@ -361,151 +319,6 @@ const AdminProducts = ({ isModalOpen, setIsModalOpen }) => {
           </>
         )}
       </div>
-
-      {/* Add Product Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs animate-fade-in">
-          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-gray-100 space-y-5 max-h-[90vh] overflow-y-auto">
-            {/* Modal Header */}
-            <div className="flex items-center justify-between pb-3 border-b border-gray-100">
-              <div className="flex items-center gap-2">
-                <ShoppingBag className="w-5 h-5 text-[#ff2056]" />
-                <h3 className="text-lg font-bold text-slate-900 font-serif">Add New Product to Store</h3>
-              </div>
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="p-1 rounded-lg text-gray-400 hover:text-slate-800 hover:bg-gray-100 cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Modal Form */}
-            <form onSubmit={handleAddProduct} className="space-y-4 text-xs">
-              {/* Title */}
-              <div className="space-y-1">
-                <label className="font-bold text-slate-700 block">Product Title *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Royal Embroidered Silk Panjabi"
-                  value={newTitle}
-                  onChange={(e) => setNewTitle(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs text-slate-900 focus:bg-white focus:outline-none focus:border-[#ff2056]"
-                />
-              </div>
-
-              {/* Price Row */}
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <label className="font-bold text-slate-700 block">Selling Price (৳) *</label>
-                  <input
-                    type="number"
-                    required
-                    placeholder="3500"
-                    value={newPrice}
-                    onChange={(e) => setNewPrice(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs text-slate-900 focus:bg-white focus:outline-none focus:border-[#ff2056]"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="font-bold text-slate-700 block">Original / Old Price (৳)</label>
-                  <input
-                    type="number"
-                    placeholder="4200"
-                    value={newOldPrice}
-                    onChange={(e) => setNewOldPrice(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs text-slate-900 focus:bg-white focus:outline-none focus:border-[#ff2056]"
-                  />
-                </div>
-              </div>
-
-              {/* Category & Rating */}
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <label className="font-bold text-slate-700 block">Category</label>
-                  <select
-                    value={newCategory}
-                    onChange={(e) => setNewCategory(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs text-slate-900 focus:bg-white focus:outline-none focus:border-[#ff2056]"
-                  >
-                    {categories
-                      .filter((c) => c !== 'All')
-                      .map((c) => (
-                        <option key={c} value={c}>
-                          {c}
-                        </option>
-                      ))}
-                  </select>
-                </div>
-                <div className="space-y-1">
-                  <label className="font-bold text-slate-700 block">Initial Rating</label>
-                  <input
-                    type="number"
-                    step="0.1"
-                    min="1"
-                    max="5"
-                    value={newRating}
-                    onChange={(e) => setNewRating(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs text-slate-900 focus:bg-white focus:outline-none focus:border-[#ff2056]"
-                  />
-                </div>
-              </div>
-
-              {/* Image URL */}
-              <div className="space-y-1">
-                <label className="font-bold text-slate-700 block">Image URL (Unsplash or direct link)</label>
-                <input
-                  type="url"
-                  placeholder="https://images.unsplash.com/photo-..."
-                  value={newImage}
-                  onChange={(e) => setNewImage(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs text-slate-900 focus:bg-white focus:outline-none focus:border-[#ff2056]"
-                />
-              </div>
-
-              {/* Badges Toggles */}
-              <div className="flex items-center gap-6 pt-2">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={newIsNew}
-                    onChange={(e) => setNewIsNew(e.target.checked)}
-                    className="w-4 h-4 accent-[#ff2056] rounded"
-                  />
-                  <span className="text-xs font-semibold text-slate-700">Mark as New Arrival</span>
-                </label>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={newIsTrending}
-                    onChange={(e) => setNewIsTrending(e.target.checked)}
-                    className="w-4 h-4 accent-[#ff2056] rounded"
-                  />
-                  <span className="text-xs font-semibold text-slate-700">Mark as Trending</span>
-                </label>
-              </div>
-
-              {/* Actions */}
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-slate-700 font-bold rounded-xl cursor-pointer"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-6 py-2.5 bg-[#ff2056] hover:bg-[#d6103e] text-white font-bold rounded-xl shadow-lg shadow-rose-600/25 cursor-pointer"
-                >
-                  Publish Product
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
 
       {/* Delete Product Confirmation Modal */}
       {deleteProductModal.isOpen && (

@@ -133,7 +133,7 @@ const CustomerReviews = () => {
     return (
       <section className="py-12 bg-[#fafaf9] border-b border-gray-200/70 select-none">
         <div className="max-w-7xl mx-auto px-4 text-center">
-          <h2 className="font-serif text-2xl font-bold text-slate-900">Member Reviews &amp; Rating</h2>
+          <h2 className="font-serif text-lg sm:text-2xl font-bold text-slate-900">Member Reviews &amp; Rating</h2>
           <p className="text-xs text-gray-500 mt-2">No reviews in database yet. Be the first to leave a review!</p>
         </div>
       </section>
@@ -151,7 +151,7 @@ const CustomerReviews = () => {
       <div className="max-w-7xl mx-auto px-4">
         {/* Section Header */}
         <div className="mb-8 sm:mb-10 text-left">
-          <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight">
+          <h2 className="font-serif text-lg sm:text-2xl lg:text-3xl font-extrabold text-slate-900 tracking-tight">
             Member Reviews &amp; Rating
           </h2>
           <p className="text-xs sm:text-sm text-gray-500 font-medium mt-1.5">

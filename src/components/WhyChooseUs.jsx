@@ -36,7 +36,7 @@ const WhyChooseUs = () => {
   return (
     <section className="py-10 sm:py-14 bg-white border-b border-gray-100">
       <div className="max-w-7xl mx-auto px-4 text-center">
-        <h2 className="font-serif text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight mb-6 sm:mb-8">
+        <h2 className="font-serif text-lg sm:text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight mb-6 sm:mb-8">
           Why Choose {brandName}?
         </h2>
 

@@ -88,7 +88,7 @@ const CategoriesPage = () => {
       {/* Main Container */}
       <div className="max-w-7xl mx-auto px-4 py-10">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="font-serif text-xl sm:text-2xl font-bold text-slate-900 flex items-center gap-2">
+          <h2 className="font-serif text-lg sm:text-2xl md:text-3xl font-bold text-slate-900 flex items-center gap-2">
             <Grid className="w-5 h-5 text-[#ff2056]" />
             <span>Available Categories</span>
           </h2>

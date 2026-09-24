@@ -131,7 +131,7 @@ const FAQSection = ({
             <HelpCircle className="w-3.5 h-3.5 text-[#ff2056]" />
             <span>Help Center & FAQ</span>
           </div>
-          <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl font-black text-slate-900 leading-tight">
+          <h2 className="font-serif text-lg sm:text-2xl md:text-3xl font-extrabold text-slate-900 leading-tight">
             {title}
           </h2>
           <p className="text-xs sm:text-sm text-gray-500 leading-relaxed font-medium">

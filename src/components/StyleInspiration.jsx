@@ -32,7 +32,7 @@ const StyleInspiration = () => {
         {/* Section Header */}
         <div className="flex items-center justify-between mb-6 sm:mb-8">
           <div>
-            <h2 className="font-serif text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+            <h2 className="font-serif text-lg sm:text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
               Style Inspiration
             </h2>
             <p className="text-xs text-gray-500 font-medium mt-1">

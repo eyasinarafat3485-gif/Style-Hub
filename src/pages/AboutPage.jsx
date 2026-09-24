@@ -58,52 +58,52 @@ const AboutPage = () => {
   return (
     <div className="bg-white text-slate-900 selection:bg-[#ff2056] selection:text-white">
 
-      {/* 1. MINIMALIST CLEAN HERO */}
-      <section className="pt-14 pb-12 sm:pt-20 sm:pb-16 bg-gradient-to-b from-stone-50/80 via-white to-white border-b border-gray-100">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center space-y-4">
-          <span className="inline-block text-[11px] font-extrabold uppercase tracking-[0.2em] text-[#ff2056] bg-rose-50 px-3.5 py-1 rounded-full border border-rose-100/80">
+      {/* 1. COMPACT HERO SECTION */}
+      <section className="py-6 sm:py-10 bg-gradient-to-b from-stone-50/80 via-white to-white border-b border-gray-100">
+        <div className="max-w-3xl mx-auto px-4 text-center space-y-2.5 sm:space-y-3">
+          <span className="inline-block text-[10px] sm:text-[11px] font-extrabold uppercase tracking-[0.15em] text-[#ff2056] bg-rose-50 px-3 py-0.5 rounded-full border border-rose-100/80">
             {badge}
           </span>
 
-          <h1 className="font-serif text-3xl sm:text-5xl font-black text-slate-900 tracking-tight leading-[1.2]">
+          <h1 className="font-serif text-lg sm:text-2xl md:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight leading-snug">
             {heroTitle}
           </h1>
 
-          <p className="text-sm sm:text-base text-gray-600 max-w-2xl mx-auto font-normal leading-relaxed pt-1">
+          <p className="text-xs sm:text-sm text-gray-600 max-w-lg sm:max-w-xl mx-auto font-medium leading-relaxed">
             {heroSubtitle}
           </p>
 
-          <div className="pt-4 flex items-center justify-center gap-3">
+          <div className="pt-1.5 flex items-center justify-center gap-3">
             <Link
               to="/shop"
-              className="bg-[#ff2056] hover:bg-[#e01648] text-white px-7 py-3 rounded-xl text-xs sm:text-sm font-bold transition-all shadow-md hover:shadow-lg flex items-center gap-2 cursor-pointer"
+              className="bg-[#ff2056] hover:bg-[#e01648] text-white px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl text-xs font-bold transition-all shadow-xs hover:shadow-md flex items-center gap-2 cursor-pointer"
             >
-              <ShoppingBag className="w-4 h-4" />
+              <ShoppingBag className="w-3.5 h-3.5" />
               <span>Explore Products</span>
             </Link>
           </div>
         </div>
       </section>
 
-      {/* 2. THE STORY & IMAGE SHOWCASE (Sleek Two-Column) */}
-      <section className="py-14 sm:py-20 bg-white">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
+      {/* 2. THE STORY & IMAGE SHOWCASE (Compact Two-Column) */}
+      <section className="py-6 sm:py-10 bg-white">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-10 items-center">
 
             {/* Left Column: Image */}
-            <div className="lg:col-span-6">
-              <div className="relative rounded-3xl overflow-hidden shadow-lg border border-gray-100 bg-slate-50 aspect-[4/3]">
+            <div className="lg:col-span-5">
+              <div className="relative rounded-2xl overflow-hidden shadow-md border border-gray-100 bg-slate-50 aspect-[16/10] sm:aspect-[4/3]">
                 <img
                   src={heroImage}
                   alt={`${brandName} Craftsmanship`}
                   className="w-full h-full object-cover"
                 />
-                <div className="absolute bottom-4 left-4 right-4 bg-white/95 backdrop-blur-md p-4 rounded-2xl border border-gray-100 shadow-sm flex items-center justify-between">
+                <div className="absolute bottom-2.5 left-2.5 right-2.5 bg-white/95 backdrop-blur-md p-2.5 sm:p-3 rounded-xl border border-gray-100 shadow-xs flex items-center justify-between">
                   <div>
-                    <span className="text-xs font-bold text-slate-900 block">Bangladeshi Heritage</span>
-                    <span className="text-[11px] text-gray-500">Fine Cotton & Artisanal Wear</span>
+                    <span className="text-[10px] sm:text-xs font-bold text-slate-900 block">Bangladeshi Heritage</span>
+                    <span className="text-[9px] sm:text-[10px] text-gray-500">Fine Cotton & Artisanal Wear</span>
                   </div>
-                  <span className="text-xs font-extrabold text-[#ff2056] bg-rose-50 px-2.5 py-1 rounded-lg">
+                  <span className="text-[9px] sm:text-[10px] font-extrabold text-[#ff2056] bg-rose-50 px-2 py-0.5 rounded-md">
                     Est. 2024
                   </span>
                 </div>
@@ -111,36 +111,36 @@ const AboutPage = () => {
             </div>
 
             {/* Right Column: Narrative */}
-            <div className="lg:col-span-6 space-y-5">
-              <span className="text-xs font-bold uppercase tracking-wider text-gray-400">
+            <div className="lg:col-span-7 space-y-2.5 sm:space-y-3">
+              <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-gray-400">
                 Our Standard
               </span>
-              <h2 className="font-serif text-2xl sm:text-3xl font-extrabold text-slate-900 leading-snug">
+              <h2 className="font-serif text-base sm:text-xl md:text-2xl font-extrabold text-slate-900 leading-snug">
                 {storyHeading}
               </h2>
-              <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
+              <p className="text-xs text-gray-600 leading-relaxed">
                 {storyText1}
               </p>
               {storyText2 && (
-                <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
+                <p className="text-xs text-gray-600 leading-relaxed">
                   {storyText2}
                 </p>
               )}
 
-              <div className="pt-2 grid grid-cols-2 gap-4 border-t border-gray-100">
-                <div className="space-y-1">
+              <div className="pt-2 grid grid-cols-2 gap-3 border-t border-gray-100">
+                <div className="space-y-0.5">
                   <h4 className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
                     <Check className="w-3.5 h-3.5 text-[#ff2056]" />
                     <span>Quality First</span>
                   </h4>
-                  <p className="text-[11px] text-gray-500">Rigorous 3-step quality inspection.</p>
+                  <p className="text-[10px] text-gray-500">Rigorous 3-step inspection.</p>
                 </div>
-                <div className="space-y-1">
+                <div className="space-y-0.5">
                   <h4 className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
                     <Check className="w-3.5 h-3.5 text-[#ff2056]" />
                     <span>Nationwide COD</span>
                   </h4>
-                  <p className="text-[11px] text-gray-500">Fast delivery across 64 districts.</p>
+                  <p className="text-[10px] text-gray-500">Fast delivery to 64 districts.</p>
                 </div>
               </div>
             </div>
@@ -150,30 +150,30 @@ const AboutPage = () => {
       </section>
 
       {/* 3. CLEAN 3 VALUES CARDS */}
-      <section className="py-14 sm:py-16 bg-slate-50/70 border-y border-gray-100">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-xl mx-auto mb-10 space-y-2">
-            <span className="text-xs font-bold uppercase tracking-widest text-[#ff2056]">
+      <section className="py-6 sm:py-10 bg-slate-50/70 border-y border-gray-100">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-xl mx-auto mb-5 space-y-1">
+            <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-widest text-[#ff2056]">
               Core Principles
             </span>
-            <h3 className="font-serif text-2xl sm:text-3xl font-extrabold text-slate-900">
+            <h3 className="font-serif text-lg sm:text-xl md:text-2xl font-extrabold text-slate-900">
               Why Choose {brandName}
             </h3>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
             {valuesList.map((v, i) => (
               <div
                 key={v.num || i}
-                className="bg-white p-6 sm:p-7 rounded-2xl border border-gray-200/80 shadow-xs hover:border-rose-200 hover:shadow-md transition-all space-y-3"
+                className="bg-white p-3.5 sm:p-5 rounded-xl border border-gray-200/80 shadow-2xs hover:border-rose-200 transition-all space-y-1.5"
               >
-                <span className="text-xs font-black text-[#ff2056] font-mono tracking-wider bg-rose-50 px-2.5 py-1 rounded-md">
+                <span className="text-[9px] sm:text-[10px] font-black text-[#ff2056] font-mono tracking-wider bg-rose-50 px-2 py-0.5 rounded-md">
                   {v.num || `0${i + 1}`}
                 </span>
-                <h4 className="font-serif font-bold text-base text-slate-900">
+                <h4 className="font-serif font-bold text-xs sm:text-sm text-slate-900">
                   {v.title}
                 </h4>
-                <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
+                <p className="text-[11px] sm:text-xs text-gray-600 leading-relaxed">
                   {v.desc}
                 </p>
               </div>
@@ -183,14 +183,14 @@ const AboutPage = () => {
       </section>
 
       {/* 4. STATS BAR */}
-      <section className="py-10 bg-slate-900 text-white">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 grid grid-cols-2 md:grid-cols-4 gap-6 text-center divide-x divide-slate-800">
+      <section className="py-5 sm:py-7 bg-slate-900 text-white">
+        <div className="max-w-4xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-3 text-center divide-x divide-slate-800">
           {statsList.map((s, index) => (
-            <div key={s.label || index} className={index > 0 ? 'pl-4 sm:pl-6' : ''}>
-              <p className="text-2xl sm:text-3xl font-serif font-black text-white">
+            <div key={s.label || index} className={index > 0 ? 'pl-2 sm:pl-4' : ''}>
+              <p className="text-lg sm:text-2xl font-serif font-black text-white">
                 {s.value}
               </p>
-              <p className="text-xs text-slate-400 mt-0.5 font-medium">
+              <p className="text-[10px] sm:text-[11px] text-slate-400 mt-0.5 font-medium">
                 {s.label}
               </p>
             </div>
@@ -202,6 +202,7 @@ const AboutPage = () => {
       <FAQSection
         title="Frequently Asked Questions"
         subtitle="Quick answers to common questions about our products, delivery, and returns."
+        className="py-6 sm:py-10"
       />
 
     </div>

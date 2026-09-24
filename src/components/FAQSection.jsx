@@ -163,15 +163,15 @@ const FAQSection = ({
 
         {/* Category Pills (Optional) */}
         {showCategories && categories.length > 2 && (
-          <div className="flex flex-wrap items-center justify-center gap-2 mb-8">
+          <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 max-w-xl mx-auto mb-8">
             {categories.map((cat) => (
               <button
                 key={cat}
                 onClick={() => setActiveCategory(cat)}
-                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                className={`px-3 py-1.5 rounded-lg text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${
                   activeCategory === cat
-                    ? 'bg-slate-900 text-white shadow-sm scale-105'
-                    : 'bg-slate-50 text-gray-600 hover:bg-slate-100 hover:text-slate-900 border border-gray-100'
+                    ? 'bg-slate-900 text-white shadow-xs scale-102'
+                    : 'bg-slate-50 text-gray-600 hover:bg-slate-100 hover:text-slate-900 border border-gray-200/80'
                 }`}
               >
                 {cat}
@@ -254,14 +254,19 @@ const FAQSection = ({
         </div>
 
         {/* Support Banner Footer */}
-        <div className="mt-10 p-5 sm:p-6 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 rounded-3xl text-white flex flex-col sm:flex-row items-center justify-between gap-4 shadow-lg">
-          <div className="flex items-center gap-3.5 text-center sm:text-left">
-            <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center text-[#ff2056] shrink-0">
-              <PhoneCall className="w-6 h-6" />
+        <div className="mt-8 sm:mt-12 p-5 sm:p-7 bg-slate-900 rounded-2xl sm:rounded-3xl text-white flex flex-col sm:flex-row items-center justify-between gap-5 sm:gap-6 shadow-xl border border-slate-800 relative overflow-hidden">
+          {/* Subtle background glow accent */}
+          <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-[#ff2056]/15 rounded-full blur-3xl pointer-events-none" />
+
+          <div className="flex flex-col sm:flex-row items-center sm:items-center gap-3 sm:gap-4 text-center sm:text-left z-10 w-full sm:w-auto">
+            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center text-[#ff2056] shrink-0 border border-white/10 shadow-inner">
+              <PhoneCall className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
-            <div>
-              <h4 className="text-sm font-bold text-white">Still have questions?</h4>
-              <p className="text-xs text-slate-300">
+            <div className="space-y-1 sm:space-y-0.5">
+              <h4 className="text-sm sm:text-base font-bold text-white tracking-tight">
+                Still have questions?
+              </h4>
+              <p className="text-xs text-slate-300 font-medium leading-relaxed max-w-xs sm:max-w-none">
                 Our support team is available 24/7 to help you with your order.
               </p>
             </div>
@@ -271,7 +276,7 @@ const FAQSection = ({
             href="https://wa.me/8801700000000"
             target="_blank"
             rel="noopener noreferrer"
-            className="bg-[#ff2056] hover:bg-[#e01648] text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-md flex items-center gap-2 whitespace-nowrap cursor-pointer hover:scale-105"
+            className="w-full sm:w-auto bg-[#ff2056] hover:bg-[#e01648] text-white px-5 py-3 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all shadow-lg shadow-[#ff2056]/25 flex items-center justify-center gap-2 whitespace-nowrap cursor-pointer hover:scale-[1.02] active:scale-[0.98] z-10"
           >
             <MessageSquare className="w-4 h-4" />
             <span>Chat on WhatsApp</span>

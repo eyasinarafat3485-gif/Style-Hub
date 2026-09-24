@@ -21,7 +21,7 @@ const getAvatarBgClass = (str) => {
   return bgColors[Math.abs(hash) % bgColors.length];
 };
 
-const UserAvatar = ({ userAvatar, name, bgClass = 'bg-[#ff2056]' }) => {
+const UserAvatar = ({ userAvatar, name, bgClass = 'bg-[#ff2056]', sizeClass = 'w-7 h-7 sm:w-9 sm:h-9' }) => {
   const [imgFailed, setImgFailed] = useState(false);
   const isValid =
     userAvatar &&
@@ -44,14 +44,14 @@ const UserAvatar = ({ userAvatar, name, bgClass = 'bg-[#ff2056]' }) => {
         alt={name}
         referrerPolicy="no-referrer"
         onError={() => setImgFailed(true)}
-        className="w-10 h-10 rounded-full object-cover border border-gray-200 shrink-0 shadow-xs"
+        className={`${sizeClass} rounded-full object-cover border border-gray-200 shrink-0 shadow-2xs`}
       />
     );
   }
 
   return (
     <div
-      className={`w-10 h-10 rounded-full ${bgClass} text-white font-black text-xs flex items-center justify-center shrink-0 shadow-xs uppercase border border-white/20`}
+      className={`${sizeClass} rounded-full ${bgClass} text-white font-black text-xs flex items-center justify-center shrink-0 shadow-2xs uppercase border border-white/20`}
     >
       {getInitials(name)}
     </div>
@@ -218,28 +218,28 @@ const CustomerReviews = () => {
             <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-[#fafaf9] to-transparent z-10 pointer-events-none hidden sm:block" />
 
             {/* Continuous Marquee Track displaying MongoDB reviews */}
-            <div className="animate-marquee-slow flex items-stretch gap-5 py-2">
+            <div className="animate-marquee-slow flex items-stretch gap-3 sm:gap-5 py-2">
               {marqueeItems.map((item, idx) => (
                 <div
                   key={`db-rev-${item.id}-${idx}`}
-                  className="w-[300px] sm:w-[340px] shrink-0 bg-white rounded-2xl border border-gray-200/90 p-6 shadow-xs hover:shadow-md hover:border-rose-300 transition-all duration-300 flex flex-col justify-between group"
+                  className="w-[220px] xs:w-[250px] sm:w-[320px] shrink-0 bg-white rounded-xl sm:rounded-2xl border border-gray-200/90 p-3.5 sm:p-5 shadow-2xs hover:shadow-md hover:border-rose-300 transition-all duration-300 flex flex-col justify-between group"
                 >
                   <div>
                     {/* Header: Quotation Marks & Product Tag with Thumbnail */}
-                    <div className="flex items-center justify-between mb-3 gap-2">
-                      <div className="text-3xl font-serif font-black text-rose-300/80 leading-none select-none">
+                    <div className="flex items-center justify-between mb-2 sm:mb-3 gap-1.5">
+                      <div className="text-xl sm:text-2xl font-serif font-black text-rose-300/80 leading-none select-none">
                         ““
                       </div>
                       {item.productName && (
-                        <div className="flex items-center gap-1.5 bg-rose-50 border border-rose-100 px-2.5 py-1 rounded-full max-w-[170px]">
+                        <div className="flex items-center gap-1 bg-rose-50 border border-rose-100 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full max-w-[120px] sm:max-w-[170px]">
                           {item.productImage && (
                             <img
                               src={item.productImage}
                               alt={item.productName}
-                              className="w-4 h-4 rounded-full object-cover shrink-0"
+                              className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full object-cover shrink-0"
                             />
                           )}
-                          <span className="text-[10px] text-[#ff2056] font-bold truncate">
+                          <span className="text-[9px] sm:text-[10px] text-[#ff2056] font-bold truncate">
                             {item.productName}
                           </span>
                         </div>
@@ -247,13 +247,13 @@ const CustomerReviews = () => {
                     </div>
 
                     {/* Review Comment from MongoDB */}
-                    <p className="text-xs sm:text-[13px] text-gray-700 leading-relaxed italic font-normal">
+                    <p className="text-[11px] sm:text-xs md:text-[13px] text-gray-700 leading-snug sm:leading-relaxed italic font-normal line-clamp-3 sm:line-clamp-none">
                       "{item.comment}"
                     </p>
                   </div>
 
                   {/* Reviewer User Profile (User Avatar / User Initials Circle) */}
-                  <div className="flex items-center gap-3 pt-5 mt-4 border-t border-gray-100">
+                  <div className="flex items-center gap-2 sm:gap-3 pt-2.5 mt-2.5 sm:pt-4 sm:mt-3 border-t border-gray-100">
                     <UserAvatar
                       userAvatar={
                         item.userAvatar ||
@@ -263,14 +263,15 @@ const CustomerReviews = () => {
                       }
                       name={item.name}
                       bgClass={item.avatarBg}
+                      sizeClass="w-7 h-7 sm:w-9 sm:h-9"
                     />
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
-                        <h4 className="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-[#ff2056] transition-colors truncate">
+                        <h4 className="text-[11px] sm:text-xs md:text-sm font-bold text-slate-900 group-hover:text-[#ff2056] transition-colors truncate">
                           {item.name}
                         </h4>
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 fill-emerald-100 shrink-0 ml-1" />
+                        <CheckCircle2 className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-emerald-600 fill-emerald-100 shrink-0 ml-1" />
                       </div>
 
                       {/* Rating Stars matching MongoDB rating */}
@@ -278,7 +279,7 @@ const CustomerReviews = () => {
                         {[...Array(5)].map((_, i) => (
                           <Star
                             key={i}
-                            className={`w-3 h-3 ${
+                            className={`w-2.5 h-2.5 sm:w-3 sm:h-3 ${
                               i < item.rating
                                 ? 'fill-amber-400 text-amber-400'
                                 : 'text-gray-200'

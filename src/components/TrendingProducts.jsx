@@ -71,57 +71,54 @@ const TrendingProducts = () => {
     <section className="py-12 bg-white border-b border-gray-100">
       <div className="max-w-7xl mx-auto px-4">
         {/* Section Header */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="w-2 h-2 rounded-full bg-[#ff2056] animate-ping" />
-              <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-widest text-[#ff2056]">
+        <div className="flex items-center justify-between gap-2 mb-6 border-b border-gray-100 pb-3">
+          <div className="min-w-0">
+            <div className="flex items-center gap-1.5 mb-0.5 whitespace-nowrap">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#ff2056] animate-ping shrink-0" />
+              <span className="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-[#ff2056]">
                 Glam & Grace Showcase
               </span>
             </div>
-            <h2 className="font-serif text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+            <h2 className="font-serif text-lg sm:text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight whitespace-nowrap truncate">
               Trending Now
             </h2>
-            <p className="text-xs text-gray-500 font-medium mt-0.5">
-              Our most popular luxury fashion picks this season
-            </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
             {/* Left & Right Navigation Controls */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 sm:gap-1.5">
               <button
                 onClick={() => handleScroll('left')}
                 disabled={!canScrollLeft}
-                className={`p-2 rounded-full border transition-all cursor-pointer ${
+                className={`w-7 h-7 sm:w-9 sm:h-9 rounded-full border flex items-center justify-center transition-all cursor-pointer ${
                   canScrollLeft
-                    ? 'border-gray-300 text-slate-800 hover:bg-slate-900 hover:text-white hover:border-slate-900'
-                    : 'border-gray-200 text-gray-300 cursor-not-allowed opacity-50'
+                    ? 'bg-white hover:bg-slate-900 hover:text-white text-slate-800 border-gray-300 shadow-2xs'
+                    : 'bg-slate-50 text-gray-300 border-gray-100 cursor-not-allowed opacity-50'
                 }`}
                 title="Scroll left"
               >
-                <ChevronLeft className="w-4 h-4" />
+                <ChevronLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </button>
               <button
                 onClick={() => handleScroll('right')}
                 disabled={!canScrollRight}
-                className={`p-2 rounded-full border transition-all cursor-pointer ${
+                className={`w-7 h-7 sm:w-9 sm:h-9 rounded-full border flex items-center justify-center transition-all cursor-pointer ${
                   canScrollRight
-                    ? 'border-gray-300 text-slate-800 hover:bg-[#ff2056] hover:text-white hover:border-[#ff2056]'
-                    : 'border-gray-200 text-gray-300 cursor-not-allowed opacity-50'
+                    ? 'bg-white hover:bg-[#ff2056] hover:text-white text-slate-800 border-gray-300 shadow-2xs'
+                    : 'bg-slate-50 text-gray-300 border-gray-100 cursor-not-allowed opacity-50'
                 }`}
                 title="Scroll right"
               >
-                <ChevronRight className="w-4 h-4" />
+                <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </button>
             </div>
 
             <Link
               to="/shop"
-              className="flex items-center gap-1 text-xs font-bold text-slate-900 hover:text-[#ff2056] transition-colors group ml-2"
+              className="inline-flex items-center gap-0.5 sm:gap-1 text-xs sm:text-sm font-bold text-slate-900 hover:text-[#ff2056] transition-colors whitespace-nowrap shrink-0 pl-1 group cursor-pointer"
             >
               <span>View all</span>
-              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+              <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
         </div>

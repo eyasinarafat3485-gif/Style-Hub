@@ -1,64 +1,58 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Sparkles, Tag, GraduationCap } from 'lucide-react';
+import { useSiteSettings, DEFAULT_SITE_SETTINGS } from '../context/SiteSettingsContext';
+
+const colorPresets = {
+  amber: {
+    badgeIcon: Sparkles,
+    badgeClass: 'text-amber-700 bg-amber-100/80 border-amber-200',
+    buttonClass: 'bg-[#ff2056] hover:bg-[#e01648] text-white shadow-[#ff2056]/20',
+    bgClass: 'bg-gradient-to-br from-[#faf7f2] via-[#f5efe6] to-[#ebe1d3]/40 border-[#e8dfd3]',
+    gradientFade: 'from-[#faf7f2]',
+  },
+  emerald: {
+    badgeIcon: Tag,
+    badgeClass: 'text-emerald-800 bg-emerald-100/80 border-emerald-200',
+    buttonClass: 'bg-slate-900 hover:bg-black text-white shadow-slate-900/20',
+    bgClass: 'bg-gradient-to-br from-[#f8f9fa] via-[#f1f4f6] to-[#e5ebf0]/50 border-[#dde3e8]',
+    gradientFade: 'from-[#f8f9fa]',
+  },
+  rose: {
+    badgeIcon: GraduationCap,
+    badgeClass: 'text-rose-700 bg-rose-100/80 border-rose-200',
+    buttonClass: 'bg-[#ff2056] hover:bg-[#e01648] text-white shadow-[#ff2056]/20',
+    bgClass: 'bg-gradient-to-br from-[#fdf6f7] via-[#faebed] to-[#f4d9dd]/40 border-[#f2d4d9]',
+    gradientFade: 'from-[#fdf6f7]',
+  },
+};
 
 const PromoBanners = () => {
+  const { settings } = useSiteSettings();
+  const rawBanners = settings?.promoBanners?.length
+    ? settings.promoBanners.filter((b) => b.active !== false)
+    : DEFAULT_SITE_SETTINGS.promoBanners;
+
+  const dynamicBanners = (rawBanners.length > 0 ? rawBanners : DEFAULT_SITE_SETTINGS.promoBanners).map((b, i) => {
+    const colorKey = b.badgeColor || (i === 0 ? 'amber' : i === 1 ? 'emerald' : 'rose');
+    const preset = colorPresets[colorKey] || colorPresets.amber;
+    return {
+      ...b,
+      badgeIcon: preset.badgeIcon,
+      badgeClass: preset.badgeClass,
+      buttonClass: preset.buttonClass,
+      bgClass: preset.bgClass,
+      gradientFade: preset.gradientFade,
+    };
+  });
+
   const sectionRef = useRef(null);
   const scrollRef = useRef(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [isInView, setIsInView] = useState(false);
 
-  const banners = [
-    {
-      id: 1,
-      badge: 'Summer Edit',
-      badgeIcon: Sparkles,
-      badgeClass: 'text-amber-700 bg-amber-100/80 border-amber-200',
-      title: 'Up to 40% Off',
-      description: 'Light, breathable & fresh seasonal styles.',
-      buttonText: 'Shop Now',
-      buttonClass: 'bg-[#ff2056] hover:bg-[#e01648] text-white shadow-[#ff2056]/20',
-      link: '/shop?category=Women',
-      bgClass: 'bg-gradient-to-br from-[#faf7f2] via-[#f5efe6] to-[#ebe1d3]/40 border-[#e8dfd3]',
-      // High-fashion female model in elegant summer dress
-      image: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=600&auto=format&fit=crop&q=80',
-      alt: 'Summer Fashion Collection',
-      gradientFade: 'from-[#faf7f2]',
-    },
-    {
-      id: 2,
-      badge: 'Panjabi & Ethnic',
-      badgeIcon: Tag,
-      badgeClass: 'text-emerald-800 bg-emerald-100/80 border-emerald-200',
-      title: 'New Arrivals',
-      description: 'Exquisite designs for festive occasions.',
-      buttonText: 'Explore',
-      buttonClass: 'bg-slate-900 hover:bg-black text-white shadow-slate-900/20',
-      link: '/shop?category=Panjabi',
-      bgClass: 'bg-gradient-to-br from-[#f8f9fa] via-[#f1f4f6] to-[#e5ebf0]/50 border-[#dde3e8]',
-      // Handsome male model in elegant traditional kurta/ethnic wear
-      image: 'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=600&auto=format&fit=crop&q=80',
-      alt: 'Panjabi Collection Men',
-      gradientFade: 'from-[#f8f9fa]',
-    },
-    {
-      id: 3,
-      badge: 'Student Offer',
-      badgeIcon: GraduationCap,
-      badgeClass: 'text-rose-700 bg-rose-100/80 border-rose-200',
-      title: 'Extra 10% Off',
-      description: 'Verify your student ID & save instantly.',
-      buttonText: 'Get Discount',
-      buttonClass: 'bg-[#ff2056] hover:bg-[#e01648] text-white shadow-[#ff2056]/20',
-      link: '/shop',
-      bgClass: 'bg-gradient-to-br from-[#fdf6f7] via-[#faebed] to-[#f4d9dd]/40 border-[#f2d4d9]',
-      // Trendy young fashion model in stylish streetwear/casual outfit
-      image: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=600&auto=format&fit=crop&q=80',
-      alt: 'Student Casual Wear',
-      gradientFade: 'from-[#fdf6f7]',
-    },
-  ];
+  const banners = dynamicBanners;
 
   // Observe if section is visible in viewport so it only animates when user is looking at it
   useEffect(() => {

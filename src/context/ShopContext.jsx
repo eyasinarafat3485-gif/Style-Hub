@@ -806,8 +806,28 @@ export const ShopProvider = ({ children }) => {
     }
   };
 
-  const clearCart = () => {
+  const clearCart = async () => {
     setCart([]);
+    try {
+      localStorage.setItem('stylehub_cart', JSON.stringify([]));
+      localStorage.removeItem('stylehub_cart');
+    } catch (err) {
+      console.warn('Failed to clear cart from localStorage:', err);
+    }
+
+    const token = localStorage.getItem('stylehub_token') || localStorage.getItem('stylehub_auth_token');
+    if (token) {
+      try {
+        await fetch(`${API_BASE_URL}/my-collections/clear/cart`, {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+      } catch (err) {
+        console.warn('Failed to clear user cart collection in MongoDB:', err.message);
+      }
+    }
   };
 
   const isWishlisted = (id) => {

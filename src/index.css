@@ -1,5 +1,12 @@
 @import "tailwindcss";
 
+:root {
+  --brand-primary: #ff2056;
+  --brand-secondary: #e01648;
+  --brand-accent: #f43f5e;
+  --brand-font: 'Plus Jakarta Sans', sans-serif;
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;
@@ -8,7 +15,7 @@
   }
 
   body {
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--brand-font, 'Plus Jakarta Sans', sans-serif);
     overflow-x: hidden;
     max-width: 100vw;
   }

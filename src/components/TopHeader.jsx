@@ -1,34 +1,33 @@
 import React from 'react';
 import { Truck, RotateCcw, Banknote, Headset, ShieldCheck, Sparkles } from 'lucide-react';
+import { useSiteSettings } from '../context/SiteSettingsContext';
 
-const announcements = [
-  {
-    icon: Truck,
-    text: 'Free Delivery on orders over ৳1499',
-  },
-  {
-    icon: RotateCcw,
-    text: '30 Days Easy Returns & Exchange',
-  },
-  {
-    icon: Banknote,
-    text: 'Cash on Delivery Available Nationwide',
-  },
-  {
-    icon: ShieldCheck,
-    text: '100% Authentic Quality Guaranteed',
-  },
-  {
-    icon: Headset,
-    text: '24/7 Dedicated Help & Support',
-  },
-  {
-    icon: Sparkles,
-    text: 'New Season Collections & Trending Outfits',
-  },
+const defaultIcons = [Truck, RotateCcw, Banknote, ShieldCheck, Headset, Sparkles];
+
+const defaultAnnouncements = [
+  'Free Delivery on orders over ৳1499',
+  '30 Days Easy Returns & Exchange',
+  'Cash on Delivery Available Nationwide',
+  '100% Authentic Quality Guaranteed',
+  '24/7 Dedicated Help & Support',
+  'New Season Collections & Trending Outfits',
 ];
 
 const TopHeader = () => {
+  const { settings } = useSiteSettings();
+
+  const enabled = settings?.topNotice?.enabled !== false;
+  if (!enabled) return null;
+
+  const rawList = settings?.topNotice?.announcements?.length
+    ? settings.topNotice.announcements
+    : defaultAnnouncements;
+
+  const list = rawList.map((text, idx) => ({
+    icon: defaultIcons[idx % defaultIcons.length],
+    text,
+  }));
+
   return (
     <div className="bg-[#ff2056] text-white text-xs font-semibold py-2.5 overflow-hidden border-b border-rose-400/30 select-none relative z-30">
       <div className="max-w-7xl mx-auto px-4 relative">
@@ -40,7 +39,7 @@ const TopHeader = () => {
           {/* Continuous Right-to-Left Infinite Marquee Carousel (Centered) */}
           <div className="animate-marquee flex items-center gap-12 sm:gap-16 whitespace-nowrap pr-12 sm:pr-16">
             {/* Set 1 */}
-            {announcements.map((item, idx) => {
+            {list.map((item, idx) => {
               const Icon = item.icon;
               return (
                 <div
@@ -56,7 +55,7 @@ const TopHeader = () => {
             })}
 
             {/* Set 2 for Infinite Seamless Loop */}
-            {announcements.map((item, idx) => {
+            {list.map((item, idx) => {
               const Icon = item.icon;
               return (
                 <div
@@ -72,7 +71,7 @@ const TopHeader = () => {
             })}
 
             {/* Set 3 for Seamless Loop on Ultra-Wide / Zoom-out */}
-            {announcements.map((item, idx) => {
+            {list.map((item, idx) => {
               const Icon = item.icon;
               return (
                 <div

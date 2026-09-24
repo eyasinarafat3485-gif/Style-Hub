@@ -11,6 +11,7 @@ import {
   PhoneCall,
   Sparkles,
 } from 'lucide-react';
+import { useSiteSettings } from '../context/SiteSettingsContext';
 
 const defaultFaqs = [
   {
@@ -85,31 +86,34 @@ const FAQSection = ({
   defaultCategory = 'All',
   showCategories = true,
   showSearch = true,
-  items = defaultFaqs,
+  items,
   className = '',
 }) => {
+  const { settings } = useSiteSettings();
+  const activeItems = items || (settings?.pageContent?.faq?.length ? settings.pageContent.faq : defaultFaqs);
+
   const [activeCategory, setActiveCategory] = useState(defaultCategory);
   const [searchQuery, setSearchQuery] = useState('');
   const [openIds, setOpenIds] = useState(['faq-1', 'faq-3']); // First and third open by default
 
   const categories = useMemo(() => {
-    const unique = Array.from(new Set(items.map((item) => item.category)));
+    const unique = Array.from(new Set(activeItems.map((item) => item.category || 'General')));
     return ['All', ...unique];
-  }, [items]);
+  }, [activeItems]);
 
   const filteredFaqs = useMemo(() => {
-    return items.filter((faq) => {
+    return activeItems.filter((faq) => {
       const matchesCategory =
-        activeCategory === 'All' || faq.category === activeCategory;
+        activeCategory === 'All' || (faq.category || 'General') === activeCategory;
       const query = searchQuery.toLowerCase().trim();
       const matchesSearch =
         !query ||
         faq.question.toLowerCase().includes(query) ||
         faq.answer.toLowerCase().includes(query) ||
-        faq.category.toLowerCase().includes(query);
+        (faq.category && faq.category.toLowerCase().includes(query));
       return matchesCategory && matchesSearch;
     });
-  }, [items, activeCategory, searchQuery]);
+  }, [activeItems, activeCategory, searchQuery]);
 
   const toggleFaq = (id) => {
     setOpenIds((prev) =>

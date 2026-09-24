@@ -1,5 +1,6 @@
 import React from 'react';
 import { Heart, Sparkles, Tag, Headset } from 'lucide-react';
+import { useSiteSettings } from '../context/SiteSettingsContext';
 
 const reasons = [
   {
@@ -29,11 +30,14 @@ const reasons = [
 ];
 
 const WhyChooseUs = () => {
+  const { settings } = useSiteSettings();
+  const brandName = settings?.branding?.logoText || 'StyleHub';
+
   return (
     <section className="py-10 sm:py-14 bg-white border-b border-gray-100">
       <div className="max-w-7xl mx-auto px-4 text-center">
         <h2 className="font-serif text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight mb-6 sm:mb-8">
-          Why Choose StyleHub?
+          Why Choose {brandName}?
         </h2>
 
         {/* 2 Cards per line on mobile, 4 Cards on Desktop */}

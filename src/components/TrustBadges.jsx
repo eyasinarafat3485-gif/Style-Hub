@@ -1,7 +1,18 @@
 import React from 'react';
-import { Headset, Truck, RotateCcw, ShieldCheck, Banknote } from 'lucide-react';
+import { Headset, Truck, RotateCcw, ShieldCheck, Banknote, Sparkles, Award } from 'lucide-react';
+import { useSiteSettings, DEFAULT_SITE_SETTINGS } from '../context/SiteSettingsContext';
 
-const badges = [
+const iconMap = {
+  Headset,
+  Truck,
+  RotateCcw,
+  ShieldCheck,
+  Banknote,
+  Sparkles,
+  Award,
+};
+
+const defaultBadges = [
   {
     icon: Headset,
     title: '24/7 Support',
@@ -30,6 +41,16 @@ const badges = [
 ];
 
 const TrustBadges = () => {
+  const { settings } = useSiteSettings();
+  const rawBadges = settings?.pageContent?.trustBadges?.length
+    ? settings.pageContent.trustBadges
+    : DEFAULT_SITE_SETTINGS.pageContent.trustBadges;
+
+  const badges = (rawBadges.length > 0 ? rawBadges : defaultBadges).map((item, idx) => ({
+    icon: (typeof item.icon === 'string' ? iconMap[item.icon] : item.icon) || defaultBadges[idx % defaultBadges.length].icon,
+    title: item.title,
+    desc: item.desc,
+  }));
   return (
     <section className="bg-white border-b border-gray-100 py-3.5 sm:py-4 select-none overflow-hidden relative">
       <div className="max-w-7xl mx-auto px-4 relative">

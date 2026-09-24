@@ -323,7 +323,7 @@ const CheckoutPage = () => {
       if (res.ok && data.success) {
         toast.success('🎉 Order confirmed successfully!');
         setPlacedOrder(data.order);
-        clearCart();
+        await clearCart();
       } else {
         toast.error(data.message || 'Failed to place order. Please try again.');
       }

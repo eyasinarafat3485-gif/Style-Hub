@@ -1,3 +1,151 @@
+// import React, { useState, useEffect } from 'react';
+// import { Link } from 'react-router-dom';
+// import { ChevronLeft, ChevronRight, CheckCircle2 } from 'lucide-react';
+// import { useSiteSettings, DEFAULT_SITE_SETTINGS } from '../context/SiteSettingsContext';
+
+// const HeroSlider = () => {
+//   const { settings } = useSiteSettings();
+//   const rawSlides = settings?.heroSlider?.length
+//     ? settings.heroSlider.filter((s) => s.active !== false)
+//     : DEFAULT_SITE_SETTINGS.heroSlider;
+
+//   const slides = rawSlides.length > 0 ? rawSlides : DEFAULT_SITE_SETTINGS.heroSlider;
+
+//   const [current, setCurrent] = useState(0);
+
+//   useEffect(() => {
+//     if (slides.length <= 1) return;
+//     const timer = setInterval(() => {
+//       setCurrent((prev) => (prev + 1) % slides.length);
+//     }, 6000);
+//     return () => clearInterval(timer);
+//   }, [slides.length]);
+
+//   // Handle out-of-bounds current index when slides array updates
+//   const activeIndex = current >= slides.length ? 0 : current;
+//   const slide = slides[activeIndex] || DEFAULT_SITE_SETTINGS.heroSlider[0];
+
+//   const nextSlide = () => setCurrent((prev) => (prev + 1) % slides.length);
+//   const prevSlide = () => setCurrent((prev) => (prev - 1 + slides.length) % slides.length);
+
+//   return (
+//     <section className="relative w-full overflow-hidden bg-stone-100 border-b border-gray-200">
+//       <div className={`transition-all duration-700 bg-gradient-to-r ${slide.bgGradient || 'from-stone-100 via-rose-50/40 to-amber-50/30'} py-12`}>
+//         <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center min-h-[460px]">
+
+//           {/* Right Hero Image Frame */}
+//           <div className="order-1 lg:order-2 lg:col-span-6 relative flex justify-center items-center">
+//             <div className="relative w-full max-w-lg aspect-[4/3] sm:aspect-[16/11] lg:aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl border-4 border-white/80">
+//               <img
+//                 src={slide.image}
+//                 alt={slide.badge || 'Hero Banner'}
+//                 className="w-full h-full object-cover object-top transition-transform duration-1000 transform hover:scale-105"
+//               />
+//               <div className="absolute inset-0 bg-gradient-to-t from-slate-900/30 via-transparent to-transparent"></div>
+//             </div>
+//           </div>
+
+//           {/* Left Hero Content */}
+//           <div className="order-2 lg:order-1 lg:col-span-6 space-y-4 sm:space-y-6 z-10 animate-fade-in pl-2 lg:pl-6 text-center lg:text-left">
+//             {slide.badge && (
+//               <span className="inline-block px-3.5 py-1 text-xs font-extrabold tracking-widest text-[#ff2056] bg-rose-100/90 rounded-sm uppercase">
+//                 {slide.badge}
+//               </span>
+//             )}
+
+//             <h1 className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-[40px] font-bold text-slate-900 leading-[1.18] tracking-tight">
+//               {slide.titleStart}
+//               {slide.titleHighlight && (
+//                 <span className="text-[#ff2056] underline decoration-rose-400 decoration-wavy decoration-2 ml-1">
+//                   {slide.titleHighlight}
+//                 </span>
+//               )}
+//             </h1>
+
+//             <p className="text-xs sm:text-base text-gray-600 max-w-lg mx-auto lg:mx-0 leading-relaxed font-medium">
+//               {slide.subtitle}
+//             </p>
+
+//             {/* CTA Buttons */}
+//             <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 sm:gap-4 pt-2">
+//               {slide.primaryBtnText && (
+//                 <Link
+//                   to={slide.primaryBtnLink || '/shop'}
+//                   className="bg-[#ff2056] hover:bg-[#e01648] text-white px-6 sm:px-7 py-2.5 sm:py-3 rounded-md text-xs sm:text-sm font-bold tracking-wide transition-all shadow-md hover:shadow-xl hover:-translate-y-0.5"
+//                 >
+//                   {slide.primaryBtnText}
+//                 </Link>
+//               )}
+//               {slide.secondaryBtnText && (
+//                 <Link
+//                   to={slide.secondaryBtnLink || '/shop'}
+//                   className="border-2 border-gray-800 hover:border-[#ff2056] text-gray-800 hover:text-[#ff2056] px-6 sm:px-7 py-2.5 sm:py-3 rounded-md text-xs sm:text-sm font-bold tracking-wide transition-all bg-white/60 hover:bg-white"
+//                 >
+//                   {slide.secondaryBtnText}
+//                 </Link>
+//               )}
+//             </div>
+
+//             {/* Features check list */}
+//             <div className="pt-3 sm:pt-4 flex flex-wrap items-center justify-center lg:justify-start gap-4 sm:gap-6 text-xs font-semibold text-gray-700">
+//               <div className="flex items-center gap-1.5">
+//                 <CheckCircle2 className="w-4 h-4 text-[#ff2056]" />
+//                 <span>Premium Quality</span>
+//               </div>
+//               <div className="flex items-center gap-1.5">
+//                 <CheckCircle2 className="w-4 h-4 text-[#ff2056]" />
+//                 <span>Trendy Designs</span>
+//               </div>
+//               <div className="flex items-center gap-1.5">
+//                 <CheckCircle2 className="w-4 h-4 text-[#ff2056]" />
+//                 <span>Best Prices</span>
+//               </div>
+//             </div>
+//           </div>
+
+//         </div>
+//       </div>
+
+//       {/* Navigation Arrows */}
+//       {slides.length > 1 && (
+//         <>
+//           <button
+//             onClick={prevSlide}
+//             className="absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 p-2 sm:p-2.5 rounded-full shadow-lg backdrop-blur-sm transition-all hover:scale-110 z-20 cursor-pointer"
+//             aria-label="Previous slide"
+//           >
+//             <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+//           </button>
+
+//           <button
+//             onClick={nextSlide}
+//             className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 p-2 sm:p-2.5 rounded-full shadow-lg backdrop-blur-sm transition-all hover:scale-110 z-20 cursor-pointer"
+//             aria-label="Next slide"
+//           >
+//             <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
+//           </button>
+
+//           {/* Pagination Dots */}
+//           <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-2 z-20">
+//             {slides.map((_, idx) => (
+//               <button
+//                 key={idx}
+//                 onClick={() => setCurrent(idx)}
+//                 className={`w-2.5 h-2.5 rounded-full transition-all cursor-pointer ${activeIndex === idx ? 'bg-[#ff2056] w-6' : 'bg-gray-400/60 hover:bg-gray-600'
+//                   }`}
+//                 aria-label={`Go to slide ${idx + 1}`}
+//               />
+//             ))}
+//           </div>
+//         </>
+//       )}
+//     </section>
+//   );
+// };
+
+// export default HeroSlider;
+
+
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, CheckCircle2 } from 'lucide-react';

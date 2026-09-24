@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { ShopProvider } from './context/ShopContext';
 import { AuthProvider } from './context/AuthContext';
+import { SiteSettingsProvider } from './context/SiteSettingsContext';
 import ScrollToTop from './components/ScrollToTop';
 import TopHeader from './components/TopHeader';
 import Navbar from './components/Navbar';
@@ -119,11 +120,13 @@ const MainLayout = () => {
 function App() {
   return (
     <AuthProvider>
-      <ShopProvider>
-        <BrowserRouter>
-          <MainLayout />
-        </BrowserRouter>
-      </ShopProvider>
+      <SiteSettingsProvider>
+        <ShopProvider>
+          <BrowserRouter>
+            <MainLayout />
+          </BrowserRouter>
+        </ShopProvider>
+      </SiteSettingsProvider>
     </AuthProvider>
   );
 }

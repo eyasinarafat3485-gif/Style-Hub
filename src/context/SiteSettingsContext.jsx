@@ -303,7 +303,7 @@ export const SiteSettingsProvider = ({ children }) => {
   // Fetch settings from API
   const fetchSettings = useCallback(async () => {
     try {
-      const res = await fetch(`${API_BASE_URL}/settings`);
+      const res = await fetch(`${API_BASE_URL}/settings`, { cache: 'no-store' });
       if (!res.ok) throw new Error('Failed to load settings');
       const data = await res.json();
 

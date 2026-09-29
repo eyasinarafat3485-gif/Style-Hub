@@ -250,7 +250,7 @@ export const ShopProvider = ({ children }) => {
   // Fetch Categories from Backend
   const fetchCategories = async () => {
     try {
-      const res = await fetch(`${API_BASE_URL}/categories`);
+      const res = await fetch(`${API_BASE_URL}/categories`, { cache: 'no-store' });
       const data = await res.json();
       if (data.success && Array.isArray(data.categories)) {
         setCategories(data.categories);
@@ -263,7 +263,7 @@ export const ShopProvider = ({ children }) => {
   // Fetch Brands from Backend
   const fetchBrands = async () => {
     try {
-      const res = await fetch(`${API_BASE_URL}/brands`);
+      const res = await fetch(`${API_BASE_URL}/brands`, { cache: 'no-store' });
       const data = await res.json();
       if (data.success && Array.isArray(data.brands)) {
         setBrands(data.brands);
@@ -276,7 +276,7 @@ export const ShopProvider = ({ children }) => {
   // Fetch Tags from Backend
   const fetchTags = async () => {
     try {
-      const res = await fetch(`${API_BASE_URL}/tags`);
+      const res = await fetch(`${API_BASE_URL}/tags`, { cache: 'no-store' });
       const data = await res.json();
       if (data.success && Array.isArray(data.tags)) {
         setTags(data.tags);
@@ -289,7 +289,7 @@ export const ShopProvider = ({ children }) => {
   // Fetch Attributes from Backend
   const fetchAttributes = async () => {
     try {
-      const res = await fetch(`${API_BASE_URL}/attributes`);
+      const res = await fetch(`${API_BASE_URL}/attributes`, { cache: 'no-store' });
       const data = await res.json();
       if (data.success && Array.isArray(data.attributes)) {
         setAttributes(data.attributes);
@@ -305,6 +305,7 @@ export const ShopProvider = ({ children }) => {
 
     try {
       const res = await fetch(`${API_BASE_URL}/my-collections`, {
+        cache: 'no-store',
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -345,8 +346,11 @@ export const ShopProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    fetch(`${API_BASE_URL}/products`)
-      .then((res) => res.json())
+    fetch(`${API_BASE_URL}/products`, { cache: 'no-store' })
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
       .then((data) => {
         if (Array.isArray(data) && data.length > 0) {
           const normalized = data.map(normalizeProduct);
@@ -359,7 +363,7 @@ export const ShopProvider = ({ children }) => {
         }
       })
       .catch((err) => {
-        console.log("Connected to frontend cached data mode", err);
+        console.warn("Failed to fetch fresh products from backend:", err);
       });
 
     fetchUserCollections();

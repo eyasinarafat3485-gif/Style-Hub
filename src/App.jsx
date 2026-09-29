@@ -4,6 +4,7 @@ import { ShopProvider } from './context/ShopContext';
 import { AuthProvider } from './context/AuthContext';
 import { SiteSettingsProvider } from './context/SiteSettingsContext';
 import ScrollToTop from './components/ScrollToTop';
+import SmoothScroll from './components/SmoothScroll';
 import TopHeader from './components/TopHeader';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -58,7 +59,7 @@ const MainLayout = () => {
   // Regular Store Layout with Header and Footer
   return (
     <div className="min-h-screen bg-white text-slate-900 font-sans flex flex-col selection:bg-[#ff2056] selection:text-white overflow-x-hidden w-full">
-      <ScrollToTop />
+      <SmoothScroll />
       {/* Top announcement bar */}
       <TopHeader />
 

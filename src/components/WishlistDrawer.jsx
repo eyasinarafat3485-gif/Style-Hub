@@ -30,7 +30,7 @@ const WishlistDrawer = () => {
             </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-4 space-y-4 divide-y divide-gray-100">
+          <div data-lenis-prevent className="flex-1 overflow-y-auto p-4 space-y-4 divide-y divide-gray-100">
             {wishlist.length === 0 ? (
               <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-3">
                 <div className="p-4 bg-rose-50 rounded-full text-rose-500">

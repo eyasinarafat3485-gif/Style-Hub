@@ -275,7 +275,7 @@ const ProductQuickViewModal = () => {
       : (products || []).filter((p) => String(p.id) !== String(quickViewProduct.id)).slice(0, 4);
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-3 sm:p-4 md:p-6">
+    <div data-lenis-prevent className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-3 sm:p-4 md:p-6">
       {/* Backdrop overlay */}
       <div
         onClick={() => setQuickViewProduct(null)}
@@ -283,7 +283,7 @@ const ProductQuickViewModal = () => {
       />
 
       {/* Main Modal Container */}
-      <div className="relative bg-white rounded-3xl max-w-4xl w-full max-h-[90vh] shadow-2xl overflow-y-auto z-10 custom-scrollbar border border-gray-100 flex flex-col my-auto">
+      <div data-lenis-prevent className="relative bg-white rounded-3xl max-w-4xl w-full max-h-[90vh] shadow-2xl overflow-y-auto z-10 custom-scrollbar border border-gray-100 flex flex-col my-auto">
         
         {/* Sticky Modal Header / Close Button */}
         <div className="sticky top-0 z-30 bg-white/90 backdrop-blur-md px-6 py-4 border-b border-gray-100 flex items-center justify-between">

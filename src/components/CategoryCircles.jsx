@@ -8,13 +8,28 @@ const CategoryCircles = () => {
   const scrollRef = useRef(null);
   const [isHovered, setIsHovered] = useState(false);
 
-  // Map 100% organic database categories without any hardcoded category fallback
+  // Map database categories with resilient fallback so the section always displays seamlessly
   const displayCategories = React.useMemo(() => {
-    if (!categories || !Array.isArray(categories) || categories.length === 0) {
-      return [];
+    let list = [];
+    if (categories && Array.isArray(categories) && categories.length > 0) {
+      list = categories;
+    } else if (products && Array.isArray(products) && products.length > 0) {
+      const uniqueCatNames = Array.from(
+        new Set(products.map((p) => p.category?.trim()).filter(Boolean))
+      );
+      list = uniqueCatNames.map((name) => ({ name }));
+    } else {
+      list = [
+        { name: 'Bags', slug: '/category/bags', description: "Women's Trending Collections" },
+        { name: 'Shirt', slug: '#cotton', description: 'Premium quality' },
+        { name: 'Women', slug: '/category/women', description: "Women's Fashion & Silk Sarees" },
+        { name: 'T-Shirts', slug: '/category/t-shirts', description: 'Oversized & Polo T-Shirts' },
+        { name: 'Men', slug: '/category/men', description: "Men's Apparel & Accessories" },
+        { name: 'Panjabi', slug: '/category/panjabi', description: "Men's Panjabi & Ethnic Wear" },
+      ];
     }
 
-    return categories.map((c) => {
+    return list.map((c) => {
       const rawName = c.name?.trim() || 'Category';
       const catName = rawName.toLowerCase() === 'shirts' ? 'Shirt' : rawName;
 

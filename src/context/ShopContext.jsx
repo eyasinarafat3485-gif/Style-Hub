@@ -242,7 +242,23 @@ export const ShopProvider = ({ children }) => {
   }, [wishlist]);
 
   // Admin Metadata States
-  const [categories, setCategories] = useState([]);
+  const [categories, setCategories] = useState(() => {
+    try {
+      const cached = localStorage.getItem('stylehub_cached_categories');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (_) {}
+    return [
+      { name: 'Bags', slug: '/category/bags', description: "Women's Trending Collections" },
+      { name: 'Shirt', slug: '#cotton', description: 'Premium quality' },
+      { name: 'Women', slug: '/category/women', description: "Women's Fashion & Silk Sarees" },
+      { name: 'T-Shirts', slug: '/category/t-shirts', description: 'Oversized & Polo T-Shirts' },
+      { name: 'Men', slug: '/category/men', description: "Men's Apparel & Accessories" },
+      { name: 'Panjabi', slug: '/category/panjabi', description: "Men's Panjabi & Ethnic Wear" },
+    ];
+  });
   const [brands, setBrands] = useState([]);
   const [tags, setTags] = useState([]);
   const [attributes, setAttributes] = useState([]);
@@ -252,8 +268,11 @@ export const ShopProvider = ({ children }) => {
     try {
       const res = await fetch(`${API_BASE_URL}/categories`, { cache: 'no-store' });
       const data = await res.json();
-      if (data.success && Array.isArray(data.categories)) {
+      if (data.success && Array.isArray(data.categories) && data.categories.length > 0) {
         setCategories(data.categories);
+        try {
+          localStorage.setItem('stylehub_cached_categories', JSON.stringify(data.categories));
+        } catch (_) {}
       }
     } catch (err) {
       console.warn('Failed to fetch categories:', err.message);

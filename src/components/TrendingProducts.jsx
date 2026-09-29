@@ -2,6 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Heart, Star, ShoppingCart, ArrowRight, ChevronLeft, ChevronRight, Eye } from 'lucide-react';
 import { useShop } from '../context/ShopContext';
+import ProductImage from './ProductImage';
 
 const TrendingProducts = () => {
   const navigate = useNavigate();
@@ -175,10 +176,10 @@ const TrendingProducts = () => {
                     </button>
 
                     {/* Product Image with Zoom */}
-                    <img
+                    <ProductImage
                       src={product.image}
                       alt={productName}
-                      className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700"
+                      className="group-hover:scale-105 transition-transform duration-700"
                     />
 
                     {/* Center View Details Button (Desktop Hover) */}

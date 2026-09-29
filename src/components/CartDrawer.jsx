@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { X, Trash2, Plus, Minus, ShoppingCart, ArrowRight } from 'lucide-react';
 import { useShop } from '../context/ShopContext';
+import ProductImage from './ProductImage';
 
 const CartDrawer = () => {
   const { cart, isCartOpen, setIsCartOpen, removeFromCart, updateQuantity, cartTotal, formatPrice } = useShop();
@@ -60,11 +61,13 @@ const CartDrawer = () => {
             ) : (
               cart.map((item, idx) => (
                 <div key={idx} className="pt-4 first:pt-0 flex gap-3.5 items-center">
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    className="w-16 h-20 object-cover object-top rounded border border-gray-200"
-                  />
+                  <div className="w-16 h-20 rounded border border-gray-200 overflow-hidden shrink-0">
+                    <ProductImage
+                      src={item.image}
+                      alt={item.name}
+                      className="w-full h-full object-cover object-top"
+                    />
+                  </div>
                   <div className="flex-1 space-y-1">
                     <h4 className="text-xs font-bold text-slate-900 line-clamp-1">{item.name}</h4>
                     <p className="text-[11px] text-gray-500">Size: <span className="font-semibold text-slate-800">{item.selectedSize}</span></p>

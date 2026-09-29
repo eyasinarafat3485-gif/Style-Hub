@@ -1,6 +1,7 @@
 import React from 'react';
 import { X, Heart, ShoppingBag, Trash2 } from 'lucide-react';
 import { useShop } from '../context/ShopContext';
+import ProductImage from './ProductImage';
 
 const WishlistDrawer = () => {
   const { wishlist, isWishlistOpen, setIsWishlistOpen, toggleWishlist, addToCart, formatPrice } = useShop();
@@ -44,11 +45,13 @@ const WishlistDrawer = () => {
             ) : (
               wishlist.map((item) => (
                 <div key={item.id} className="pt-4 first:pt-0 flex gap-3.5 items-center">
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    className="w-16 h-20 object-cover object-top rounded border border-gray-200"
-                  />
+                  <div className="w-16 h-20 rounded border border-gray-200 overflow-hidden shrink-0">
+                    <ProductImage
+                      src={item.image}
+                      alt={item.name}
+                      className="w-full h-full object-cover object-top"
+                    />
+                  </div>
                   <div className="flex-1 space-y-1">
                     <h4 className="text-xs font-bold text-slate-900 line-clamp-1">{item.name}</h4>
                     <p className="text-xs font-extrabold text-[#ff2056]">{formatPrice(item.price)}</p>

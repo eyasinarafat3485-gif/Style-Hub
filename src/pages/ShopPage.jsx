@@ -2,6 +2,7 @@ import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Filter, SlidersHorizontal, Search, Star, ShoppingCart, Eye, Heart, ShoppingBag, ChevronDown, ChevronUp, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useShop } from '../context/ShopContext';
+import ProductImage from '../components/ProductImage';
 
 const ITEMS_PER_PAGE = 6;
 
@@ -494,10 +495,10 @@ const ShopPage = ({ initialCategory = '', initialFilter = '' }) => {
                               />
                             </button>
 
-                            <img
+                            <ProductImage
                               src={product.image}
                               alt={productName}
-                              className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700"
+                              className="group-hover:scale-105 transition-transform duration-700"
                             />
 
                             <button
@@ -577,10 +578,10 @@ const ShopPage = ({ initialCategory = '', initialFilter = '' }) => {
                           </button>
 
                           {/* Product Image with Zoom */}
-                          <img
+                          <ProductImage
                             src={product.image}
                             alt={productName}
-                            className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700"
+                            className="group-hover:scale-105 transition-transform duration-700"
                           />
 
                           {/* Center View Details Overlay */}

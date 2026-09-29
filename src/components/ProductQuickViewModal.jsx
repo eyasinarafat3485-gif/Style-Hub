@@ -18,6 +18,7 @@ import {
 import { useShop } from '../context/ShopContext';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
+import ProductImage from './ProductImage';
 
 const UserAvatar = ({ userAvatar, name, bgClass = 'bg-gradient-to-tr from-[#ff2056] to-rose-400' }) => {
   const [imgFailed, setImgFailed] = useState(false);
@@ -531,10 +532,10 @@ const ProductQuickViewModal = () => {
                   className="group cursor-pointer bg-slate-50 hover:bg-white rounded-2xl p-3 border border-gray-100 hover:border-rose-200 hover:shadow-md transition-all duration-300 flex flex-col justify-between"
                 >
                   <div className="relative aspect-[3/4] rounded-xl overflow-hidden bg-white mb-2">
-                    <img
+                    <ProductImage
                       src={rel.image}
                       alt={rel.name}
-                      className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300"
+                      className="group-hover:scale-105 transition-transform duration-300"
                     />
                     <div className="absolute inset-0 bg-slate-900/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                       <span className="bg-white/90 text-slate-900 text-[10px] font-extrabold px-2.5 py-1 rounded-full shadow flex items-center gap-1">

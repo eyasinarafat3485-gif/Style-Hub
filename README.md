@@ -1,8 +1,9 @@
 <div align="center">
 
-# 💎 StyleHub — Ultra-Luxury Fashion & Lifestyle E-Commerce Platform
+# 💎 StyleHub — Luxury Fashion E-Commerce Platform
 **A Next-Generation, Enterprise-Grade MERN Stack E-Commerce Solution Built for Premium Fashion Retailers.**
 <p align="center">
+ <a href="https://style-hub-brown.vercel.app/" target="_blank">
   <img
     src="https://i.ibb.co.com/Rq4Q461/stylehub1.png"
     alt="StyleHub Luxury Fashion Storefront Preview"
@@ -10,6 +11,7 @@
     height="450"
     style="max-width: 100%; object-fit: cover; border-radius: 12px; box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);"
   />
+</a>
 </p>
 
   <p align="center">

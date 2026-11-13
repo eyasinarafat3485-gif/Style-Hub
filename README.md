@@ -6,8 +6,8 @@
   <img
     src="https://i.ibb.co.com/Rq4Q461/stylehub1.png"
     alt="StyleHub Luxury Fashion Storefront Preview"
-    width="350"
-    height="250"
+    width="400"
+    height="450"
     style="max-width: 100%; object-fit: cover; border-radius: 12px; box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);"
   />
 </p>

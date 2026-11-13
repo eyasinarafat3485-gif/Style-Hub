@@ -2,7 +2,15 @@
 
 <div align="center">
 
-<img src="./assets/stylehub-preview.jpg" alt="StyleHub Luxury Fashion Storefront Preview" width="550" style="max-width: 100%; height: auto; border-radius: 12px; box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);" />
+<p align="center">
+  <img
+    src="https://i.ibb.co.com/Rq4Q461/stylehub1.png"
+    alt="StyleHub Luxury Fashion Storefront Preview"
+    width="350"
+    height="250"
+    style="max-width: 100%; object-fit: cover; border-radius: 12px; box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);"
+  />
+</p>
 
 [![Live Demo](https://img.shields.io/badge/Live_Storefront-style--hub--brown.vercel.app-ff2056?style=for-the-badge&logo=vercel&logoColor=white)](https://style-hub-brown.vercel.app/)
 [![API Status](https://img.shields.io/badge/Backend_API-style--hub--server--psi.vercel.app-10b981?style=for-the-badge&logo=node.js&logoColor=white)](https://style-hub-server-psi.vercel.app/api/health)

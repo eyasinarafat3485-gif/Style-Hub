@@ -1,7 +1,7 @@
-# 💎 StyleHub — Ultra-Luxury Fashion & Lifestyle E-Commerce Platform
-
 <div align="center">
 
+# 💎 StyleHub — Ultra-Luxury Fashion & Lifestyle E-Commerce Platform
+**A Next-Generation, Enterprise-Grade MERN Stack E-Commerce Solution Built for Premium Fashion Retailers.**
 <p align="center">
   <img
     src="https://i.ibb.co.com/Rq4Q461/stylehub1.png"
@@ -12,14 +12,17 @@
   />
 </p>
 
+  <p align="center">
+    <strong>An intuitive e-commerce platform delivering a lightning-fast shopping experience across all devices. It empowers customers with highly secure, worry-free logins and offers store owners a simplified dashboard for effortless business management.</strong>
+  </p>
+
+
 [![Live Demo](https://img.shields.io/badge/Live_Storefront-style--hub--brown.vercel.app-ff2056?style=for-the-badge&logo=vercel&logoColor=white)](https://style-hub-brown.vercel.app/)
 [![API Status](https://img.shields.io/badge/Backend_API-style--hub--server--psi.vercel.app-10b981?style=for-the-badge&logo=node.js&logoColor=white)](https://style-hub-server-psi.vercel.app/api/health)
 [![Developed By](https://img.shields.io/badge/Engineered_By-Bengal_IT-0284c7?style=for-the-badge&logo=codeforces&logoColor=white)](https://style-hub-brown.vercel.app/)
 [![License](https://img.shields.io/badge/License-Proprietary_Client_Project-amber?style=for-the-badge)](LICENSE)
 
 <br/>
-
-**A Next-Generation, Enterprise-Grade MERN Stack E-Commerce Solution Built for Premium Fashion Retailers.**
 
 [Explore Live Storefront](https://style-hub-brown.vercel.app/) • [API Health Monitor](https://style-hub-server-psi.vercel.app/api/health) • [Key Features](#-key-features) • [Tech Stack](#-technology-stack) • [API Reference](#-restful-api-reference) • [Setup Guide](#-local-installation--setup)
 
